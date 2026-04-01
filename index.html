@@ -53,7 +53,7 @@
   <div class="card">
     <h3>Purchase & Financing</h3>
     <div class="input-group">
-      <div><label>Purchase Price</label><input class="dollar" id="price" type="text" value="500,000"></div>
+      <div><label>Purchase Price</label><input class="dollar" id="price" type="text" value="$500,000"></div>
       <div><label>Down Payment</label><input class="percent" id="down" type="text" value="40%"></div>
       <div><label>Interest Rate</label><input class="percent" id="rate" type="text" value="6.5%"></div>
       <div><label>Loan Term (Years)</label><input id="term" type="number" value="30"></div>
@@ -64,13 +64,13 @@
   <div class="card">
     <h3>Income & Expenses</h3>
     <div class="input-group">
-      <div><label>Monthly Rent</label><input class="dollar" id="rent" type="text" value="2,800"></div>
+      <div><label>Monthly Rent</label><input class="dollar" id="rent" type="text" value="$2,800"></div>
       <div><label>Rent Growth</label><input class="percent" id="rentGrowth" type="text" value="3%"></div>
       <div><label>Vacancy</label><input class="percent" id="vacancy" type="text" value="8%"></div>
       <div><label>Management</label><input class="percent" id="management" type="text" value="20%"></div>
       <div><label>Maintenance</label><input class="percent" id="maintenance" type="text" value="10%"></div>
-      <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="9,600"></div>
-      <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="3,000"></div>
+      <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="$9,600"></div>
+      <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="$3,000"></div>
       <div><label>Expense Growth</label><input class="percent" id="expenseGrowth" type="text" value="3%"></div>
     </div>
   </div>
@@ -100,11 +100,12 @@
 </div>
 
 <script>
-function fmt(n){return n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}
+function fmt(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}
 function pct(n){return n.toFixed(1)+"%"}
 function cls(v){return v>=0?"positive":"negative"}
 function calculateIRR(cf){let guess=0.1;for(let i=0;i<1000;i++){let npv=0,der=0;for(let t=0;t<cf.length;t++){npv+=cf[t]/Math.pow(1+guess,t);der-=t*cf[t]/Math.pow(1+guess,t+1);}let newGuess=guess-npv/der;if(Math.abs(newGuess-guess)<1e-6)return newGuess;guess=newGuess;}return guess;}
 
+// Percent inputs
 document.querySelectorAll('.percent').forEach(el=>{
   el.addEventListener('input', ()=> {
     let val = el.value.replace(/[^0-9.]/g,'');
@@ -114,14 +115,18 @@ document.querySelectorAll('.percent').forEach(el=>{
 });
 function parsePercent(id){return parseFloat(document.getElementById(id).value.replace('%',''))/100;}
 
+// Dollar inputs with $ formatting
 document.querySelectorAll('.dollar').forEach(el => {
+  function formatDollar(val) {
+    if(!val) return '';
+    val = val.replace(/[^0-9]/g,'');
+    return val ? '$' + parseInt(val).toLocaleString() : '';
+  }
+  el.value = formatDollar(el.value);
   el.addEventListener('input', () => {
     let pos = el.selectionStart;
-    let val = el.value.replace(/,/g, '').replace(/[^\d]/g,'');
-    if(val){
-      el.value = parseInt(val).toLocaleString();
-      el.selectionStart = el.selectionEnd = pos + (el.value.length - val.length);
-    } else el.value = '';
+    el.value = formatDollar(el.value);
+    el.selectionStart = el.selectionEnd = pos;
   });
 });
 
@@ -129,18 +134,18 @@ function analyze(){
   document.getElementById('results').classList.remove('hidden');
   document.getElementById('summary').classList.remove('hidden');
 
-  let price=parseFloat(document.getElementById('price').value.replace(/,/g,''));
+  let price=parseFloat(document.getElementById('price').value.replace(/[^0-9]/g,''));
   let down=parsePercent('down');
   let rate=parsePercent('rate')/12;
   let term=parseFloat(document.getElementById('term').value)*12;
   let closing=parsePercent('closing');
-  let rentVal=parseFloat(document.getElementById('rent').value.replace(/,/g,''));
+  let rentVal=parseFloat(document.getElementById('rent').value.replace(/[^0-9]/g,''));
   let rentGrowth=parsePercent('rentGrowth');
   let vacancy=parsePercent('vacancy');
   let mgmt=parsePercent('management');
   let maint=parsePercent('maintenance');
-  let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/,/g,''));
-  let insVal=parseFloat(document.getElementById('insurance').value.replace(/,/g,''));
+  let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/[^0-9]/g,''));
+  let insVal=parseFloat(document.getElementById('insurance').value.replace(/[^0-9]/g,''));
   let expGrowth=parsePercent('expenseGrowth');
   let yearsVal=parseFloat(document.getElementById('years').value);
   let appr=parsePercent('appreciation');
@@ -152,8 +157,8 @@ function analyze(){
   let closeCost=price*closing;
 
   document.getElementById('loanInfo').innerHTML=`
-    <div class='kpi'><div>Loan Amount</div><div class='kpi-value'>$${fmt(loan)}</div></div>
-    <div class='kpi'><div>Monthly Mortgage</div><div class='kpi-value'>$${fmt(mortgage)}</div></div>
+    <div class='kpi'><div>Loan Amount</div><div class='kpi-value'>${fmt(loan)}</div></div>
+    <div class='kpi'><div>Monthly Mortgage</div><div class='kpi-value'>${fmt(mortgage)}</div></div>
   `;
 
   let cashFlows=[-(downPay+closeCost)];
@@ -196,7 +201,7 @@ function analyze(){
   if(dscr<1.2) insights.push("Weak lender coverage.");
   document.getElementById('insights').innerHTML=`<b>Insights:</b><ul>${insights.map(i=>`<li>${i}</li>`).join('')}</ul>`;
 
-  // 1st year financials (monthly & annual)
+  // 1st year financials
   let monthlyRent = rentVal;
   let monthlyVacancy = monthlyRent * vacancy;
   let monthlyNetRent = monthlyRent - monthlyVacancy;
