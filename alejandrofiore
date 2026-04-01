@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rental Property Analyzer v5</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+                  url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
+      background-size: cover;
+      background-position: center;
+    }
+    .container { max-width: 1200px; margin: auto; padding: 20px; }
+    h1 { text-align: center; color: white; margin-bottom: 20px; }
+
+    /* 3-column grid */
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
+    .card { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); display: flex; flex-direction: column; }
+    .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-grow: 1; }
+    label { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 4px; }
+    input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
+
+    #analyzeBtn, #summary { width: 480px; max-width: 100%; margin: 15px auto; display: block; border-radius: 10px; font-size: 18px; text-align: center; }
+    #analyzeBtn { padding: 14px; background: linear-gradient(90deg, #4CAF50, #2E7D32); color: white; border: none; cursor: pointer; transition: 0.3s; }
+    #analyzeBtn:hover { background: linear-gradient(90deg, #66BB6A, #388E3C); }
+    #summary { margin-top: 10px; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 25px 0; }
+    .kpi { background: white; padding: 12px; border-radius: 10px; text-align: center; }
+    .kpi-value { font-size: 18px; font-weight: bold; }
+    .positive { color: #2E7D32; } .negative { color: #C62828; }
+    .insights { background: white; padding: 12px; border-radius: 10px; margin-top: 20px; text-align: left; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: #4CAF50; color: white; }
+
+    .chart-container { margin-top: 25px; margin-bottom: 25px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.95); }
+    .monthly-table { margin-top: 15px; margin-bottom: 15px; }
+    .hidden { display: none; }
+
+    @media(max-width:1000px){
+      .grid { grid-template-columns: 1fr; gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+<h1>🏡 Rental Property Analyzer v5</h1>
+
+<div class="grid">
+  <!-- Left column: Purchase & Financing -->
+  <div class="card">
+    <h3>Purchase & Financing</h3>
+    <div class="input-group">
+      <div><label>Purchase Price</label><input id="price" type="number" value="500000"></div>
+      <div><label>Down Payment %</label><input id="down" type="number" value="40"></div>
+      <div><label>Interest Rate %</label><input id="rate" type="number" value="6.5"></div>
+      <div><label>Loan Term (Years)</label><input id="term" type="number" value="30"></div>
+      <div><label>Closing Costs %</label><input id="closing" type="number" value="3"></div>
+    </div>
+  </div>
+
+  <!-- Middle column: Income & Expenses -->
+  <div class="card">
+    <h3>Income & Expenses</h3>
+    <div class="input-group">
+      <div><label>Monthly Rent</label><input id="rent" type="number" value="2800"></div>
+      <div><label>Rent Growth %</label><input id="rentGrowth" type="number" value="3"></div>
+      <div><label>Vacancy %</label><input id="vacancy" type="number" value="8"></div>
+      <div><label>Management %</label><input id="management" type="number" value="20"></div>
+      <div><label>Maintenance %</label><input id="maintenance" type="number" value="10"></div>
+      <div><label>Annual Taxes</label><input id="taxes" type="number" value="9600"></div>
+      <div><label>Annual Insurance</label><input id="insurance" type="number" value="3000"></div>
+      <div><label>Expense Growth %</label><input id="expenseGrowth" type="number" value="3"></div>
+    </div>
+  </div>
+
+  <!-- Right column: Exit -->
+  <div class="card">
+    <h3>Exit</h3>
+    <div class="input-group">
+      <div><label>Hold Years</label><input id="years" type="number" value="10"></div>
+      <div><label>Appreciation %</label><input id="appreciation" type="number" value="3"></div>
+    </div>
+  </div>
+</div>
+
+<button id="analyzeBtn">Analyze Deal</button>
+<div id="summary" class="hidden"></div>
+
+<div id="results" class="hidden">
+  <div id="kpis" class="kpi-grid"></div>
+  <div id="insights" class="insights"></div>
+  <div class="chart-container card"><canvas id="chart"></canvas></div>
+  <div class="monthly-table card">
+    <h3>First-Year Income & Expense Breakdown</h3>
+    <div id="monthlyTableContainer"></div>
+  </div>
+  <div class="card" id="table"></div>
+</div>
+
+<script>
+function fmt(n){let f=Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});return n<0?`($${f})`:`$${f}`}
+function pct(n){return n.toFixed(1)+"%"}
+function cls(v){return v>=0?"positive":"negative"}
+function calculateIRR(cf){let guess=0.1;for(let i=0;i<1000;i++){let npv=0,der=0;for(let t=0;t<cf.length;t++){npv+=cf[t]/Math.pow(1+guess,t);der-=t*cf[t]/Math.pow(1+guess,t+1);}let newGuess=guess-npv/der;if(Math.abs(newGuess-guess)<1e-6)return newGuess;guess=newGuess;}return guess;}
+
+function analyze(){
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('summary').classList.remove('hidden');
+
+  let price=+document.getElementById('price').value;
+  let down=+document.getElementById('down').value/100;
+  let rate=+document.getElementById('rate').value/100/12;
+  let term=+document.getElementById('term').value*12;
+  let closing=+document.getElementById('closing').value/100;
+  let rentVal=+document.getElementById('rent').value;
+  let rentGrowth=+document.getElementById('rentGrowth').value/100;
+  let vacancy=+document.getElementById('vacancy').value/100;
+  let mgmt=+document.getElementById('management').value/100;
+  let maint=+document.getElementById('maintenance').value/100;
+  let taxesVal=+document.getElementById('taxes').value;
+  let insVal=+document.getElementById('insurance').value;
+  let expGrowth=+document.getElementById('expenseGrowth').value/100;
+  let yearsVal=+document.getElementById('years').value;
+  let appr=+document.getElementById('appreciation').value/100;
+
+  let loan=price*(1-down);
+  let mortgage=loan*(rate*Math.pow(1+rate,term))/(Math.pow(1+rate,term)-1);
+  let annualDebt=mortgage*12;
+  let downPay=price*down;
+  let closeCost=price*closing;
+
+  let cashFlows=[-(downPay+closeCost)];
+  let yearly=[], cumulative=[], rows=[];
+
+  let r=rentVal, t=taxesVal, i=insVal;
+
+  for(let y=1;y<=yearsVal;y++){
+    let gross=r*12;
+    let eff=gross*(1-vacancy);
+    let exp=eff*(mgmt+maint)+t+i;
+    let noi=eff-exp;
+    let cash=noi-annualDebt;
+    yearly.push(cash);
+    cashFlows.push(cash);
+    cumulative.push((cumulative[y-2]||0)+cash);
+    rows.push(`<tr><td>${y}</td><td>${fmt(gross)}</td><td>${fmt(noi)}</td><td class='${cls(cash)}'>${fmt(cash)}</td></tr>`);
+    r*=1+rentGrowth; t*=1+expGrowth; i*=1+expGrowth;
+  }
+
+  let sale=price*Math.pow(1+appr,yearsVal);
+  cashFlows[cashFlows.length-1]+=sale-sale*0.06;
+
+  let irr=calculateIRR(cashFlows)*100;
+  let coc=(yearly[0]/(downPay+closeCost))*100;
+  let cap=((rentVal*12*(1-vacancy)-(rentVal*12*(1-vacancy)*(mgmt+maint)+taxesVal+insVal))/price)*100;
+  let dscr=(yearly[0]+annualDebt)/annualDebt;
+  let score=irr*0.4+coc*0.3+cap*0.2+(yearly[0]>0?5:-5);
+  let rating=score>15?"🔥 Great Deal":score>10?"👍 Good Deal":"⚠️ Risky";
+
+  document.getElementById('summary').innerHTML=`<h2 style="width:480px; max-width:100%; margin:auto; border-radius:10px; background:white; padding:12px;">${rating}</h2>`;
+  
+  document.getElementById('kpis').innerHTML=`
+    <div class='kpi'><div>IRR</div><div class='kpi-value'>${pct(irr)}</div></div>
+    <div class='kpi'><div>CoC</div><div class='kpi-value'>${pct(coc)}</div></div>
+    <div class='kpi'><div>Cap Rate</div><div class='kpi-value'>${pct(cap)}</div></div>
+    <div class='kpi'><div>DSCR</div><div class='kpi-value'>${dscr.toFixed(1)}</div></div>`;
+
+  let insights=[];
+  if(irr<8) insights.push("Low return vs market.");
+  if(yearly[0]<0) insights.push("Negative cash flow.");
+  if(dscr<1.2) insights.push("Weak lender coverage.");
+  document.getElementById('insights').innerHTML=`<b>Insights:</b><ul>${insights.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+
+  let grossRent = rentVal*12;
+  let vacancyLoss = grossRent*vacancy;
+  let netRent = grossRent - vacancyLoss;
+  let managementFee = netRent*mgmt;
+  let maintenanceFee = netRent*maint;
+  let propertyTax = taxesVal;
+  let insurance = insVal;
+  let totalExpenses = managementFee + maintenanceFee + propertyTax + insurance;
+  let firstYearNOI = netRent - totalExpenses;
+
+  document.getElementById('monthlyTableContainer').innerHTML=`
+<table>
+<tr><th colspan="2">Income</th></tr>
+<tr><td>Gross Rent</td><td>${fmt(grossRent)}</td></tr>
+<tr><td>Vacancy</td><td>(${fmt(vacancyLoss)})</td></tr>
+<tr><td>Net Rent</td><td>${fmt(netRent)}</td></tr>
+<tr><th colspan="2">Expenses</th></tr>
+<tr><td>Management Fee</td><td>(${fmt(managementFee)})</td></tr>
+<tr><td>Property Tax</td><td>(${fmt(propertyTax)})</td></tr>
+<tr><td>Insurance</td><td>(${fmt(insurance)})</td></tr>
+<tr><td>Maintenance</td><td>(${fmt(maintenanceFee)})</td></tr>
+<tr><th>NOI</th><th>${fmt(firstYearNOI)}</th></tr>
+</table>`;
+
+  document.getElementById('table').innerHTML=`<table><tr><th>Year</th><th>Gross</th><th>NOI</th><th>Cash Flow</th></tr>${rows.join('')}</table>`;
+
+  new Chart(document.getElementById('chart'),{
+    type:'line',
+    data:{labels:yearly.map((_,i)=>i+1),datasets:[{label:'Annual Cash Flow',data:yearly},{label:'Cumulative Cash Flow',data:cumulative}]},
+    options:{responsive:true, maintainAspectRatio:false}
+  });
+}
+
+document.getElementById('analyzeBtn').addEventListener('click', analyze);
+</script>
+</body>
+</html>
