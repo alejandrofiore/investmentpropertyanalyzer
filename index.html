@@ -74,6 +74,7 @@
       <div><label>Vacancy</label><input class="percent" id="vacancy" type="text" value="8.0%"></div>
       <div><label>Management</label><input class="percent" id="management" type="text" value="20.0%"></div>
       <div><label>Maintenance</label><input class="percent" id="maintenance" type="text" value="10.0%"></div>
+      <div><label>HOA</label><input class="dollar" id="hoa" type="text" value="$300.0"></div>
       <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="$9,600.0"></div>
       <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="$3,000.0"></div>
       <div><label>Expense Growth</label><input class="percent" id="expenseGrowth" type="text" value="3.0%"></div>
@@ -150,6 +151,7 @@ function analyze(){
   let vacancy=parsePercent('vacancy');
   let mgmt=parsePercent('management');
   let maint=parsePercent('maintenance');
+  let hoaVal=parseFloat(document.getElementById('hoa').value.replace(/[^0-9.]/g,''));
   let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/[^0-9.]/g,''));
   let insVal=parseFloat(document.getElementById('insurance').value.replace(/[^0-9.]/g,''));
   let expGrowth=parsePercent('expenseGrowth');
@@ -169,19 +171,19 @@ function analyze(){
 
   let cashFlows=[-(downPay+closeCost)];
   let yearly=[], cumulative=[], rows=[];
-  let r=rentVal, t=taxesVal, i=insVal;
+  let r=rentVal, t=taxesVal, i=insVal, h=hoaVal;
 
   for(let y=1;y<=yearsVal;y++){
     let gross=r*12;
     let eff=gross*(1-vacancy);
-    let exp=eff*(mgmt+maint)+t+i;
+    let exp=eff*(mgmt+maint)+t+i+h*12;
     let noi=eff-exp;
     let cash=noi-annualDebt;
     yearly.push(cash);
     cashFlows.push(cash);
     cumulative.push((cumulative[y-2]||0)+cash);
     rows.push(`<tr><td>${y}</td><td>${fmt(gross)}</td><td>${fmt(noi)}</td><td class='${cash<0?'negative':'positive'}'>${fmt(cash)}</td></tr>`);
-    r*=1+rentGrowth; t*=1+expGrowth; i*=1+expGrowth;
+    r*=1+rentGrowth; t*=1+expGrowth; i*=1+expGrowth; h*=1+expGrowth;
   }
 
   let sale=price*Math.pow(1+appr,yearsVal);
@@ -189,7 +191,7 @@ function analyze(){
 
   let irr=calculateIRR(cashFlows)*100;
   let coc=(yearly[0]/(downPay+closeCost))*100;
-  let cap=((rentVal*12*(1-vacancy)-(rentVal*12*(1-vacancy)*(mgmt+maint)+taxesVal+insVal))/price)*100;
+  let cap=((rentVal*12*(1-vacancy)-(rentVal*12*(1-vacancy)*(mgmt+maint)+taxesVal+insVal+hoaVal*12))/price)*100;
   let dscr=(yearly[0]+annualDebt)/annualDebt;
   let score=irr*0.4+coc*0.3+cap*0.2+(yearly[0]>0?5:-5);
   let rating=score>15?"🔥 Great Deal":score>10?"👍 Good Deal":"⚠️ Risky";
@@ -216,7 +218,8 @@ function analyze(){
   let monthlyMaintenanceFee = monthlyNetRent * maint;
   let monthlyTaxes = taxesVal / 12;
   let monthlyInsurance = insVal / 12;
-  let monthlyTotalExpenses = monthlyManagementFee + monthlyMaintenanceFee + monthlyTaxes + monthlyInsurance;
+  let monthlyHOA = hoaVal;
+  let monthlyTotalExpenses = monthlyManagementFee + monthlyMaintenanceFee + monthlyTaxes + monthlyInsurance + monthlyHOA;
   let monthlyNOI = monthlyNetRent - monthlyTotalExpenses;
   let monthlyMortgage = mortgage;
   let monthlyCashFlow = monthlyNOI - monthlyMortgage;
@@ -232,6 +235,7 @@ function analyze(){
 <tr><td>Maintenance</td><td>(${fmt(monthlyMaintenanceFee)})</td><td>(${fmt(monthlyMaintenanceFee*12)})</td></tr>
 <tr><td>Property Tax</td><td>(${fmt(monthlyTaxes)})</td><td>(${fmt(taxesVal)})</td></tr>
 <tr><td>Insurance</td><td>(${fmt(monthlyInsurance)})</td><td>(${fmt(insVal)})</td></tr>
+<tr><td>HOA</td><td>(${fmt(monthlyHOA)})</td><td>(${fmt(monthlyHOA*12)})</td></tr>
 <tr><th>NOI</th><th>${fmt(monthlyNOI)}</th><th>${fmt(monthlyNOI*12)}</th></tr>
 <tr><td>Mortgage</td><td>(${fmt(monthlyMortgage)})</td><td>(${fmt(annualDebt)})</td></tr>
 <tr class="highlight-positive"><td>Cash Flow</td><td>${fmt(monthlyCashFlow)}</td><td>${fmt(yearly[0])}</td></tr>
@@ -250,4 +254,3 @@ document.getElementById('analyzeBtn').addEventListener('click', analyze);
 </script>
 </body>
 </html>
-  
