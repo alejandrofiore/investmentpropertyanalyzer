@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Rental Property Analyzer v5</title>
+  <title>Investment Property Analyzer</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
@@ -15,7 +15,6 @@
     .container { max-width: 1200px; margin: auto; padding: 20px; }
     h1 { text-align: center; color: white; margin-bottom: 20px; }
 
-    /* 3-column grid */
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
     .card { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); display: flex; flex-direction: column; }
     .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-grow: 1; }
@@ -48,42 +47,39 @@
 </head>
 <body>
 <div class="container">
-<h1>🏡 Rental Property Analyzer v5</h1>
+<h1>🏡 Investment Property Analyzer</h1>
 
 <div class="grid">
-  <!-- Left column: Purchase & Financing -->
   <div class="card">
     <h3>Purchase & Financing</h3>
     <div class="input-group">
-      <div><label>Purchase Price</label><input id="price" type="number" value="500000"></div>
-      <div><label>Down Payment %</label><input id="down" type="number" value="40"></div>
-      <div><label>Interest Rate %</label><input id="rate" type="number" value="6.5"></div>
+      <div><label>Purchase Price</label><input class="dollar" id="price" type="text" value="500,000"></div>
+      <div><label>Down Payment</label><input class="percent" id="down" type="text" value="40%"></div>
+      <div><label>Interest Rate</label><input class="percent" id="rate" type="text" value="6.5%"></div>
       <div><label>Loan Term (Years)</label><input id="term" type="number" value="30"></div>
-      <div><label>Closing Costs %</label><input id="closing" type="number" value="3"></div>
+      <div><label>Closing Costs</label><input class="percent" id="closing" type="text" value="3%"></div>
     </div>
   </div>
 
-  <!-- Middle column: Income & Expenses -->
   <div class="card">
     <h3>Income & Expenses</h3>
     <div class="input-group">
-      <div><label>Monthly Rent</label><input id="rent" type="number" value="2800"></div>
-      <div><label>Rent Growth %</label><input id="rentGrowth" type="number" value="3"></div>
-      <div><label>Vacancy %</label><input id="vacancy" type="number" value="8"></div>
-      <div><label>Management %</label><input id="management" type="number" value="20"></div>
-      <div><label>Maintenance %</label><input id="maintenance" type="number" value="10"></div>
-      <div><label>Annual Taxes</label><input id="taxes" type="number" value="9600"></div>
-      <div><label>Annual Insurance</label><input id="insurance" type="number" value="3000"></div>
-      <div><label>Expense Growth %</label><input id="expenseGrowth" type="number" value="3"></div>
+      <div><label>Monthly Rent</label><input class="dollar" id="rent" type="text" value="2,800"></div>
+      <div><label>Rent Growth</label><input class="percent" id="rentGrowth" type="text" value="3%"></div>
+      <div><label>Vacancy</label><input class="percent" id="vacancy" type="text" value="8%"></div>
+      <div><label>Management</label><input class="percent" id="management" type="text" value="20%"></div>
+      <div><label>Maintenance</label><input class="percent" id="maintenance" type="text" value="10%"></div>
+      <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="9,600"></div>
+      <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="3,000"></div>
+      <div><label>Expense Growth</label><input class="percent" id="expenseGrowth" type="text" value="3%"></div>
     </div>
   </div>
 
-  <!-- Right column: Exit -->
   <div class="card">
     <h3>Exit</h3>
     <div class="input-group">
       <div><label>Hold Years</label><input id="years" type="number" value="10"></div>
-      <div><label>Appreciation %</label><input id="appreciation" type="number" value="3"></div>
+      <div><label>Appreciation</label><input class="percent" id="appreciation" type="text" value="3%"></div>
     </div>
   </div>
 </div>
@@ -92,41 +88,62 @@
 <div id="summary" class="hidden"></div>
 
 <div id="results" class="hidden">
+  <div id="loanInfo" class="kpi-grid"></div>
   <div id="kpis" class="kpi-grid"></div>
   <div id="insights" class="insights"></div>
   <div class="chart-container card"><canvas id="chart"></canvas></div>
   <div class="monthly-table card">
-    <h3>First-Year Income & Expense Breakdown</h3>
+    <h3>1st year financials</h3>
     <div id="monthlyTableContainer"></div>
   </div>
   <div class="card" id="table"></div>
 </div>
 
 <script>
-function fmt(n){let f=Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});return n<0?`($${f})`:`$${f}`}
+function fmt(n){return n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}
 function pct(n){return n.toFixed(1)+"%"}
 function cls(v){return v>=0?"positive":"negative"}
 function calculateIRR(cf){let guess=0.1;for(let i=0;i<1000;i++){let npv=0,der=0;for(let t=0;t<cf.length;t++){npv+=cf[t]/Math.pow(1+guess,t);der-=t*cf[t]/Math.pow(1+guess,t+1);}let newGuess=guess-npv/der;if(Math.abs(newGuess-guess)<1e-6)return newGuess;guess=newGuess;}return guess;}
+
+document.querySelectorAll('.percent').forEach(el=>{
+  el.addEventListener('input', ()=> {
+    let val = el.value.replace(/[^0-9.]/g,'');
+    if(val) el.value = val + '%';
+    else el.value = '';
+  });
+});
+function parsePercent(id){return parseFloat(document.getElementById(id).value.replace('%',''))/100;}
+
+document.querySelectorAll('.dollar').forEach(el => {
+  el.addEventListener('input', () => {
+    let pos = el.selectionStart;
+    let val = el.value.replace(/,/g, '').replace(/[^\d]/g,'');
+    if(val){
+      el.value = parseInt(val).toLocaleString();
+      el.selectionStart = el.selectionEnd = pos + (el.value.length - val.length);
+    } else el.value = '';
+  });
+});
 
 function analyze(){
   document.getElementById('results').classList.remove('hidden');
   document.getElementById('summary').classList.remove('hidden');
 
-  let price=+document.getElementById('price').value;
-  let down=+document.getElementById('down').value/100;
-  let rate=+document.getElementById('rate').value/100/12;
-  let term=+document.getElementById('term').value*12;
-  let closing=+document.getElementById('closing').value/100;
-  let rentVal=+document.getElementById('rent').value;
-  let rentGrowth=+document.getElementById('rentGrowth').value/100;
-  let vacancy=+document.getElementById('vacancy').value/100;
-  let mgmt=+document.getElementById('management').value/100;
-  let maint=+document.getElementById('maintenance').value/100;
-  let taxesVal=+document.getElementById('taxes').value;
-  let insVal=+document.getElementById('insurance').value;
-  let expGrowth=+document.getElementById('expenseGrowth').value/100;
-  let yearsVal=+document.getElementById('years').value;
-  let appr=+document.getElementById('appreciation').value/100;
+  let price=parseFloat(document.getElementById('price').value.replace(/,/g,''));
+  let down=parsePercent('down');
+  let rate=parsePercent('rate')/12;
+  let term=parseFloat(document.getElementById('term').value)*12;
+  let closing=parsePercent('closing');
+  let rentVal=parseFloat(document.getElementById('rent').value.replace(/,/g,''));
+  let rentGrowth=parsePercent('rentGrowth');
+  let vacancy=parsePercent('vacancy');
+  let mgmt=parsePercent('management');
+  let maint=parsePercent('maintenance');
+  let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/,/g,''));
+  let insVal=parseFloat(document.getElementById('insurance').value.replace(/,/g,''));
+  let expGrowth=parsePercent('expenseGrowth');
+  let yearsVal=parseFloat(document.getElementById('years').value);
+  let appr=parsePercent('appreciation');
 
   let loan=price*(1-down);
   let mortgage=loan*(rate*Math.pow(1+rate,term))/(Math.pow(1+rate,term)-1);
@@ -134,9 +151,13 @@ function analyze(){
   let downPay=price*down;
   let closeCost=price*closing;
 
+  document.getElementById('loanInfo').innerHTML=`
+    <div class='kpi'><div>Loan Amount</div><div class='kpi-value'>$${fmt(loan)}</div></div>
+    <div class='kpi'><div>Monthly Mortgage</div><div class='kpi-value'>$${fmt(mortgage)}</div></div>
+  `;
+
   let cashFlows=[-(downPay+closeCost)];
   let yearly=[], cumulative=[], rows=[];
-
   let r=rentVal, t=taxesVal, i=insVal;
 
   for(let y=1;y<=yearsVal;y++){
@@ -163,7 +184,6 @@ function analyze(){
   let rating=score>15?"🔥 Great Deal":score>10?"👍 Good Deal":"⚠️ Risky";
 
   document.getElementById('summary').innerHTML=`<h2 style="width:480px; max-width:100%; margin:auto; border-radius:10px; background:white; padding:12px;">${rating}</h2>`;
-  
   document.getElementById('kpis').innerHTML=`
     <div class='kpi'><div>IRR</div><div class='kpi-value'>${pct(irr)}</div></div>
     <div class='kpi'><div>CoC</div><div class='kpi-value'>${pct(coc)}</div></div>
@@ -176,28 +196,33 @@ function analyze(){
   if(dscr<1.2) insights.push("Weak lender coverage.");
   document.getElementById('insights').innerHTML=`<b>Insights:</b><ul>${insights.map(i=>`<li>${i}</li>`).join('')}</ul>`;
 
-  let grossRent = rentVal*12;
-  let vacancyLoss = grossRent*vacancy;
-  let netRent = grossRent - vacancyLoss;
-  let managementFee = netRent*mgmt;
-  let maintenanceFee = netRent*maint;
-  let propertyTax = taxesVal;
-  let insurance = insVal;
-  let totalExpenses = managementFee + maintenanceFee + propertyTax + insurance;
-  let firstYearNOI = netRent - totalExpenses;
+  // 1st year financials (monthly & annual)
+  let monthlyRent = rentVal;
+  let monthlyVacancy = monthlyRent * vacancy;
+  let monthlyNetRent = monthlyRent - monthlyVacancy;
+  let monthlyManagementFee = monthlyNetRent * mgmt;
+  let monthlyMaintenanceFee = monthlyNetRent * maint;
+  let monthlyTaxes = taxesVal / 12;
+  let monthlyInsurance = insVal / 12;
+  let monthlyTotalExpenses = monthlyManagementFee + monthlyMaintenanceFee + monthlyTaxes + monthlyInsurance;
+  let monthlyNOI = monthlyNetRent - monthlyTotalExpenses;
+  let monthlyMortgage = mortgage;
+  let monthlyCashFlow = monthlyNOI - monthlyMortgage;
 
   document.getElementById('monthlyTableContainer').innerHTML=`
 <table>
-<tr><th colspan="2">Income</th></tr>
-<tr><td>Gross Rent</td><td>${fmt(grossRent)}</td></tr>
-<tr><td>Vacancy</td><td>(${fmt(vacancyLoss)})</td></tr>
-<tr><td>Net Rent</td><td>${fmt(netRent)}</td></tr>
-<tr><th colspan="2">Expenses</th></tr>
-<tr><td>Management Fee</td><td>(${fmt(managementFee)})</td></tr>
-<tr><td>Property Tax</td><td>(${fmt(propertyTax)})</td></tr>
-<tr><td>Insurance</td><td>(${fmt(insurance)})</td></tr>
-<tr><td>Maintenance</td><td>(${fmt(maintenanceFee)})</td></tr>
-<tr><th>NOI</th><th>${fmt(firstYearNOI)}</th></tr>
+<tr><th>Item</th><th>Monthly</th><th>Annual</th></tr>
+<tr><td>Gross Rent</td><td>${fmt(monthlyRent)}</td><td>${fmt(rentVal*12)}</td></tr>
+<tr><td>Vacancy</td><td>(${fmt(monthlyVacancy)})</td><td>(${fmt(monthlyVacancy*12)})</td></tr>
+<tr><td>Net Rent</td><td>${fmt(monthlyNetRent)}</td><td>${fmt(monthlyNetRent*12)}</td></tr>
+<tr><th colspan="3">Expenses</th></tr>
+<tr><td>Management Fee</td><td>(${fmt(monthlyManagementFee)})</td><td>(${fmt(monthlyManagementFee*12)})</td></tr>
+<tr><td>Maintenance</td><td>(${fmt(monthlyMaintenanceFee)})</td><td>(${fmt(monthlyMaintenanceFee*12)})</td></tr>
+<tr><td>Property Tax</td><td>(${fmt(monthlyTaxes)})</td><td>(${fmt(taxesVal)})</td></tr>
+<tr><td>Insurance</td><td>(${fmt(monthlyInsurance)})</td><td>(${fmt(insVal)})</td></tr>
+<tr><th>NOI</th><th>${fmt(monthlyNOI)}</th><th>${fmt(monthlyNOI*12)}</th></tr>
+<tr><td>Mortgage</td><td>(${fmt(monthlyMortgage)})</td><td>(${fmt(annualDebt)})</td></tr>
+<tr><td class='positive'>Cash Flow</td><td class='positive'>${fmt(monthlyCashFlow)}</td><td class='positive'>${fmt(yearly[0])}</td></tr>
 </table>`;
 
   document.getElementById('table').innerHTML=`<table><tr><th>Year</th><th>Gross</th><th>NOI</th><th>Cash Flow</th></tr>${rows.join('')}</table>`;
