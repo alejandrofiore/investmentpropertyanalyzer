@@ -29,12 +29,17 @@
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 25px 0; }
     .kpi { background: white; padding: 12px; border-radius: 10px; text-align: center; }
     .kpi-value { font-size: 18px; font-weight: bold; }
-    .positive { color: #2E7D32; } .negative { color: #C62828; }
+    .positive { color: #2E7D32; } 
+    .negative { color: #C62828; } 
+    .neutral { color: black; }
+
     .insights { background: white; padding: 12px; border-radius: 10px; margin-top: 20px; text-align: left; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
     th { background: #4CAF50; color: white; }
+
+    .highlight-positive { background: #2E7D32; color: white; font-weight: bold; }
 
     .chart-container { margin-top: 25px; margin-bottom: 25px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.95); }
     .monthly-table { margin-top: 15px; margin-bottom: 15px; }
@@ -53,25 +58,25 @@
   <div class="card">
     <h3>Purchase & Financing</h3>
     <div class="input-group">
-      <div><label>Purchase Price</label><input class="dollar" id="price" type="text" value="$500,000"></div>
-      <div><label>Down Payment</label><input class="percent" id="down" type="text" value="40%"></div>
+      <div><label>Purchase Price</label><input class="dollar" id="price" type="text" value="$500,000.0"></div>
+      <div><label>Down Payment</label><input class="percent" id="down" type="text" value="40.0%"></div>
       <div><label>Interest Rate</label><input class="percent" id="rate" type="text" value="6.5%"></div>
       <div><label>Loan Term (Years)</label><input id="term" type="number" value="30"></div>
-      <div><label>Closing Costs</label><input class="percent" id="closing" type="text" value="3%"></div>
+      <div><label>Closing Costs</label><input class="percent" id="closing" type="text" value="3.0%"></div>
     </div>
   </div>
 
   <div class="card">
     <h3>Income & Expenses</h3>
     <div class="input-group">
-      <div><label>Monthly Rent</label><input class="dollar" id="rent" type="text" value="$2,800"></div>
-      <div><label>Rent Growth</label><input class="percent" id="rentGrowth" type="text" value="3%"></div>
-      <div><label>Vacancy</label><input class="percent" id="vacancy" type="text" value="8%"></div>
-      <div><label>Management</label><input class="percent" id="management" type="text" value="20%"></div>
-      <div><label>Maintenance</label><input class="percent" id="maintenance" type="text" value="10%"></div>
-      <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="$9,600"></div>
-      <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="$3,000"></div>
-      <div><label>Expense Growth</label><input class="percent" id="expenseGrowth" type="text" value="3%"></div>
+      <div><label>Monthly Rent</label><input class="dollar" id="rent" type="text" value="$2,800.0"></div>
+      <div><label>Rent Growth</label><input class="percent" id="rentGrowth" type="text" value="3.0%"></div>
+      <div><label>Vacancy</label><input class="percent" id="vacancy" type="text" value="8.0%"></div>
+      <div><label>Management</label><input class="percent" id="management" type="text" value="20.0%"></div>
+      <div><label>Maintenance</label><input class="percent" id="maintenance" type="text" value="10.0%"></div>
+      <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="$9,600.0"></div>
+      <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="$3,000.0"></div>
+      <div><label>Expense Growth</label><input class="percent" id="expenseGrowth" type="text" value="3.0%"></div>
     </div>
   </div>
 
@@ -79,7 +84,7 @@
     <h3>Exit</h3>
     <div class="input-group">
       <div><label>Hold Years</label><input id="years" type="number" value="10"></div>
-      <div><label>Appreciation</label><input class="percent" id="appreciation" type="text" value="3%"></div>
+      <div><label>Appreciation</label><input class="percent" id="appreciation" type="text" value="3.0%"></div>
     </div>
   </div>
 </div>
@@ -100,27 +105,28 @@
 </div>
 
 <script>
-function fmt(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}
-function pct(n){return n.toFixed(1)+"%"}
-function cls(v){return v>=0?"positive":"negative"}
+function fmt(n){return n<0 ? '($'+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})+')' : '$'+n.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});}
+function pct(n){return n.toFixed(1)+"%";}
+function clsVal(val, type){
+  if(type==='positiveIf>0') return val>0?'positive':'neutral';
+  if(type==='negativeIf<0') return val<0?'negative':'positive';
+  if(type==='dscr') return val<1?'negative':'positive';
+  return 'neutral';
+}
 function calculateIRR(cf){let guess=0.1;for(let i=0;i<1000;i++){let npv=0,der=0;for(let t=0;t<cf.length;t++){npv+=cf[t]/Math.pow(1+guess,t);der-=t*cf[t]/Math.pow(1+guess,t+1);}let newGuess=guess-npv/der;if(Math.abs(newGuess-guess)<1e-6)return newGuess;guess=newGuess;}return guess;}
 
-// Percent inputs
 document.querySelectorAll('.percent').forEach(el=>{
   el.addEventListener('input', ()=> {
     let val = el.value.replace(/[^0-9.]/g,'');
-    if(val) el.value = val + '%';
-    else el.value = '';
+    el.value = val ? val + '%' : '';
   });
 });
 function parsePercent(id){return parseFloat(document.getElementById(id).value.replace('%',''))/100;}
 
-// Dollar inputs with $ formatting
 document.querySelectorAll('.dollar').forEach(el => {
   function formatDollar(val) {
-    if(!val) return '';
-    val = val.replace(/[^0-9]/g,'');
-    return val ? '$' + parseInt(val).toLocaleString() : '';
+    val = val.replace(/[^0-9.]/g,'');
+    return val ? '$' + parseFloat(val).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) : '';
   }
   el.value = formatDollar(el.value);
   el.addEventListener('input', () => {
@@ -134,18 +140,18 @@ function analyze(){
   document.getElementById('results').classList.remove('hidden');
   document.getElementById('summary').classList.remove('hidden');
 
-  let price=parseFloat(document.getElementById('price').value.replace(/[^0-9]/g,''));
+  let price=parseFloat(document.getElementById('price').value.replace(/[^0-9.]/g,''));
   let down=parsePercent('down');
   let rate=parsePercent('rate')/12;
   let term=parseFloat(document.getElementById('term').value)*12;
   let closing=parsePercent('closing');
-  let rentVal=parseFloat(document.getElementById('rent').value.replace(/[^0-9]/g,''));
+  let rentVal=parseFloat(document.getElementById('rent').value.replace(/[^0-9.]/g,''));
   let rentGrowth=parsePercent('rentGrowth');
   let vacancy=parsePercent('vacancy');
   let mgmt=parsePercent('management');
   let maint=parsePercent('maintenance');
-  let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/[^0-9]/g,''));
-  let insVal=parseFloat(document.getElementById('insurance').value.replace(/[^0-9]/g,''));
+  let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/[^0-9.]/g,''));
+  let insVal=parseFloat(document.getElementById('insurance').value.replace(/[^0-9.]/g,''));
   let expGrowth=parsePercent('expenseGrowth');
   let yearsVal=parseFloat(document.getElementById('years').value);
   let appr=parsePercent('appreciation');
@@ -174,7 +180,7 @@ function analyze(){
     yearly.push(cash);
     cashFlows.push(cash);
     cumulative.push((cumulative[y-2]||0)+cash);
-    rows.push(`<tr><td>${y}</td><td>${fmt(gross)}</td><td>${fmt(noi)}</td><td class='${cls(cash)}'>${fmt(cash)}</td></tr>`);
+    rows.push(`<tr><td>${y}</td><td>${fmt(gross)}</td><td>${fmt(noi)}</td><td class='${cash<0?'negative':'positive'}'>${fmt(cash)}</td></tr>`);
     r*=1+rentGrowth; t*=1+expGrowth; i*=1+expGrowth;
   }
 
@@ -189,11 +195,12 @@ function analyze(){
   let rating=score>15?"🔥 Great Deal":score>10?"👍 Good Deal":"⚠️ Risky";
 
   document.getElementById('summary').innerHTML=`<h2 style="width:480px; max-width:100%; margin:auto; border-radius:10px; background:white; padding:12px;">${rating}</h2>`;
+  
   document.getElementById('kpis').innerHTML=`
-    <div class='kpi'><div>IRR</div><div class='kpi-value'>${pct(irr)}</div></div>
-    <div class='kpi'><div>CoC</div><div class='kpi-value'>${pct(coc)}</div></div>
-    <div class='kpi'><div>Cap Rate</div><div class='kpi-value'>${pct(cap)}</div></div>
-    <div class='kpi'><div>DSCR</div><div class='kpi-value'>${dscr.toFixed(1)}</div></div>`;
+    <div class='kpi'><div>IRR</div><div class='kpi-value ${clsVal(irr,'positiveIf>0')}'>${pct(irr)}</div></div>
+    <div class='kpi'><div>CoC</div><div class='kpi-value ${clsVal(coc,'negativeIf<0')}'>${pct(coc)}</div></div>
+    <div class='kpi'><div>Cap Rate</div><div class='kpi-value ${clsVal(cap,'negativeIf<0')}'>${pct(cap)}</div></div>
+    <div class='kpi'><div>DSCR</div><div class='kpi-value ${clsVal(dscr,'dscr')}'>${dscr.toFixed(1)}</div></div>`;
 
   let insights=[];
   if(irr<8) insights.push("Low return vs market.");
@@ -227,7 +234,7 @@ function analyze(){
 <tr><td>Insurance</td><td>(${fmt(monthlyInsurance)})</td><td>(${fmt(insVal)})</td></tr>
 <tr><th>NOI</th><th>${fmt(monthlyNOI)}</th><th>${fmt(monthlyNOI*12)}</th></tr>
 <tr><td>Mortgage</td><td>(${fmt(monthlyMortgage)})</td><td>(${fmt(annualDebt)})</td></tr>
-<tr><td class='positive'>Cash Flow</td><td class='positive'>${fmt(monthlyCashFlow)}</td><td class='positive'>${fmt(yearly[0])}</td></tr>
+<tr class="highlight-positive"><td>Cash Flow</td><td>${fmt(monthlyCashFlow)}</td><td>${fmt(yearly[0])}</td></tr>
 </table>`;
 
   document.getElementById('table').innerHTML=`<table><tr><th>Year</th><th>Gross</th><th>NOI</th><th>Cash Flow</th></tr>${rows.join('')}</table>`;
