@@ -53,7 +53,6 @@
 
     .table-container { overflow-x: auto; }
 
-    /* Responsive for iPhone / small screens */
     @media(max-width: 430px){
       .grid { grid-template-columns: 1fr; gap: 15px; }
       .input-group { grid-template-columns: 1fr; gap: 12px; }
@@ -132,25 +131,24 @@ function clsVal(val, type){
 }
 function calculateIRR(cf){let guess=0.1;for(let i=0;i<1000;i++){let npv=0,der=0;for(let t=0;t<cf.length;t++){npv+=cf[t]/Math.pow(1+guess,t);der-=t*cf[t]/Math.pow(1+guess,t+1);}let newGuess=guess-npv/der;if(Math.abs(newGuess-guess)<1e-6)return newGuess;guess=newGuess;}return guess;}
 
-document.querySelectorAll('.percent').forEach(el=>{
-  el.addEventListener('input', ()=> {
-    let val = el.value.replace(/[^0-9.]/g,'');
-    el.value = val ? val + '%' : '';
-  });
-});
 function parsePercent(id){return parseFloat(document.getElementById(id).value.replace('%',''))/100;}
 
-document.querySelectorAll('.dollar').forEach(el => {
-  function formatDollar(val) {
+document.querySelectorAll('.percent').forEach(el=>{
+  el.addEventListener('focus', ()=>{ el.value = el.value.replace('%',''); });
+  el.addEventListener('blur', ()=>{
+    let val = el.value.replace(/[^0-9.]/g,'');
+    if(val !== '') el.value = parseFloat(val).toFixed(1) + '%';
+  });
+});
+
+document.querySelectorAll('.dollar').forEach(el=>{
+  function formatDollar(val){
     val = val.replace(/[^0-9.]/g,'');
     return val ? '$' + parseFloat(val).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) : '';
   }
   el.value = formatDollar(el.value);
-  el.addEventListener('input', () => {
-    let pos = el.selectionStart;
-    el.value = formatDollar(el.value);
-    el.selectionStart = el.selectionEnd = pos;
-  });
+  el.addEventListener('focus', ()=>{ el.value = el.value.replace(/[$,]/g,''); });
+  el.addEventListener('blur', ()=>{ el.value = formatDollar(el.value); });
 });
 
 function analyze(){
@@ -213,7 +211,7 @@ function analyze(){
   let rating=score>15?"🔥 Great Deal":score>10?"👍 Good Deal":"⚠️ Risky";
 
   document.getElementById('summary').innerHTML=`<h2 style="width:480px; max-width:100%; margin:auto; border-radius:10px; background:white; padding:12px;">${rating}</h2>`;
-  
+
   document.getElementById('kpis').innerHTML=`
     <div class='kpi'><div>IRR</div><div class='kpi-value ${clsVal(irr,'positiveIf>0')}'>${pct(irr)}</div></div>
     <div class='kpi'><div>CoC</div><div class='kpi-value ${clsVal(coc,'negativeIf<0')}'>${pct(coc)}</div></div>
@@ -240,7 +238,6 @@ function analyze(){
   let monthlyCashFlow = monthlyNOI - monthlyMortgage;
 
   document.getElementById('monthlyTableContainer').innerHTML=`
-<div class="table-container">
 <table>
 <tr><th>Item</th><th>Monthly</th><th>Annual</th></tr>
 <tr><td>Gross Rent</td><td>${fmt(monthlyRent)}</td><td>${fmt(rentVal*12)}</td></tr>
@@ -255,10 +252,9 @@ function analyze(){
 <tr><th>NOI</th><th>${fmt(monthlyNOI)}</th><th>${fmt(monthlyNOI*12)}</th></tr>
 <tr><td>Mortgage</td><td>(${fmt(monthlyMortgage)})</td><td>(${fmt(annualDebt)})</td></tr>
 <tr class="highlight-positive"><td>Cash Flow</td><td>${fmt(monthlyCashFlow)}</td><td>${fmt(yearly[0])}</td></tr>
-</table>
-</div>`;
+</table>`;
 
-  document.getElementById('table').innerHTML=`<div class="table-container"><table><tr><th>Year</th><th>Gross</th><th>NOI</th><th>Cash Flow</th></tr>${rows.join('')}</table></div>`;
+  document.getElementById('table').innerHTML=`<table><tr><th>Year</th><th>Gross</th><th>NOI</th><th>Cash Flow</th></tr>${rows.join('')}</table>`;
 
   new Chart(document.getElementById('chart'),{
     type:'line',
