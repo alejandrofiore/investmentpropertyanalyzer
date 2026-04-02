@@ -3,10 +3,8 @@
 <head>
   <title>Investment Property Analyzer</title>
 
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon.png">
-  <meta name="theme-color" content="#4CAF50">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -16,158 +14,191 @@
       background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
                   url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
       background-size: cover;
-      background-position: center;
+      color: white;
     }
 
-    .container { max-width: 1200px; margin: auto; padding: 20px; }
-    h1 { text-align: center; color: white; margin-bottom: 20px; }
-
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .card { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; }
-    .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    label { font-size: 12px; font-weight: bold; color: #555; }
-    input { width: 100%; padding: 8px; border-radius: 6px; }
-
-    #analyzeBtn { width: 480px; margin: 20px auto; display:block; padding:14px; background:#4CAF50; color:white; border:none; border-radius:10px; }
-
-    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
-    .kpi { background:white; padding:12px; border-radius:10px; text-align:center; }
-    .positive{color:green;} .negative{color:red;}
-
-    .hidden{display:none;}
+    /* DESKTOP */
+    .container { max-width: 1000px; margin:auto; padding:20px; }
+    input { width:100%; padding:8px; margin:5px 0; }
 
     /* MOBILE */
-    .mobile-app{display:none;}
+    .mobile { display:none; }
 
     @media(max-width:768px){
       .container{display:none;}
-      .mobile-app{display:block;padding:20px;padding-bottom:100px;color:white;}
-      .step{display:none;}
-      .step.active{display:block;}
+      .mobile{display:block;padding:20px;padding-bottom:100px;}
       input{padding:14px;font-size:18px;}
-      input[type=range]{width:100%;}
-
-      .mobile-nav{
-        position:fixed;bottom:0;left:0;width:100%;display:flex;
-      }
-
-      .mobile-nav button{
-        flex:1;padding:16px;font-size:18px;border:none;
-      }
-
-      .primary{background:#4CAF50;color:white;}
-
-      .mobile-results{
-        background:white;color:black;padding:20px;border-radius:12px;margin-top:20px;
-      }
     }
+
+    .step{display:none;}
+    .step.active{display:block;}
+
+    .nav{
+      position:fixed;bottom:0;left:0;width:100%;display:flex;
+    }
+
+    .nav button{
+      flex:1;padding:16px;font-size:18px;border:none;
+    }
+
+    .primary{background:#4CAF50;color:white;}
+
+    .card{
+      background:white;color:black;padding:15px;border-radius:12px;margin-top:15px;
+    }
+
+    .kpis{
+      display:flex;overflow-x:auto;gap:10px;
+    }
+
+    .kpi{
+      min-width:120px;background:#eee;padding:10px;border-radius:10px;text-align:center;
+    }
+
+    .positive{color:green;}
+    .negative{color:red;}
   </style>
 </head>
 
 <body>
 
-<!-- DESKTOP VERSION -->
-<div class="container">
-<h1>🏡 Investment Property Analyzer</h1>
-
-<div class="grid">
-  <div class="card">
-    <h3>Purchase</h3>
-    <div class="input-group">
-      <input class="dollar" id="price" value="$350,000.0">
-      <input class="percent" id="down" value="40.0%">
-      <input class="percent" id="rate" value="6.25%">
-      <input id="term" type="number" value="30">
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Income</h3>
-    <div class="input-group">
-      <input class="dollar" id="rent" value="$2,850.0">
-      <input class="percent" id="rentGrowth" value="3.0%">
-    </div>
-  </div>
-</div>
-
-<button id="analyzeBtn">Analyze Deal</button>
-
-<div id="results" class="hidden"></div>
-</div>
-
-<!-- MOBILE VERSION -->
-<div class="mobile-app">
+<!-- MOBILE -->
+<div class="mobile">
 
 <div class="step active" id="s1">
 <h2>🏡 Purchase</h2>
-<input class="dollar" id="m-price" value="$350,000.0">
-<label>Down: <span id="m-down-v">40%</span></label>
-<input type="range" id="m-down" min="0" max="100" value="40">
-<label>Rate: <span id="m-rate-v">6.25%</span></label>
-<input type="range" id="m-rate" min="0" max="15" step="0.05" value="6.25">
-<input id="m-term" type="number" value="30">
+<input id="price" value="$350,000.0">
+<label>Down <span id="dval">40%</span></label>
+<input type="range" id="down" min="0" max="100" value="40">
+<label>Rate <span id="rval">6.25%</span></label>
+<input type="range" id="rate" min="0" max="15" step="0.05" value="6.25">
+<input id="term" type="number" value="30">
 </div>
 
 <div class="step" id="s2">
 <h2>💰 Income</h2>
-<input class="dollar" id="m-rent" value="$2,850.0">
+<input id="rent" value="$2,850.0">
+<label>Growth <span id="gval">3%</span></label>
+<input type="range" id="growth" min="0" max="10" step="0.5" value="3">
 </div>
 
 <div class="step" id="s3">
 <h2>📉 Expenses</h2>
-<label>Vacancy <span id="m-vac-v">5%</span></label>
-<input type="range" id="m-vac" min="0" max="20" value="5">
+<label>Vacancy <span id="vval">5%</span></label>
+<input type="range" id="vac" min="0" max="20" value="5">
+<label>Mgmt <span id="mval">10%</span></label>
+<input type="range" id="mgmt" min="0" max="20" value="10">
+<label>Maint <span id="mtval">10%</span></label>
+<input type="range" id="maint" min="0" max="20" value="10">
+<input id="tax" value="$6,900.0">
+<input id="ins" value="$2,200.0">
+<input id="hoa" value="$315.0">
 </div>
 
 <div class="step" id="s4">
 <h2>📈 Exit</h2>
-<input id="m-years" type="number" value="10">
+<input id="years" value="10">
+<label>Appreciation <span id="aval">3%</span></label>
+<input type="range" id="appr" min="0" max="10" value="3">
 </div>
 
-<div id="m-results" class="mobile-results hidden"></div>
+<div id="results" class="card hidden"></div>
 
-<div class="mobile-nav">
+<div class="nav">
 <button onclick="prev()">←</button>
 <button onclick="next()">→</button>
-<button onclick="analyzeM()" class="primary">Analyze</button>
+<button onclick="calc()" class="primary">Analyze</button>
 </div>
 
 </div>
 
 <script>
-function fmt(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:1});}
+function fmt(n){return n<0?'($'+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1})+')':'$'+n.toLocaleString(undefined,{minimumFractionDigits:1});}
 function pct(n){return n.toFixed(1)+'%';}
+
+function IRR(cf){
+let g=0.1;
+for(let i=0;i<1000;i++){
+let npv=0,d=0;
+for(let t=0;t<cf.length;t++){
+npv+=cf[t]/Math.pow(1+g,t);
+d-=t*cf[t]/Math.pow(1+g,t+1);
+}
+let ng=g-npv/d;
+if(Math.abs(ng-g)<1e-6)return ng;
+g=ng;
+}
+return g;
+}
 
 let step=1;
 function show(){document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById('s'+step).classList.add('active');}
 function next(){if(step<4){step++;show();}}
 function prev(){if(step>1){step--;show();}}
 
-['m-down','m-rate','m-vac'].forEach(id=>{
+['down','rate','growth','vac','mgmt','maint','appr'].forEach(id=>{
 document.getElementById(id).oninput=e=>{
-document.getElementById(id+'-v').innerText=e.target.value+'%';
+document.getElementById(id[0]+'val').innerText=e.target.value+'%';
 };
 });
 
 function val(id){return parseFloat(document.getElementById(id).value.replace(/[^0-9.]/g,''));}
 
-function analyzeM(){
-let price=val('m-price');
-let down=document.getElementById('m-down').value/100;
-let rate=document.getElementById('m-rate').value/100/12;
-let term=document.getElementById('m-term').value*12;
-let rent=val('m-rent');
-let vacancy=document.getElementById('m-vac').value/100;
+function calc(){
+let price=val('price');
+let down=document.getElementById('down').value/100;
+let rate=document.getElementById('rate').value/100/12;
+let term=document.getElementById('term').value*12;
+let rent=val('rent');
+let growth=document.getElementById('growth').value/100;
+let vac=document.getElementById('vac').value/100;
+let mgmt=document.getElementById('mgmt').value/100;
+let maint=document.getElementById('maint').value/100;
+let tax=val('tax');
+let ins=val('ins');
+let hoa=val('hoa');
+let years=document.getElementById('years').value;
+let appr=document.getElementById('appr').value/100;
 
 let loan=price*(1-down);
 let m=loan*(rate*Math.pow(1+rate,term))/(Math.pow(1+rate,term)-1);
+let debt=m*12;
 
-let cash=(rent*(1-vacancy))-m;
+let cashFlows=[-(price*down)];
+let r=rent;
 
-document.getElementById('m-results').classList.remove('hidden');
-document.getElementById('m-results').innerHTML=`
-<h2>Results</h2>
-<p>Cash Flow: ${fmt(cash)}</p>
+for(let y=1;y<=years;y++){
+let eff=r*12*(1-vac);
+let exp=eff*(mgmt+maint)+tax+ins+hoa*12;
+let noi=eff-exp;
+let cash=noi-debt;
+cashFlows.push(cash);
+r*=1+growth;
+}
+
+let sale=price*Math.pow(1+appr,years);
+cashFlows[cashFlows.length-1]+=sale*0.94;
+
+let irr=IRR(cashFlows)*100;
+let coc=cashFlows[1]/(price*down)*100;
+let cap=((rent*12*(1-vac)-(rent*12*(1-vac)*(mgmt+maint)+tax+ins+hoa*12))/price)*100;
+let dscr=(cashFlows[1]+debt)/debt;
+
+let score=irr*0.4+coc*0.3+cap*0.2+(cashFlows[1]>0?5:-5);
+let rating=score>15?"🔥 Great Deal":score>10?"👍 Good Deal":"⚠️ Risky";
+
+document.getElementById('results').classList.remove('hidden');
+document.getElementById('results').innerHTML=`
+<h2>${rating}</h2>
+
+<div class="kpis">
+<div class="kpi"><b>IRR</b><br>${pct(irr)}</div>
+<div class="kpi"><b>CoC</b><br>${pct(coc)}</div>
+<div class="kpi"><b>Cap</b><br>${pct(cap)}</div>
+<div class="kpi"><b>DSCR</b><br>${dscr.toFixed(1)}</div>
+</div>
+
+<p><b>Annual Cash Flow:</b> ${fmt(cashFlows[1])}</p>
 `;
 }
 </script>
