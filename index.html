@@ -276,9 +276,14 @@ let appreciationGain = sale - price;
 insights.push(`💰 Profit Breakdown → Appreciation: ${fmt(appreciationGain)}, Paydown: ${fmt(paydown)}, Cash Flow: ${fmt(totalCashFlow)}`);
 
 // ===== FINAL RENDER =====
-document.getElementById('insights').innerHTML =
-  `<b>Insights:</b><ul>${insights.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+const insightsEl = document.getElementById('insights');
 
+// force full re-render (fixes iPhone truncation)
+insightsEl.innerHTML = '';
+insightsEl.offsetHeight; // trigger reflow
+
+insightsEl.innerHTML =
+  `<b>Insights:</b><ul>${insights.map(i=>`<li>${i}</li>`).join('')}</ul>`;
   let monthlyRent = rentVal;
   let monthlyVacancy = monthlyRent * vacancy;
   let monthlyNetRent = monthlyRent - monthlyVacancy;
