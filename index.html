@@ -1,222 +1,81 @@
-<!DOCTYPE html>
-<html>
 <head>
-<title>Investment Property Analyzer</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Investment Property Analyzer</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-body{
-  font-family:Arial;
-  margin:0;
-  background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
-              url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
-  background-size:cover;
-}
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="theme-color" content="#4CAF50">
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-/* DESKTOP */
-.container{max-width:1200px;margin:auto;padding:20px;}
-h1{text-align:center;color:white;}
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+                  url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
+      background-size: cover;
+      background-position: center;
+    }
 
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.card{background:white;padding:20px;border-radius:12px;}
+    .container { max-width: 1200px; margin: auto; padding: 20px; }
+    h1 { text-align: center; color: white; margin-bottom: 20px; }
 
-input{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;}
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .card { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; }
 
-#analyzeBtn{
-  display:block;
-  margin:20px auto;
-  padding:14px;
-  background:#4CAF50;
-  color:white;
-  border:none;
-  border-radius:10px;
-}
+    label { font-size: 14px; font-weight: bold; color: #555; }
+    input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size:16px; }
 
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
-.kpi{background:white;padding:10px;border-radius:8px;text-align:center;}
+    #analyzeBtn {
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+      display: block;
+      border-radius: 12px;
+      font-size: 18px;
+      padding: 16px;
+      background: linear-gradient(90deg, #4CAF50, #2E7D32);
+      color: white;
+      border: none;
+    }
 
-.hidden{display:none;}
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 25px 0;
+    }
 
-/* MOBILE */
-.mobile{display:none;}
+    .kpi { background: white; padding: 14px; border-radius: 12px; text-align: center; }
+    .kpi-value { font-size: 20px; font-weight: bold; }
 
-@media(max-width:768px){
-  .container{display:none;}
-  .mobile{display:block;padding:16px;padding-bottom:100px;}
-}
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    th { background: #4CAF50; color: white; }
 
-.ios-card{
-  background:white;
-  border-radius:16px;
-  padding:16px;
-  margin-bottom:12px;
-}
+    /* 🔥 MOBILE FIX */
+    @media(max-width:768px){
+      .grid { grid-template-columns: 1fr; }
 
-.input{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  margin-top:6px;
-}
+      h1 { font-size: 22px; }
 
-.nav{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  display:flex;
-  background:white;
-}
+      .card { padding: 16px; }
 
-.nav button{
-  flex:1;
-  padding:14px;
-  border:none;
-}
+      input {
+        font-size: 16px;
+        padding: 14px;
+      }
 
-.primary{background:#34C759;color:white;}
-</style>
+      #analyzeBtn {
+        font-size: 20px;
+        padding: 18px;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
 </head>
-
-<body>
-
-<!-- DESKTOP -->
-<div class="container">
-<h1>🏡 Investment Property Analyzer</h1>
-
-<div class="grid">
-
-<div class="card">
-<h3>Purchase</h3>
-<input id="price" value="$350,000.0">
-<input id="down" value="40%">
-<input id="rate" value="6.25%">
-<input id="term" value="30">
-</div>
-
-<div class="card">
-<h3>Income</h3>
-<input id="rent" value="$2,850.0">
-<input id="rentGrowth" value="3%">
-</div>
-
-<div class="card">
-<h3>Expenses</h3>
-<input id="vacancy" value="5%">
-<input id="management" value="10%">
-<input id="maintenance" value="10%">
-<input id="taxes" value="$6,900.0">
-<input id="insurance" value="$2,200.0">
-<input id="hoa" value="$315.0">
-</div>
-
-</div>
-
-<button onclick="runAnalysis()" id="analyzeBtn">Analyze Deal</button>
-
-<div id="summary"></div>
-<div id="kpis" class="kpi-grid"></div>
-<div id="table"></div>
-
-</div>
-
-<!-- MOBILE -->
-<div class="mobile">
-
-<div class="ios-card">
-<h3>Inputs</h3>
-
-<label>Price</label>
-<input class="input" id="m-price" value="$350,000.0">
-
-<label>Rent</label>
-<input class="input" id="m-rent" value="$2,850.0">
-
-<label>Vacancy %</label>
-<input class="input" id="m-vacancy" value="5">
-
-<label>Mgmt %</label>
-<input class="input" id="m-mgmt" value="10">
-
-<label>Maint %</label>
-<input class="input" id="m-maint" value="10">
-</div>
-
-<div id="m-results"></div>
-
-<div class="nav">
-<button onclick="runMobile()" class="primary">Analyze</button>
-</div>
-
-</div>
-
-<script>
-function parse(n){return parseFloat(n.replace(/[^0-9.]/g,''));}
-function pct(n){return n.toFixed(1)+'%';}
-function fmt(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:1});}
-
-function calculateIRR(cf){
-let guess=0.1;
-for(let i=0;i<1000;i++){
-let npv=0,der=0;
-for(let t=0;t<cf.length;t++){
-npv+=cf[t]/Math.pow(1+guess,t);
-der-=t*cf[t]/Math.pow(1+guess,t+1);
-}
-let newGuess=guess-npv/der;
-if(Math.abs(newGuess-guess)<1e-6)return newGuess;
-guess=newGuess;
-}
-return guess;
-}
-
-function runAnalysis(){
-
-let price=parse(document.getElementById('price').value);
-let rent=parse(document.getElementById('rent').value);
-let vac=parse(document.getElementById('vacancy').value)/100;
-let mgmt=parse(document.getElementById('management').value)/100;
-let maint=parse(document.getElementById('maintenance').value)/100;
-let taxes=parse(document.getElementById('taxes').value);
-let ins=parse(document.getElementById('insurance').value);
-let hoa=parse(document.getElementById('hoa').value);
-
-let gross=rent*12;
-let eff=gross*(1-vac);
-let expenses=eff*(mgmt+maint)+taxes+ins+hoa*12;
-let noi=eff-expenses;
-let cash=noi;
-
-let irr=calculateIRR([-price*0.4, cash]);
-
-let rating=irr>0.12?\"🔥 Great Deal\":irr>0.08?\"👍 Good\":\"⚠️ Risky\";
-
-document.getElementById('summary').innerHTML=`<h2>${rating}</h2>`;
-
-document.getElementById('kpis').innerHTML=`
-<div class='kpi'>NOI<br>${fmt(noi)}</div>
-<div class='kpi'>Cash Flow<br>${fmt(cash)}</div>
-<div class='kpi'>IRR<br>${pct(irr*100)}</div>
-`;
-
-document.getElementById('table').innerHTML=`
-<table>
-<tr><th>Metric</th><th>Value</th></tr>
-<tr><td>Gross</td><td>${fmt(gross)}</td></tr>
-<tr><td>NOI</td><td>${fmt(noi)}</td></tr>
-<tr><td>Cash</td><td>${fmt(cash)}</td></tr>
-</table>`;
-}
-
-function runMobile(){
-runAnalysis();
-
-document.getElementById('m-results').innerHTML=
-document.getElementById('kpis').innerHTML;
-}
-</script>
-
-</body>
-</html>
