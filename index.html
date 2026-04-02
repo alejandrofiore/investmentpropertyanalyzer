@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#4CAF50">
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     body {
       font-family: Arial;
@@ -17,249 +18,159 @@
       background-size: cover;
       background-position: center;
     }
+
     .container { max-width: 1200px; margin: auto; padding: 20px; }
     h1 { text-align: center; color: white; margin-bottom: 20px; }
 
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
-    .card { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); display: flex; flex-direction: column; }
-    .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-grow: 1; }
-    label { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 4px; }
-    input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .card { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; }
+    .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    label { font-size: 12px; font-weight: bold; color: #555; }
+    input { width: 100%; padding: 8px; border-radius: 6px; }
 
-    #analyzeBtn, #summary { width: 480px; max-width: 100%; margin: 15px auto; display: block; border-radius: 10px; font-size: 18px; text-align: center; }
-    #analyzeBtn { padding: 14px; background: linear-gradient(90deg, #4CAF50, #2E7D32); color: white; border: none; cursor: pointer; transition: 0.3s; }
-    #analyzeBtn:hover { background: linear-gradient(90deg, #66BB6A, #388E3C); }
-    #summary { margin-top: 10px; }
+    #analyzeBtn { width: 480px; margin: 20px auto; display:block; padding:14px; background:#4CAF50; color:white; border:none; border-radius:10px; }
 
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 25px 0; }
-    .kpi { background: white; padding: 12px; border-radius: 10px; text-align: center; }
-    .kpi-value { font-size: 18px; font-weight: bold; }
-    .positive { color: #2E7D32; } 
-    .negative { color: #C62828; } 
-    .neutral { color: black; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+    .kpi { background:white; padding:12px; border-radius:10px; text-align:center; }
+    .positive{color:green;} .negative{color:red;}
 
-    .insights { background: white; padding: 12px; border-radius: 10px; margin-top: 20px; text-align: left; }
+    .hidden{display:none;}
 
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background: #4CAF50; color: white; }
+    /* MOBILE */
+    .mobile-app{display:none;}
 
-    .highlight-positive { background: #2E7D32; color: white; font-weight: bold; }
+    @media(max-width:768px){
+      .container{display:none;}
+      .mobile-app{display:block;padding:20px;padding-bottom:100px;color:white;}
+      .step{display:none;}
+      .step.active{display:block;}
+      input{padding:14px;font-size:18px;}
+      input[type=range]{width:100%;}
 
-    .chart-container { margin-top: 25px; margin-bottom: 25px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.95); }
-    .monthly-table { margin-top: 15px; margin-bottom: 15px; }
-    .hidden { display: none; }
+      .mobile-nav{
+        position:fixed;bottom:0;left:0;width:100%;display:flex;
+      }
 
-    @media(max-width:1000px){
-      .grid { grid-template-columns: 1fr; gap: 20px; }
+      .mobile-nav button{
+        flex:1;padding:16px;font-size:18px;border:none;
+      }
+
+      .primary{background:#4CAF50;color:white;}
+
+      .mobile-results{
+        background:white;color:black;padding:20px;border-radius:12px;margin-top:20px;
+      }
     }
   </style>
 </head>
+
 <body>
+
+<!-- DESKTOP VERSION -->
 <div class="container">
 <h1>🏡 Investment Property Analyzer</h1>
 
 <div class="grid">
   <div class="card">
-    <h3>Purchase & Financing</h3>
+    <h3>Purchase</h3>
     <div class="input-group">
-      <div><label>Purchase Price</label><input class="dollar" id="price" type="text" value="$350,000.0"></div>
-      <div><label>Down Payment</label><input class="percent" id="down" type="text" value="40.0%"></div>
-      <div><label>Interest Rate</label><input class="percent" id="rate" type="text" value="6.25%"></div>
-      <div><label>Loan Term (Years)</label><input id="term" type="number" value="30"></div>
-      <div><label>Closing Costs</label><input class="percent" id="closing" type="text" value="2.5%"></div>
+      <input class="dollar" id="price" value="$350,000.0">
+      <input class="percent" id="down" value="40.0%">
+      <input class="percent" id="rate" value="6.25%">
+      <input id="term" type="number" value="30">
     </div>
   </div>
 
   <div class="card">
-    <h3>Income & Expenses</h3>
+    <h3>Income</h3>
     <div class="input-group">
-      <div><label>Monthly Rent</label><input class="dollar" id="rent" type="text" value="$2,850.0"></div>
-      <div><label>Rent Growth</label><input class="percent" id="rentGrowth" type="text" value="3.0%"></div>
-      <div><label>Vacancy</label><input class="percent" id="vacancy" type="text" value="5.0%"></div>
-      <div><label>Management</label><input class="percent" id="management" type="text" value="10.0%"></div>
-      <div><label>Maintenance</label><input class="percent" id="maintenance" type="text" value="10.0%"></div>
-      <div><label>HOA</label><input class="dollar" id="hoa" type="text" value="$315.0"></div>
-      <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="$6,900.0"></div>
-      <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="$2,200.0"></div>
-      <div><label>Expense Growth</label><input class="percent" id="expenseGrowth" type="text" value="3.0%"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Exit</h3>
-    <div class="input-group">
-      <div><label>Hold Years</label><input id="years" type="number" value="10"></div>
-      <div><label>Appreciation</label><input class="percent" id="appreciation" type="text" value="3.0%"></div>
+      <input class="dollar" id="rent" value="$2,850.0">
+      <input class="percent" id="rentGrowth" value="3.0%">
     </div>
   </div>
 </div>
 
 <button id="analyzeBtn">Analyze Deal</button>
-<div id="summary" class="hidden"></div>
 
-<div id="results" class="hidden">
-  <div id="loanInfo" class="kpi-grid"></div>
-  <div id="kpis" class="kpi-grid"></div>
-  <div id="insights" class="insights"></div>
-  <div class="chart-container card"><canvas id="chart"></canvas></div>
-  <div class="monthly-table card">
-    <h3>1st year financials</h3>
-    <div id="monthlyTableContainer"></div>
-  </div>
-  <div class="card" id="table"></div>
+<div id="results" class="hidden"></div>
+</div>
+
+<!-- MOBILE VERSION -->
+<div class="mobile-app">
+
+<div class="step active" id="s1">
+<h2>🏡 Purchase</h2>
+<input class="dollar" id="m-price" value="$350,000.0">
+<label>Down: <span id="m-down-v">40%</span></label>
+<input type="range" id="m-down" min="0" max="100" value="40">
+<label>Rate: <span id="m-rate-v">6.25%</span></label>
+<input type="range" id="m-rate" min="0" max="15" step="0.05" value="6.25">
+<input id="m-term" type="number" value="30">
+</div>
+
+<div class="step" id="s2">
+<h2>💰 Income</h2>
+<input class="dollar" id="m-rent" value="$2,850.0">
+</div>
+
+<div class="step" id="s3">
+<h2>📉 Expenses</h2>
+<label>Vacancy <span id="m-vac-v">5%</span></label>
+<input type="range" id="m-vac" min="0" max="20" value="5">
+</div>
+
+<div class="step" id="s4">
+<h2>📈 Exit</h2>
+<input id="m-years" type="number" value="10">
+</div>
+
+<div id="m-results" class="mobile-results hidden"></div>
+
+<div class="mobile-nav">
+<button onclick="prev()">←</button>
+<button onclick="next()">→</button>
+<button onclick="analyzeM()" class="primary">Analyze</button>
+</div>
+
 </div>
 
 <script>
-function fmt(n){return n<0 ? '($'+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})+')' : '$'+n.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});}
-function pct(n){return n.toFixed(1)+"%";}
-function clsVal(val, type){
-  if(type==='positiveIf>0') return val>0?'positive':'neutral';
-  if(type==='negativeIf<0') return val<0?'negative':'positive';
-  if(type==='dscr') return val<1?'negative':'positive';
-  return 'neutral';
-}
-function calculateIRR(cf){let guess=0.1;for(let i=0;i<1000;i++){let npv=0,der=0;for(let t=0;t<cf.length;t++){npv+=cf[t]/Math.pow(1+guess,t);der-=t*cf[t]/Math.pow(1+guess,t+1);}let newGuess=guess-npv/der;if(Math.abs(newGuess-guess)<1e-6)return newGuess;guess=newGuess;}return guess;}
+function fmt(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:1});}
+function pct(n){return n.toFixed(1)+'%';}
 
-document.querySelectorAll('.percent').forEach(el=>{
-  el.addEventListener('input', ()=> {
-    let val = el.value.replace(/[^0-9.]/g,'');
-    el.value = val ? val + '%' : '';
-  });
-});
-function parsePercent(id){return parseFloat(document.getElementById(id).value.replace('%',''))/100;}
+let step=1;
+function show(){document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById('s'+step).classList.add('active');}
+function next(){if(step<4){step++;show();}}
+function prev(){if(step>1){step--;show();}}
 
-document.querySelectorAll('.dollar').forEach(el => {
-  function formatDollar(val) {
-    val = val.replace(/[^0-9.]/g,'');
-    return val ? '$' + parseFloat(val).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) : '';
-  }
-  el.value = formatDollar(el.value);
-  el.addEventListener('input', () => {
-    let pos = el.selectionStart;
-    el.value = formatDollar(el.value);
-    el.selectionStart = el.selectionEnd = pos;
-  });
+['m-down','m-rate','m-vac'].forEach(id=>{
+document.getElementById(id).oninput=e=>{
+document.getElementById(id+'-v').innerText=e.target.value+'%';
+};
 });
 
-function analyze(){
-  document.getElementById('results').classList.remove('hidden');
-  document.getElementById('summary').classList.remove('hidden');
+function val(id){return parseFloat(document.getElementById(id).value.replace(/[^0-9.]/g,''));}
 
-  let price=parseFloat(document.getElementById('price').value.replace(/[^0-9.]/g,''));
-  let down=parsePercent('down');
-  let rate=parsePercent('rate')/12;
-  let term=parseFloat(document.getElementById('term').value)*12;
-  let closing=parsePercent('closing');
-  let rentVal=parseFloat(document.getElementById('rent').value.replace(/[^0-9.]/g,''));
-  let rentGrowth=parsePercent('rentGrowth');
-  let vacancy=parsePercent('vacancy');
-  let mgmt=parsePercent('management');
-  let maint=parsePercent('maintenance');
-  let hoaVal=parseFloat(document.getElementById('hoa').value.replace(/[^0-9.]/g,''));
-  let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/[^0-9.]/g,''));
-  let insVal=parseFloat(document.getElementById('insurance').value.replace(/[^0-9.]/g,''));
-  let expGrowth=parsePercent('expenseGrowth');
-  let yearsVal=parseFloat(document.getElementById('years').value);
-  let appr=parsePercent('appreciation');
+function analyzeM(){
+let price=val('m-price');
+let down=document.getElementById('m-down').value/100;
+let rate=document.getElementById('m-rate').value/100/12;
+let term=document.getElementById('m-term').value*12;
+let rent=val('m-rent');
+let vacancy=document.getElementById('m-vac').value/100;
 
-  let loan=price*(1-down);
-  let mortgage=loan*(rate*Math.pow(1+rate,term))/(Math.pow(1+rate,term)-1);
-  let annualDebt=mortgage*12;
-  let downPay=price*down;
-  let closeCost=price*closing;
+let loan=price*(1-down);
+let m=loan*(rate*Math.pow(1+rate,term))/(Math.pow(1+rate,term)-1);
 
-  document.getElementById('loanInfo').innerHTML=`
-    <div class='kpi'><div>Loan Amount</div><div class='kpi-value'>${fmt(loan)}</div></div>
-    <div class='kpi'><div>Monthly Mortgage</div><div class='kpi-value'>${fmt(mortgage)}</div></div>
-  `;
+let cash=(rent*(1-vacancy))-m;
 
-  let cashFlows=[-(downPay+closeCost)];
-  let yearly=[], cumulative=[], rows=[];
-  let r=rentVal, t=taxesVal, i=insVal, h=hoaVal;
-
-  for(let y=1;y<=yearsVal;y++){
-    let gross=r*12;
-    let eff=gross*(1-vacancy);
-    let exp=eff*(mgmt+maint)+t+i+h*12;
-    let noi=eff-exp;
-    let cash=noi-annualDebt;
-    yearly.push(cash);
-    cashFlows.push(cash);
-    cumulative.push((cumulative[y-2]||0)+cash);
-    rows.push(`<tr><td>${y}</td><td>${fmt(gross)}</td><td>${fmt(noi)}</td><td class='${cash<0?'negative':'positive'}'>${fmt(cash)}</td></tr>`);
-    r*=1+rentGrowth; t*=1+expGrowth; i*=1+expGrowth; h*=1+expGrowth;
-  }
-
-  let sale=price*Math.pow(1+appr,yearsVal);
-  cashFlows[cashFlows.length-1]+=sale-sale*0.06;
-
-  let irr=calculateIRR(cashFlows)*100;
-  let coc=(yearly[0]/(downPay+closeCost))*100;
-  let cap=((rentVal*12*(1-vacancy)-(rentVal*12*(1-vacancy)*(mgmt+maint)+taxesVal+insVal+hoaVal*12))/price)*100;
-  let dscr=(yearly[0]+annualDebt)/annualDebt;
-  let score=irr*0.4+coc*0.3+cap*0.2+(yearly[0]>0?5:-5);
-  let rating=score>15?"🔥 Great Deal":score>10?"👍 Good Deal":"⚠️ Risky";
-
-  document.getElementById('summary').innerHTML=`<h2 style="width:480px; max-width:100%; margin:auto; border-radius:10px; background:white; padding:12px;">${rating}</h2>`;
-  
-  document.getElementById('kpis').innerHTML=`
-    <div class='kpi'><div>IRR</div><div class='kpi-value ${clsVal(irr,'positiveIf>0')}'>${pct(irr)}</div></div>
-    <div class='kpi'><div>CoC</div><div class='kpi-value ${clsVal(coc,'negativeIf<0')}'>${pct(coc)}</div></div>
-    <div class='kpi'><div>Cap Rate</div><div class='kpi-value ${clsVal(cap,'negativeIf<0')}'>${pct(cap)}</div></div>
-    <div class='kpi'><div>DSCR</div><div class='kpi-value ${clsVal(dscr,'dscr')}'>${dscr.toFixed(1)}</div></div>`;
-
-  let insights=[];
-  if(irr<8) insights.push("Low return vs market.");
-  if(yearly[0]<0) insights.push("Negative cash flow.");
-  if(dscr<1.2) insights.push("Weak lender coverage.");
-  document.getElementById('insights').innerHTML=`<b>Insights:</b><ul>${insights.map(i=>`<li>${i}</li>`).join('')}</ul>`;
-
-  // 1st year financials
-  let monthlyRent = rentVal;
-  let monthlyVacancy = monthlyRent * vacancy;
-  let monthlyNetRent = monthlyRent - monthlyVacancy;
-  let monthlyManagementFee = monthlyNetRent * mgmt;
-  let monthlyMaintenanceFee = monthlyNetRent * maint;
-  let monthlyTaxes = taxesVal / 12;
-  let monthlyInsurance = insVal / 12;
-  let monthlyHOA = hoaVal;
-  let monthlyTotalExpenses = monthlyManagementFee + monthlyMaintenanceFee + monthlyTaxes + monthlyInsurance + monthlyHOA;
-  let monthlyNOI = monthlyNetRent - monthlyTotalExpenses;
-  let monthlyMortgage = mortgage;
-  let monthlyCashFlow = monthlyNOI - monthlyMortgage;
-
-  document.getElementById('monthlyTableContainer').innerHTML=`
-<table>
-<tr><th>Item</th><th>Monthly</th><th>Annual</th></tr>
-<tr><td>Gross Rent</td><td>${fmt(monthlyRent)}</td><td>${fmt(rentVal*12)}</td></tr>
-<tr><td>Vacancy</td><td>(${fmt(monthlyVacancy)})</td><td>(${fmt(monthlyVacancy*12)})</td></tr>
-<tr><td>Net Rent</td><td>${fmt(monthlyNetRent)}</td><td>${fmt(monthlyNetRent*12)}</td></tr>
-<tr><th colspan="3">Expenses</th></tr>
-<tr><td>Management Fee</td><td>(${fmt(monthlyManagementFee)})</td><td>(${fmt(monthlyManagementFee*12)})</td></tr>
-<tr><td>Maintenance</td><td>(${fmt(monthlyMaintenanceFee)})</td><td>(${fmt(monthlyMaintenanceFee*12)})</td></tr>
-<tr><td>Property Tax</td><td>(${fmt(monthlyTaxes)})</td><td>(${fmt(taxesVal)})</td></tr>
-<tr><td>Insurance</td><td>(${fmt(monthlyInsurance)})</td><td>(${fmt(insVal)})</td></tr>
-<tr><td>HOA</td><td>(${fmt(monthlyHOA)})</td><td>(${fmt(monthlyHOA*12)})</td></tr>
-<tr><th>NOI</th><th>${fmt(monthlyNOI)}</th><th>${fmt(monthlyNOI*12)}</th></tr>
-<tr><td>Mortgage</td><td>(${fmt(monthlyMortgage)})</td><td>(${fmt(annualDebt)})</td></tr>
-<tr class="highlight-positive"><td>Cash Flow</td><td>${fmt(monthlyCashFlow)}</td><td>${fmt(yearly[0])}</td></tr>
-</table>`;
-
-  document.getElementById('table').innerHTML=`<table><tr><th>Year</th><th>Gross</th><th>NOI</th><th>Cash Flow</th></tr>${rows.join('')}</table>`;
-
-  new Chart(document.getElementById('chart'),{
-    type:'line',
-    data:{labels:yearly.map((_,i)=>i+1),datasets:[{label:'Annual Cash Flow',data:yearly},{label:'Cumulative Cash Flow',data:cumulative}]},
-    options:{responsive:true, maintainAspectRatio:false}
-  });
+document.getElementById('m-results').classList.remove('hidden');
+document.getElementById('m-results').innerHTML=`
+<h2>Results</h2>
+<p>Cash Flow: ${fmt(cash)}</p>
+`;
 }
+</script>
 
-document.getElementById('analyzeBtn').addEventListener('click', analyze);
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-</script>  
 </body>
 </html>
