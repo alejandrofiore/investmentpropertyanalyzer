@@ -277,13 +277,15 @@ insights.push(`💰 Profit Breakdown → Appreciation: ${fmt(appreciationGain)},
 
 // ===== FINAL RENDER =====
 const insightsEl = document.getElementById('insights');
-
-// force full re-render (fixes iPhone truncation)
 insightsEl.innerHTML = '';
-insightsEl.offsetHeight; // trigger reflow
+insightsEl.offsetHeight;
 
-insightsEl.innerHTML =
-  `<b>Insights:</b><ul>${insights.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+insightsEl.innerHTML = `
+  <b>Insights:</b>
+  <div class="insight-list">
+    ${insights.map(i => `<div class="insight-item">${i}</div>`).join('')}
+  </div>
+`;
   let monthlyRent = rentVal;
   let monthlyVacancy = monthlyRent * vacancy;
   let monthlyNetRent = monthlyRent - monthlyVacancy;
