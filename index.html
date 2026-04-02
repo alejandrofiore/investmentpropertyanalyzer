@@ -1,134 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Investment Property Analyzer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investment Property Analyzer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
-                  url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
-      background-size: cover;
-      background-position: center;
-    }
+<style>
+body{
+  font-family:Arial;
+  margin:0;
+  background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+              url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
+  background-size:cover;
+}
 
-    h1 { text-align:center; color:white; }
+/* DESKTOP */
+.container{max-width:1200px;margin:auto;padding:20px;}
+h1{text-align:center;color:white;}
 
-    /* DESKTOP */
-    .container { max-width:1200px; margin:auto; padding:20px; }
-    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-    .card { background:rgba(255,255,255,0.95); padding:20px; border-radius:12px; }
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.card{background:white;padding:20px;border-radius:12px;}
 
-    input {
-      width:100%;
-      padding:10px;
-      border-radius:8px;
-      border:1px solid #ccc;
-      margin-top:6px;
-    }
+input{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;}
 
-    #analyzeBtn {
-      margin:20px auto;
-      display:block;
-      padding:14px;
-      background:#4CAF50;
-      color:white;
-      border:none;
-      border-radius:10px;
-      font-size:18px;
-    }
+#analyzeBtn{
+  display:block;
+  margin:20px auto;
+  padding:14px;
+  background:#4CAF50;
+  color:white;
+  border:none;
+  border-radius:10px;
+}
 
-    .kpi-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-      gap:10px;
-      margin-top:20px;
-    }
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+.kpi{background:white;padding:10px;border-radius:8px;text-align:center;}
 
-    .kpi {
-      background:white;
-      padding:12px;
-      border-radius:10px;
-      text-align:center;
-    }
+.hidden{display:none;}
 
-    /* MOBILE */
-    .mobile { display:none; }
+/* MOBILE */
+.mobile{display:none;}
 
-    @media(max-width:768px){
-      .container { display:none; }
-      .mobile { display:block; padding:16px; padding-bottom:100px; }
-    }
+@media(max-width:768px){
+  .container{display:none;}
+  .mobile{display:block;padding:16px;padding-bottom:100px;}
+}
 
-    .step { display:none; }
-    .step.active { display:block; }
+.ios-card{
+  background:white;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:12px;
+}
 
-    .ios-card {
-      background:rgba(255,255,255,0.98);
-      border-radius:20px;
-      padding:18px;
-      margin-bottom:16px;
-      box-shadow:0 8px 20px rgba(0,0,0,0.2);
-    }
+.input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  margin-top:6px;
+}
 
-    .field { margin-bottom:12px; }
-    .field label { font-size:13px; color:#666; display:block; margin-bottom:4px; }
+.nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  background:white;
+}
 
-    .input {
-      width:100%;
-      max-width:320px;
-      margin:auto;
-      display:block;
-      padding:12px;
-      font-size:16px;
-      border-radius:12px;
-      border:1px solid #ddd;
-      background:#fafafa;
-    }
+.nav button{
+  flex:1;
+  padding:14px;
+  border:none;
+}
 
-    .nav {
-      position:fixed;
-      bottom:0;
-      width:100%;
-      display:flex;
-      background:white;
-      border-top:1px solid #ddd;
-    }
-
-    .nav button {
-      flex:1;
-      padding:16px;
-      border:none;
-      font-size:18px;
-    }
-
-    .primary { background:#34C759; color:white; }
-
-    .results {
-      background:white;
-      border-radius:18px;
-      padding:16px;
-      margin-top:16px;
-    }
-
-    .kpis {
-      display:flex;
-      gap:10px;
-      overflow-x:auto;
-    }
-
-    .kpi-small {
-      min-width:110px;
-      background:#f2f2f7;
-      padding:10px;
-      border-radius:10px;
-      text-align:center;
-    }
-  </style>
+.primary{background:#34C759;color:white;}
+</style>
 </head>
 
 <body>
@@ -138,6 +87,7 @@
 <h1>🏡 Investment Property Analyzer</h1>
 
 <div class="grid">
+
 <div class="card">
 <h3>Purchase</h3>
 <input id="price" value="$350,000.0">
@@ -161,52 +111,43 @@
 <input id="insurance" value="$2,200.0">
 <input id="hoa" value="$315.0">
 </div>
+
 </div>
 
-<button onclick="analyze()" id="analyzeBtn">Analyze Deal</button>
+<button onclick="runAnalysis()" id="analyzeBtn">Analyze Deal</button>
 
-<div id="results" class="kpi-grid"></div>
+<div id="summary"></div>
+<div id="kpis" class="kpi-grid"></div>
+<div id="table"></div>
+
 </div>
 
 <!-- MOBILE -->
 <div class="mobile">
 
-<div class="step active" id="s1">
 <div class="ios-card">
-<h2>Purchase</h2>
-<div class="field"><label>Price</label><input class="input" id="m-price" value="$350,000.0"></div>
-<div class="field"><label>Down %</label><input class="input" id="m-down" value="40"></div>
-<div class="field"><label>Rate %</label><input class="input" id="m-rate" value="6.25"></div>
-<div class="field"><label>Term</label><input class="input" id="m-term" value="30"></div>
-</div>
+<h3>Inputs</h3>
+
+<label>Price</label>
+<input class="input" id="m-price" value="$350,000.0">
+
+<label>Rent</label>
+<input class="input" id="m-rent" value="$2,850.0">
+
+<label>Vacancy %</label>
+<input class="input" id="m-vacancy" value="5">
+
+<label>Mgmt %</label>
+<input class="input" id="m-mgmt" value="10">
+
+<label>Maint %</label>
+<input class="input" id="m-maint" value="10">
 </div>
 
-<div class="step" id="s2">
-<div class="ios-card">
-<h2>Income</h2>
-<div class="field"><label>Rent</label><input class="input" id="m-rent" value="$2,850.0"></div>
-<div class="field"><label>Growth %</label><input class="input" id="m-growth" value="3"></div>
-</div>
-</div>
-
-<div class="step" id="s3">
-<div class="ios-card">
-<h2>Expenses</h2>
-<div class="field"><label>Vacancy %</label><input class="input" id="m-vacancy" value="5"></div>
-<div class="field"><label>Mgmt %</label><input class="input" id="m-mgmt" value="10"></div>
-<div class="field"><label>Maint %</label><input class="input" id="m-maint" value="10"></div>
-<div class="field"><label>Taxes</label><input class="input" id="m-taxes" value="$6,900.0"></div>
-<div class="field"><label>Insurance</label><input class="input" id="m-insurance" value="$2,200.0"></div>
-<div class="field"><label>HOA</label><input class="input" id="m-hoa" value="$315.0"></div>
-</div>
-</div>
-
-<div id="resultsM" class="results"></div>
+<div id="m-results"></div>
 
 <div class="nav">
-<button onclick="prev()">←</button>
-<button onclick="next()">→</button>
-<button onclick="analyzeMobile()" class="primary">Analyze</button>
+<button onclick="runMobile()" class="primary">Analyze</button>
 </div>
 
 </div>
@@ -216,44 +157,64 @@ function parse(n){return parseFloat(n.replace(/[^0-9.]/g,''));}
 function pct(n){return n.toFixed(1)+'%';}
 function fmt(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:1});}
 
-function analyze(){
+function calculateIRR(cf){
+let guess=0.1;
+for(let i=0;i<1000;i++){
+let npv=0,der=0;
+for(let t=0;t<cf.length;t++){
+npv+=cf[t]/Math.pow(1+guess,t);
+der-=t*cf[t]/Math.pow(1+guess,t+1);
+}
+let newGuess=guess-npv/der;
+if(Math.abs(newGuess-guess)<1e-6)return newGuess;
+guess=newGuess;
+}
+return guess;
+}
+
+function runAnalysis(){
+
+let price=parse(document.getElementById('price').value);
 let rent=parse(document.getElementById('rent').value);
 let vac=parse(document.getElementById('vacancy').value)/100;
 let mgmt=parse(document.getElementById('management').value)/100;
 let maint=parse(document.getElementById('maintenance').value)/100;
-let tax=parse(document.getElementById('taxes').value);
+let taxes=parse(document.getElementById('taxes').value);
 let ins=parse(document.getElementById('insurance').value);
 let hoa=parse(document.getElementById('hoa').value);
 
-let cf=rent*12*(1-vac)-(rent*12*(1-vac)*(mgmt+maint)+tax+ins+hoa*12);
+let gross=rent*12;
+let eff=gross*(1-vac);
+let expenses=eff*(mgmt+maint)+taxes+ins+hoa*12;
+let noi=eff-expenses;
+let cash=noi;
 
-document.getElementById('results').innerHTML=`
-<div class="kpi">Annual Cash Flow<br>${fmt(cf)}</div>
+let irr=calculateIRR([-price*0.4, cash]);
+
+let rating=irr>0.12?\"🔥 Great Deal\":irr>0.08?\"👍 Good\":\"⚠️ Risky\";
+
+document.getElementById('summary').innerHTML=`<h2>${rating}</h2>`;
+
+document.getElementById('kpis').innerHTML=`
+<div class='kpi'>NOI<br>${fmt(noi)}</div>
+<div class='kpi'>Cash Flow<br>${fmt(cash)}</div>
+<div class='kpi'>IRR<br>${pct(irr*100)}</div>
 `;
+
+document.getElementById('table').innerHTML=`
+<table>
+<tr><th>Metric</th><th>Value</th></tr>
+<tr><td>Gross</td><td>${fmt(gross)}</td></tr>
+<tr><td>NOI</td><td>${fmt(noi)}</td></tr>
+<tr><td>Cash</td><td>${fmt(cash)}</td></tr>
+</table>`;
 }
 
-let step=1;
-function show(){document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById('s'+step).classList.add('active');}
-function next(){if(step<3){step++;show();}}
-function prev(){if(step>1){step--;show();}}
+function runMobile(){
+runAnalysis();
 
-function analyzeMobile(){
-let rent=parse(document.getElementById('m-rent').value);
-let vac=document.getElementById('m-vacancy').value/100;
-let mgmt=document.getElementById('m-mgmt').value/100;
-let maint=document.getElementById('m-maint').value/100;
-let tax=parse(document.getElementById('m-taxes').value);
-let ins=parse(document.getElementById('m-insurance').value);
-let hoa=parse(document.getElementById('m-hoa').value);
-
-let cf=rent*12*(1-vac)-(rent*12*(1-vac)*(mgmt+maint)+tax+ins+hoa*12);
-
-document.getElementById('resultsM').innerHTML=`
-<h2>Result</h2>
-<div class="kpis">
-<div class="kpi-small">Cash Flow<br>${fmt(cf)}</div>
-</div>
-`;
+document.getElementById('m-results').innerHTML=
+document.getElementById('kpis').innerHTML;
 }
 </script>
 
