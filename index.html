@@ -9,7 +9,6 @@
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* --- Desktop Styles --- */
     body {
       font-family: Arial;
       margin: 0;
@@ -44,36 +43,36 @@
     table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
     th { background: #4CAF50; color: white; }
+
     .highlight-positive { background: #2E7D32; color: white; font-weight: bold; }
 
     .chart-container { margin-top: 25px; margin-bottom: 25px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.95); }
     .monthly-table { margin-top: 15px; margin-bottom: 15px; }
     .hidden { display: none; }
 
+    /* Responsive desktop */
     @media(max-width:1000px){
       .grid { grid-template-columns: 1fr; gap: 20px; }
     }
 
-    /* --- Mobile Styles --- */
-    .mobile-app { display: none; max-width: 450px; margin: auto; padding: 10px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #333; }
-    .mobile-app h2 { text-align: center; margin-bottom: 12px; }
-    .mobile-app label { display: block; font-weight: 600; margin-top: 10px; margin-bottom: 4px; }
-    .mobile-app input[type="text"], .mobile-app input[type="number"], .mobile-app input[type="range"] { width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
-    .mobile-nav { display: flex; justify-content: space-between; margin-top: 15px; }
-    .mobile-nav button { flex: 1; margin: 0 4px; padding: 10px; border-radius: 12px; font-size: 16px; border: none; cursor: pointer; }
-    .mobile-nav button.primary { background: #4CAF50; color: white; }
+    /* Mobile App Layer */
+    .mobile-app { display: none; max-width: 480px; margin: auto; padding: 12px; background: #f5f5f5; border-radius: 15px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+    .mobile-app .step { display: none; margin-bottom: 15px; }
+    .mobile-app .step.active { display: block; }
+    .mobile-app input[type=text], .mobile-app input[type=number] { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 8px; box-sizing: border-box; }
+    .mobile-app input[type=range] { width: 100%; margin-bottom: 8px; }
+    .mobile-app label { display: block; margin-bottom: 4px; font-weight: bold; }
+    .mobile-nav { display: flex; justify-content: space-between; margin-top: 10px; }
+    .mobile-nav button { flex: 1; margin: 2px; padding: 12px; font-size: 16px; border-radius: 10px; border: none; cursor: pointer; background: #4CAF50; color: white; transition: 0.3s; }
+    .mobile-nav button.primary { background: #2E7D32; }
+    .mobile-nav button:hover { opacity: 0.9; }
     .mobile-results { margin-top: 15px; }
-
-    @media(max-width:600px){
-      .desktop-container { display: none; }
-      .mobile-app { display: block; }
-    }
   </style>
 </head>
 <body>
 
-<!-- --- Desktop Version --- -->
-<div class="container desktop-container">
+<!-- DESKTOP VERSION -->
+<div class="container" id="desktop-version">
 <h1>🏡 Investment Property Analyzer</h1>
 
 <div class="grid">
@@ -126,11 +125,9 @@
   </div>
   <div class="card" id="table"></div>
 </div>
-</div>
-<!-- --- End Desktop --- -->
 
-<!-- --- Mobile Version --- -->
-<div class="mobile-app">
+<!-- MOBILE VERSION -->
+<div class="mobile-app" id="mobile-version">
   <div class="step active" id="m-step1">
     <h2>🏡 Purchase</h2>
     <label>Purchase Price</label>
@@ -157,6 +154,7 @@
 
   <div class="step" id="m-step3">
     <h2>📉 Expenses</h2>
+
     <label>Vacancy: <span id="m-vac-val">5%</span></label>
     <input type="range" id="m-vac" min="0" max="20" step="1" value="5">
 
@@ -178,6 +176,7 @@
 
   <div class="step" id="m-step4">
     <h2>📈 Exit</h2>
+
     <label>Hold Years</label>
     <input id="m-years" type="number" value="10">
 
@@ -193,41 +192,115 @@
     <button onclick="analyzeMobile()" class="primary">Analyze</button>
   </div>
 </div>
-<!-- --- End Mobile --- -->
 
 <script>
-/* --- Desktop JS: keep exactly as it was --- */
-function fmt(n){return n<0 ? '($'+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})+')' : '$'+n.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});}
-function pct(n){return n.toFixed(1)+"%";}
-function clsVal(val, type){
-  if(type==='positiveIf>0') return val>0?'positive':'neutral';
-  if(type==='negativeIf<0') return val<0?'negative':'positive';
-  if(type==='dscr') return val<1?'negative':'positive';
-  return 'neutral';
-}
-function calculateIRR(cf){let guess=0.1;for(let i=0;i<1000;i++){let npv=0,der=0;for(let t=0;t<cf.length;t++){npv+=cf[t]/Math.pow(1+guess,t);der-=t*cf[t]/Math.pow(1+guess,t+1);}let newGuess=guess-npv/der;if(Math.abs(newGuess-guess)<1e-6)return newGuess;guess=newGuess;}return guess;}
+  // DESKTOP FUNCTIONS
+  function fmt(n){return n<0 ? '($'+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})+')' : '$'+n.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});}
+  function pct(n){return n.toFixed(1)+"%";}
+  function clsVal(val, type){
+    if(type==='positiveIf>0') return val>0?'positive':'neutral';
+    if(type==='negativeIf<0') return val<0?'negative':'positive';
+    if(type==='dscr') return val<1?'negative':'positive';
+    return 'neutral';
+  }
+  function calculateIRR(cf){let guess=0.1;for(let i=0;i<1000;i++){let npv=0,der=0;for(let t=0;t<cf.length;t++){npv+=cf[t]/Math.pow(1+guess,t);der-=t*cf[t]/Math.pow(1+guess,t+1);}let newGuess=guess-npv/der;if(Math.abs(newGuess-guess)<1e-6)return newGuess;guess=newGuess;}return guess;}
 
-document.querySelectorAll('.percent').forEach(el=>{
-  el.addEventListener('input', ()=> { let val = el.value.replace(/[^0-9.]/g,''); el.value = val ? val + '%' : ''; });
-});
-function parsePercent(id){return parseFloat(document.getElementById(id).value.replace('%',''))/100;}
-document.querySelectorAll('.dollar').forEach(el => {
-  function formatDollar(val) { val = val.replace(/[^0-9.]/g,''); return val ? '$' + parseFloat(val).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) : ''; }
-  el.value = formatDollar(el.value);
-  el.addEventListener('input', () => { let pos = el.selectionStart; el.value = formatDollar(el.value); el.selectionStart = el.selectionEnd = pos; });
-});
+  document.querySelectorAll('.percent').forEach(el=>{
+    el.addEventListener('input', ()=> {
+      let val = el.value.replace(/[^0-9.]/g,'');
+      el.value = val ? val + '%' : '';
+    });
+  });
+  function parsePercent(id){return parseFloat(document.getElementById(id).value.replace('%',''))/100;}
 
-function analyze(){
-  // ...original desktop analyze() function (unchanged, 100% working)...
-}
+  document.querySelectorAll('.dollar').forEach(el => {
+    function formatDollar(val) {
+      val = val.replace(/[^0-9.]/g,'');
+      return val ? '$' + parseFloat(val).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) : '';
+    }
+    el.value = formatDollar(el.value);
+    el.addEventListener('input', () => {
+      let pos = el.selectionStart;
+      el.value = formatDollar(el.value);
+      el.selectionStart = el.selectionEnd = pos;
+    });
+  });
 
-document.getElementById('analyzeBtn').addEventListener('click', analyze);
+  function analyze(){
+    document.getElementById('results').classList.remove('hidden');
+    document.getElementById('summary').classList.remove('hidden');
 
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+    let price=parseFloat(document.getElementById('price').value.replace(/[^0-9.]/g,''));
+    let down=parsePercent('down');
+    let rate=parsePercent('rate')/12;
+    let term=parseFloat(document.getElementById('term').value)*12;
+    let closing=parsePercent('closing');
+    let rentVal=parseFloat(document.getElementById('rent').value.replace(/[^0-9.]/g,''));
+    let rentGrowth=parsePercent('rentGrowth');
+    let vacancy=parsePercent('vacancy');
+    let mgmt=parsePercent('management');
+    let maint=parsePercent('maintenance');
+    let hoaVal=parseFloat(document.getElementById('hoa').value.replace(/[^0-9.]/g,''));
+    let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/[^0-9.]/g,''));
+    let insVal=parseFloat(document.getElementById('insurance').value.replace(/[^0-9.]/g,''));
+    let expGrowth=parsePercent('expenseGrowth');
+    let yearsVal=parseFloat(document.getElementById('years').value);
+    let appr=parsePercent('appreciation');
 
-/* --- Mobile JS --- */
-// Placeholder: mobile analyze function and step navigation should be implemented separately without touching desktop analyze()
+    let loan=price*(1-down);
+    let mortgage=loan*(rate*Math.pow(1+rate,term))/(Math.pow(1+rate,term)-1);
+    let annualDebt=mortgage*12;
+    let downPay=price*down;
+    let closeCost=price*closing;
+
+    document.getElementById('loanInfo').innerHTML=`
+      <div class='kpi'><div>Loan Amount</div><div class='kpi-value'>${fmt(loan)}</div></div>
+      <div class='kpi'><div>Monthly Mortgage</div><div class='kpi-value'>${fmt(mortgage)}</div></div>
+    `;
+
+    let cashFlows=[-(downPay+closeCost)];
+    let yearly=[], cumulative=[], rows=[];
+    let r=rentVal, t=taxesVal, i=insVal, h=hoaVal;
+
+    for(let y=1;y<=yearsVal;y++){
+      let gross=r*12;
+      let eff=gross*(1-vacancy);
+      let exp=eff*(mgmt+maint)+t+i+h*12;
+      let noi=eff-exp;
+      let cash=noi-annualDebt;
+      yearly.push(cash);
+      cashFlows.push(cash);
+      cumulative.push((cumulative[y-2]||0)+cash);
+      rows.push(`<tr><td>${y}</td><td>${fmt(gross)}</td><td>${fmt(noi)}</td><td class='${cash<0?'negative':'positive'}'>${fmt(cash)}</td></tr>`);
+      r*=1+rentGrowth; t*=1+expGrowth; i*=1+expGrowth; h*=1+expGrowth;
+    }
+
+    let sale=price*Math.pow(1+appr,yearsVal);
+    cashFlows[cashFlows.length-1]+=sale-sale*0.06;
+
+    let irr=calculateIRR(cashFlows)*100;
+    let coc=(yearly[0]/(downPay+closeCost))*100;
+
+    document.getElementById('kpis').innerHTML=`
+      <div class='kpi'><div>IRR</div><div class='kpi-value'>${pct(irr)}</div></div>
+      <div class='kpi'><div>Cash on Cash</div><div class='kpi-value'>${pct(coc)}</div></div>
+    `;
+
+    document.getElementById('insights').innerHTML=coc>8?'This is a strong investment':'Investment returns are modest';
+
+    let ctx=document.getElementById('chart').getContext('2d');
+    new Chart(ctx,{type:'line',data:{labels:yearly.map((_,i)=>i+1),datasets:[{label:'Cash Flow',data:yearly,borderColor:'#4CAF50',fill:false}]}});
+    document.getElementById('monthlyTableContainer').innerHTML=`<table><tr><th>Year</th><th>Gross Income</th><th>NOI</th><th>Cash Flow</th></tr>${rows.join('')}</table>`;
+  }
+
+  document.getElementById('analyzeBtn').addEventListener('click',analyze);
+
+  // MOBILE FUNCTIONS
+  let currentStep=1;
+  function showStep(){document.querySelectorAll('.mobile-app .step').forEach((s,i)=>s.classList.toggle('active',i+1===currentStep));}
+  function nextStep(){if(currentStep<4){currentStep++;showStep();}}
+  function prevStep(){if(currentStep>1){currentStep--;showStep();}}
+  function analyzeMobile(){alert('Mobile analysis coming soon!');}
 </script>
-
 </body>
 </html>
