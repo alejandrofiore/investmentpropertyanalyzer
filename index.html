@@ -63,19 +63,23 @@
       h1 { font-size: 1.5em; }
     }
 .insight-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px; /* vertical & horizontal spacing */
   margin-top: 10px;
 }
 
 .insight-item {
-  display: flex;
-  justify-content: space-between;
+  display: inline-flex;
   align-items: center;
+  padding: 6px 8px;
   background: #f7f7f7;
-  padding: 8px 10px;
-  border-radius: 8px;
-  margin-bottom: 6px;
-  font-size: 13px;
-  line-height: 1.2;
+  border-radius: 6px;
+  font-size: 12.5px;
+  line-height: 1.1;
+  white-space: nowrap; /* prevents wrapping inside each item */
+  max-width: 100%;    /* keeps it responsive */
+  box-sizing: border-box;
 }
   </style>
 </head>
