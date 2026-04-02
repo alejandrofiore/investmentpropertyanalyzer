@@ -210,7 +210,20 @@ function analyze(){
   let score=irr*0.4+coc*0.3+cap*0.2+(yearly[0]>0?5:-5);
   let rating=score>15?"🔥 Great Deal":score>10?"👍 Good Deal":"⚠️ Risky";
 
-  document.getElementById('summary').innerHTML=`<h2 style="width:480px; max-width:100%; margin:auto; border-radius:10px; background:white; padding:12px;">${rating}</h2>`;
+  document.getElementById('summary').innerHTML=`
+  <div style="
+    max-width:480px;
+    margin:15px auto;
+    border-radius:10px;
+    background:white;
+    padding:12px;
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+  ">
+    ${rating}
+  </div>
+`;
 
   document.getElementById('kpis').innerHTML=`
     <div class='kpi'><div>IRR</div><div class='kpi-value ${clsVal(irr,'positiveIf>0')}'>${pct(irr)}</div></div>
