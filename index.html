@@ -231,11 +231,53 @@ function analyze(){
     <div class='kpi'><div>Cap Rate</div><div class='kpi-value ${clsVal(cap,'negativeIf<0')}'>${pct(cap)}</div></div>
     <div class='kpi'><div>DSCR</div><div class='kpi-value ${clsVal(dscr,'dscr')}'>${dscr.toFixed(1)}</div></div>`;
 
-  let insights=[];
-  if(irr<8) insights.push("Low return vs market.");
-  if(yearly[0]<0) insights.push("Negative cash flow.");
-  if(dscr<1.2) insights.push("Weak lender coverage.");
-  document.getElementById('insights').innerHTML=`<b>Insights:</b><ul>${insights.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+// ===== ADVANCED INSIGHTS =====
+let insights=[];
+
+// Core flags
+if(irr<8) insights.push("⚠️ Low return vs market.");
+if(yearly[0]<0) insights.push("⚠️ Negative cash flow.");
+if(dscr<1.2) insights.push("⚠️ Weak lender coverage (DSCR < 1.2).");
+
+// ===== BREAK-EVEN =====
+let breakEvenRent = annualDebt / (12*(1-vacancy)*(1-(mgmt+maint)));
+let rentDrop = (1 - breakEvenRent/rentVal)*100;
+
+let breakEvenOccupancy = (annualDebt / (rentVal*12*(1-(mgmt+maint)))) * 100;
+
+insights.push(`📉 Break-even rent: ${fmt(breakEvenRent)} (${rentDrop.toFixed(1)}% cushion)`);
+insights.push(`📊 Break-even occupancy: ${breakEvenOccupancy.toFixed(1)}%`);
+
+// ===== SENSITIVITY =====
+let rentDown = rentVal * 0.9;
+let effDown = rentDown*12*(1-vacancy);
+let noiDown = effDown - (effDown*(mgmt+maint)+taxesVal+insVal+hoaVal*12);
+let cashDown = noiDown - annualDebt;
+
+let rateUp = (parsePercent('rate')+0.01)/12;
+let mortgageUp = loan*(rateUp*Math.pow(1+rateUp,term))/(Math.pow(1+rateUp,term)-1);
+let cashRateUp = (yearly[0]+annualDebt) - (mortgageUp*12);
+
+insights.push(`📉 If rent -10% → Cash Flow: ${fmt(cashDown)}`);
+insights.push(`📈 If rate +1% → Cash Flow: ${fmt(cashRateUp)}`);
+
+// ===== EQUITY BREAKDOWN =====
+let totalCashFlow = yearly.reduce((a,b)=>a+b,0);
+let loanBalance = loan;
+let monthlyRate = rate;
+for(let m=0;m<yearsVal*12;m++){
+  let interest = loanBalance * monthlyRate;
+  let principal = mortgage - interest;
+  loanBalance -= principal;
+}
+let paydown = loan - loanBalance;
+let appreciationGain = sale - price;
+
+insights.push(`💰 Profit Breakdown → Appreciation: ${fmt(appreciationGain)}, Paydown: ${fmt(paydown)}, Cash Flow: ${fmt(totalCashFlow)}`);
+
+// ===== FINAL RENDER =====
+document.getElementById('insights').innerHTML =
+  `<b>Insights:</b><ul>${insights.map(i=>`<li>${i}</li>`).join('')}</ul>`;
 
   let monthlyRent = rentVal;
   let monthlyVacancy = monthlyRent * vacancy;
