@@ -11,6 +11,18 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
+    :root {
+      --app-green-1: #4CAF50;
+      --app-green-2: #2E7D32;
+      --app-blue: #1976D2;
+      --app-text: #1f2937;
+      --app-muted: #6b7280;
+      --app-border: rgba(0,0,0,0.08);
+      --app-surface: rgba(255,255,255,0.95);
+      --app-surface-strong: rgba(255,255,255,0.98);
+      --app-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -18,7 +30,7 @@
                   url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
       background-size: cover;
       background-position: center;
-      padding-bottom: 120px;
+      padding-bottom: 185px;
     }
 
     .container {
@@ -30,41 +42,25 @@
     h1 {
       text-align: center;
       color: white;
-      margin-bottom: 18px;
+      margin-bottom: 10px;
       font-size: 1.8em;
+      letter-spacing: 0.2px;
     }
 
-    .app-tabs {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-    }
-
-    .app-tab-btn {
-      border: none;
-      border-radius: 999px;
-      padding: 10px 16px;
-      font-size: 15px;
-      cursor: pointer;
-      background: rgba(255,255,255,0.85);
-      color: #333;
-      transition: 0.2s;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .app-tab-btn.active {
-      background: linear-gradient(90deg, #4CAF50, #2E7D32);
-      color: white;
+    .app-subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.88);
+      font-size: 14px;
+      margin-bottom: 20px;
     }
 
     .app-step-indicator {
       text-align: center;
-      color: rgba(255,255,255,0.9);
-      font-size: 14px;
+      color: rgba(255,255,255,0.92);
+      font-size: 13px;
       margin-bottom: 18px;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.3px;
+      font-weight: 600;
     }
 
     .app-tab-section {
@@ -89,12 +85,14 @@
     }
 
     .card {
-      background: rgba(255,255,255,0.95);
+      background: var(--app-surface);
       padding: 18px;
-      border-radius: 12px;
+      border-radius: 16px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.25);
       display: flex;
       flex-direction: column;
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
     }
 
     .input-group {
@@ -109,15 +107,17 @@
       font-weight: bold;
       color: #555;
       margin-bottom: 4px;
+      display: block;
     }
 
     input {
       width: 100%;
       padding: 10px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid #ccc;
       box-sizing: border-box;
       font-size: 15px;
+      background: white;
     }
 
     .hidden {
@@ -137,13 +137,13 @@
     .summary-box {
       max-width: 480px;
       margin: 0 auto 15px auto;
-      border-radius: 10px;
+      border-radius: 14px;
       background: white;
-      padding: 12px;
+      padding: 14px;
       text-align: center;
       font-size: 18px;
       font-weight: bold;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.16);
     }
 
     .sticky-action-bar {
@@ -152,36 +152,100 @@
       right: 0;
       bottom: 0;
       z-index: 1000;
-      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-      background: rgba(255,255,255,0.94);
-      backdrop-filter: blur(8px);
-      border-top: 1px solid rgba(0,0,0,0.08);
+      padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
 
     .sticky-action-inner {
-      max-width: 1200px;
+      max-width: 720px;
       margin: 0 auto;
     }
 
     #primaryActionBtn {
-      width: 480px;
-      max-width: 100%;
-      margin: 0 auto;
+      width: 100%;
       display: block;
-      border-radius: 10px;
+      border-radius: 16px;
       font-size: 18px;
+      font-weight: 700;
       text-align: center;
-      padding: 14px;
-      background: linear-gradient(90deg, #4CAF50, #2E7D32);
+      padding: 15px 18px;
+      background: linear-gradient(90deg, var(--app-green-1), var(--app-green-2));
       color: white;
       border: none;
       cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+      transition: 0.25s ease;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      margin-bottom: 10px;
     }
 
     #primaryActionBtn:hover {
       background: linear-gradient(90deg, #66BB6A, #388E3C);
+      transform: translateY(-1px);
+    }
+
+    .bottom-app-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid var(--app-border);
+      border-radius: 22px;
+      padding: 8px;
+      box-shadow: var(--app-shadow);
+    }
+
+    .nav-tab-btn {
+      border: none;
+      background: transparent;
+      border-radius: 16px;
+      padding: 10px 8px 9px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      color: var(--app-muted);
+      transition: 0.22s ease;
+      min-height: 64px;
+    }
+
+    .nav-tab-btn:hover {
+      background: rgba(76,175,80,0.08);
+      color: var(--app-green-2);
+    }
+
+    .nav-tab-btn.active {
+      background: linear-gradient(180deg, rgba(76,175,80,0.18), rgba(46,125,50,0.10));
+      color: var(--app-green-2);
+      box-shadow: inset 0 0 0 1px rgba(76,175,80,0.16);
+    }
+
+    .nav-icon-wrap {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-icon {
+      width: 22px;
+      height: 22px;
+      display: block;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
     }
 
     .save-load-bar {
@@ -194,13 +258,15 @@
 
     .save-load-btn {
       flex: 1;
-      padding: 10px;
-      border-radius: 8px;
+      padding: 11px;
+      border-radius: 10px;
       border: none;
       color: white;
       font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
       transition: 0.25s;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
     }
 
     #saveBtn { background: #1976D2; }
@@ -211,7 +277,7 @@
 
     .selected-property-mini {
       background: rgba(255,255,255,0.96);
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 12px;
       margin-bottom: 16px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.12);
@@ -243,15 +309,16 @@
 
     .kpi {
       background: white;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 14px 12px;
+      border-radius: 14px;
       text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }
 
     .kpi-value {
       font-size: 18px;
       font-weight: bold;
+      margin-top: 4px;
     }
 
     .positive { color: #2E7D32; }
@@ -260,11 +327,11 @@
 
     .insights {
       background: white;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 14px;
+      border-radius: 14px;
       margin-top: 20px;
       text-align: left;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }
 
     .insight-list {
@@ -277,9 +344,9 @@
     .insight-item {
       display: inline-flex;
       align-items: center;
-      padding: 6px 8px;
+      padding: 7px 9px;
       background: #f7f7f7;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 12.5px;
       line-height: 1.2;
       white-space: normal;
@@ -318,7 +385,7 @@
       margin-top: 25px;
       margin-bottom: 25px;
       padding: 12px;
-      border-radius: 12px;
+      border-radius: 16px;
       background: rgba(255,255,255,0.95);
     }
 
@@ -357,10 +424,10 @@
 
     .result-card {
       background: white;
-      border-radius: 10px;
+      border-radius: 14px;
       padding: 12px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }
 
     .result-card h4 {
@@ -379,11 +446,12 @@
     }
 
     .result-btn {
-      padding: 8px 12px;
+      padding: 9px 13px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       color: white;
       cursor: pointer;
+      font-weight: 600;
     }
 
     .select-btn {
@@ -394,7 +462,7 @@
       width: 100%;
       height: 180px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 10px;
     }
 
@@ -402,7 +470,7 @@
       width: 100%;
       height: 220px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 12px;
     }
 
@@ -446,7 +514,7 @@
 
     .selected-property-stat {
       background: #f7f7f7;
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 10px;
     }
 
@@ -467,9 +535,43 @@
       margin-bottom: 10px;
     }
 
+    .search-toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .search-toolbar input {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .search-btn {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 10px;
+      background: #1976D2;
+      color: white;
+      font-weight: 700;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+      cursor: pointer;
+    }
+
+    .use-property-btn {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      background: #2E7D32;
+      color: white;
+      font-weight: 700;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+      cursor: pointer;
+    }
+
     @media(max-width: 430px) {
       body {
-        padding-bottom: 140px;
+        padding-bottom: 200px;
       }
 
       .grid {
@@ -534,18 +636,26 @@
       .selected-property-stat-value {
         font-size: 14px;
       }
+
+      .bottom-app-nav {
+        border-radius: 20px;
+      }
+
+      .nav-tab-btn {
+        min-height: 60px;
+        padding: 8px 6px;
+      }
+
+      .nav-label {
+        font-size: 11px;
+      }
     }
   </style>
 </head>
 <body>
 <div class="container">
   <h1>🏡 Investment Property Analyzer</h1>
-
-  <div class="app-tabs">
-    <button class="app-tab-btn active" data-tab="property">Property</button>
-    <button class="app-tab-btn" data-tab="inputs">Inputs</button>
-    <button class="app-tab-btn" data-tab="results">Results</button>
-  </div>
+  <div class="app-subtitle">Analyze deals like a professional investor</div>
 
   <div class="app-step-indicator" id="stepIndicator">Step 1 of 3 · Property</div>
 
@@ -553,9 +663,9 @@
     <div class="card" style="margin-bottom:20px;">
       <h2 style="margin-top:0;">Property Search</h2>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
-        <input id="propertySearchInput" type="text" placeholder="Search address, city, or ZIP" style="flex:1; min-width:220px;">
-        <button id="propertySearchBtn" style="padding:10px 14px; border:none; border-radius:8px; background:#1976D2; color:white;">Search</button>
+      <div class="search-toolbar">
+        <input id="propertySearchInput" type="text" placeholder="Search address, city, or ZIP">
+        <button id="propertySearchBtn" class="search-btn">Search</button>
       </div>
 
       <div id="propertyResults"></div>
@@ -565,7 +675,7 @@
       <h2 style="margin-top:0;">Selected Property</h2>
       <div id="selectedPropertyDetails"></div>
       <div style="margin-top:12px;">
-        <button id="usePropertyBtn" style="padding:12px 16px; border:none; border-radius:8px; background:#2E7D32; color:white;">Use in Analyzer</button>
+        <button id="usePropertyBtn" class="use-property-btn">Use in Analyzer</button>
       </div>
     </div>
   </section>
@@ -652,6 +762,48 @@
 <div class="sticky-action-bar">
   <div class="sticky-action-inner">
     <button id="primaryActionBtn">Go to Inputs</button>
+
+    <div class="bottom-app-nav">
+      <button class="nav-tab-btn active" data-tab="property" aria-label="Property tab">
+        <div class="nav-icon-wrap">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <path d="M3 10.5 12 3l9 7.5"></path>
+            <path d="M5 9.5V20h14V9.5"></path>
+            <path d="M9.5 20v-5h5v5"></path>
+          </svg>
+        </div>
+        <div class="nav-label">Property</div>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="inputs" aria-label="Inputs tab">
+        <div class="nav-icon-wrap">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <circle cx="9" cy="6" r="2"></circle>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <circle cx="15" cy="12" r="2"></circle>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+            <circle cx="11" cy="18" r="2"></circle>
+          </svg>
+        </div>
+        <div class="nav-label">Inputs</div>
+      </button>
+
+      <button class="nav-tab-btn" data-tab="results" aria-label="Results tab">
+        <div class="nav-icon-wrap">
+          <svg class="nav-icon" viewBox="0 0 24 24">
+            <path d="M4 19V5"></path>
+            <path d="M4 19h16"></path>
+            <path d="M7 15l3-4 3 2 4-6"></path>
+            <circle cx="7" cy="15" r="1"></circle>
+            <circle cx="10" cy="11" r="1"></circle>
+            <circle cx="13" cy="13" r="1"></circle>
+            <circle cx="17" cy="7" r="1"></circle>
+          </svg>
+        </div>
+        <div class="nav-label">Results</div>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -991,6 +1143,12 @@ document.getElementById('usePropertyBtn').addEventListener('click', () => {
   switchTab('inputs');
 });
 
+document.getElementById('propertySearchInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    document.getElementById('propertySearchBtn').click();
+  }
+});
+
 function switchTab(tabName){
   currentTab = tabName;
 
@@ -998,12 +1156,12 @@ function switchTab(tabName){
     section.classList.remove('active');
   });
 
-  document.querySelectorAll('.app-tab-btn').forEach(btn=>{
+  document.querySelectorAll('.nav-tab-btn').forEach(btn=>{
     btn.classList.remove('active');
   });
 
   document.getElementById('tab-' + tabName).classList.add('active');
-  document.querySelector(`.app-tab-btn[data-tab="${tabName}"]`).classList.add('active');
+  document.querySelector(`.nav-tab-btn[data-tab="${tabName}"]`).classList.add('active');
 
   const stepMap = {
     property: 'Step 1 of 3 · Property',
@@ -1014,11 +1172,10 @@ function switchTab(tabName){
   document.getElementById('stepIndicator').innerText = stepMap[tabName] || '';
 
   updatePrimaryAction();
-
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-document.querySelectorAll('.app-tab-btn').forEach(btn=>{
+document.querySelectorAll('.nav-tab-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     switchTab(btn.dataset.tab);
   });
