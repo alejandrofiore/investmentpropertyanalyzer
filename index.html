@@ -17,6 +17,7 @@
                   url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
       background-size: cover;
       background-position: center;
+      padding-bottom: 110px;
     }
 
     .container { max-width: 1200px; margin: auto; padding: 15px; }
@@ -28,9 +29,51 @@
     label { font-size: 13px; font-weight: bold; color: #555; margin-bottom: 4px; }
     input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; font-size: 15px; }
 
-    #analyzeBtn, #summary { width: 480px; max-width: 100%; margin: 15px auto; display: block; border-radius: 10px; font-size: 18px; text-align: center; }
-    #analyzeBtn { padding: 14px; background: linear-gradient(90deg, #4CAF50, #2E7D32); color: white; border: none; cursor: pointer; transition: 0.3s; }
+    #summary {
+      width: 480px;
+      max-width: 100%;
+      margin: 15px auto;
+      display: block;
+      border-radius: 10px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    #analyzeBtn {
+      width: 480px;
+      max-width: 100%;
+      margin: 0 auto;
+      display: block;
+      border-radius: 10px;
+      font-size: 18px;
+      text-align: center;
+      padding: 14px;
+      background: linear-gradient(90deg, #4CAF50, #2E7D32);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    }
+
     #analyzeBtn:hover { background: linear-gradient(90deg, #66BB6A, #388E3C); }
+
+    .sticky-analyze-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .sticky-analyze-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 25px 0; }
     .kpi { background: white; padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -61,6 +104,7 @@
       #analyzeBtn { font-size: 18px; padding: 14px; }
       th, td { font-size: 12px; padding: 5px; }
       h1 { font-size: 1.5em; }
+      body { padding-bottom: 120px; }
     }
 
     .insight-list {
@@ -155,7 +199,6 @@
     </div>
   </div>
 
-  <button id="analyzeBtn">Analyze Deal</button>
   <div id="summary" class="hidden"></div>
 
   <div id="results" class="hidden">
@@ -168,6 +211,12 @@
       <div class="table-container" id="monthlyTableContainer"></div>
     </div>
     <div class="table-container card" id="table"></div>
+  </div>
+</div>
+
+<div class="sticky-analyze-bar">
+  <div class="sticky-analyze-inner">
+    <button id="analyzeBtn">Analyze Deal</button>
   </div>
 </div>
 
@@ -201,6 +250,8 @@ document.querySelectorAll('.dollar').forEach(el=>{
   el.addEventListener('focus', ()=>{ el.value = el.value.replace(/[$,]/g,''); });
   el.addEventListener('blur', ()=>{ el.value = formatDollar(el.value); });
 });
+
+let analysisChart = null;
 
 function analyze(){
   document.getElementById('results').classList.remove('hidden');
@@ -364,7 +415,11 @@ function analyze(){
 
   document.getElementById('table').innerHTML=`<table><tr><th>Year</th><th>Gross</th><th>NOI</th><th>Cash Flow</th></tr>${rows.join('')}</table>`;
 
-  new Chart(document.getElementById('chart'),{
+  if(analysisChart) {
+    analysisChart.destroy();
+  }
+
+  analysisChart = new Chart(document.getElementById('chart'),{
     type:'line',
     data:{labels:yearly.map((_,i)=>i+1),datasets:[{label:'Annual Cash Flow',data:yearly},{label:'Cumulative Cash Flow',data:cumulative}]},
     options:{responsive:true, maintainAspectRatio:false}
