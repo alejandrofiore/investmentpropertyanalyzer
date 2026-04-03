@@ -218,6 +218,35 @@
   }
 }
 
+.property-thumb {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.property-hero {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.about-home-block {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.about-home-text {
+  margin-top: 6px;
+  line-height: 1.4;
+  color: #444;
+  font-size: 14px;
+}
+
   </style>
 </head>
 <body>
@@ -402,6 +431,151 @@ window.addEventListener('load', ()=>{
 });
 
 let analysisChart = null;
+
+let selectedProperty = null;
+
+const mockProperties = [
+  {
+    id: 1,
+    address: "123 Main St, Miami, FL 33139",
+    price: 525000,
+    beds: 2,
+    baths: 2,
+    sqft: 1180,
+    yearBuilt: 2004,
+    propertyType: "Condo",
+    hoa: 475,
+    rentEstimate: 3450,
+    rentLow: 3250,
+    rentHigh: 3650,
+    compCount: 7,
+    imageUrl: "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?auto=format&fit=crop&w=1200&q=80",
+    description: "Bright condo in a high-demand area with open living space, updated finishes, strong rental appeal, and convenient access to shopping, dining, and the beach."
+  },
+  {
+    id: 2,
+    address: "456 Ocean Ave, Fort Lauderdale, FL 33301",
+    price: 689000,
+    beds: 3,
+    baths: 2,
+    sqft: 1540,
+    yearBuilt: 1998,
+    propertyType: "Single Family",
+    hoa: 390,
+    rentEstimate: 3950,
+    rentLow: 3700,
+    rentHigh: 4200,
+    compCount: 6,
+    imageUrl: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80",
+    description: "Well-kept single-family home with generous square footage, private outdoor space, and a layout that supports both owner-occupants and long-term rental demand."
+  }
+];
+
+function formatDollarRaw(n){
+  return '$' + Number(n).toLocaleString(undefined, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  });
+}
+
+function calcPricePerSqft(price, sqft){
+  return price && sqft ? price / sqft : null;
+}
+
+function renderPropertyResults(results){
+  const container = document.getElementById('propertyResults');
+
+  if(!results.length){
+    container.innerHTML = `<div class="result-card">No properties found.</div>`;
+    return;
+  }
+
+  container.innerHTML = results.map(p => {
+    const ppsf = calcPricePerSqft(p.price, p.sqft);
+
+    return `
+      <div class="result-card">
+        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.address}" class="property-thumb">` : ''}
+        <h4>${p.address}</h4>
+        <div class="result-meta">
+          ${formatDollarRaw(p.price)} · ${p.beds} bd · ${p.baths} ba · ${p.sqft.toLocaleString()} sqft
+        </div>
+        <div class="result-meta">
+          ${p.propertyType} · Built ${p.yearBuilt} · ${ppsf ? formatDollarRaw(ppsf) + '/sqft' : 'N/A'}
+        </div>
+        <div class="result-meta">
+          HOA: ${formatDollarRaw(p.hoa)} | Est Rent: ${formatDollarRaw(p.rentEstimate)}
+        </div>
+        <div class="result-actions">
+          <button class="result-btn select-btn" onclick="selectProperty(${p.id})">Select</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectProperty(id){
+  selectedProperty = mockProperties.find(p => p.id === id);
+  if(!selectedProperty) return;
+
+  const ppsf = calcPricePerSqft(selectedProperty.price, selectedProperty.sqft);
+
+  document.getElementById('selectedPropertyCard').classList.remove('hidden');
+  document.getElementById('selectedPropertyDetails').innerHTML = `
+    ${selectedProperty.imageUrl ? `<img src="${selectedProperty.imageUrl}" alt="${selectedProperty.address}" class="property-hero">` : ''}
+    <div><b>Address:</b> ${selectedProperty.address}</div>
+    <div><b>Price:</b> ${formatDollarRaw(selectedProperty.price)}</div>
+    <div><b>Beds/Baths:</b> ${selectedProperty.beds} / ${selectedProperty.baths}</div>
+    <div><b>Sq Ft:</b> ${selectedProperty.sqft.toLocaleString()}</div>
+    <div><b>Price / Sq Ft:</b> ${ppsf ? formatDollarRaw(ppsf) : 'N/A'}</div>
+    <div><b>Property Type:</b> ${selectedProperty.propertyType}</div>
+    <div><b>Year Built:</b> ${selectedProperty.yearBuilt}</div>
+    <div><b>HOA:</b> ${formatDollarRaw(selectedProperty.hoa)}</div>
+    <div><b>Rent Estimate:</b> ${formatDollarRaw(selectedProperty.rentEstimate)}</div>
+    <div><b>Rent Range:</b> ${formatDollarRaw(selectedProperty.rentLow)} - ${formatDollarRaw(selectedProperty.rentHigh)}</div>
+    <div><b>Rental Comps:</b> ${selectedProperty.compCount}</div>
+    ${selectedProperty.description ? `
+      <div class="about-home-block">
+        <b>About this home</b>
+        <div class="about-home-text">${selectedProperty.description}</div>
+      </div>
+    ` : ''}
+  `;
+
+  document.getElementById('selectedPropertyCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function fillAnalyzerFromProperty(){
+  if(!selectedProperty) return;
+
+  document.getElementById('price').value = formatDollarRaw(selectedProperty.price);
+  document.getElementById('hoa').value = formatDollarRaw(selectedProperty.hoa || 0);
+  document.getElementById('rent').value = formatDollarRaw(selectedProperty.rentEstimate || 0);
+
+  document.getElementById('price').dispatchEvent(new Event('blur'));
+  document.getElementById('hoa').dispatchEvent(new Event('blur'));
+  document.getElementById('rent').dispatchEvent(new Event('blur'));
+
+  document.querySelectorAll('details').forEach((d, i) => {
+    if(i < 2) d.open = true;
+  });
+
+  document.getElementById('price').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.getElementById('propertySearchBtn').addEventListener('click', () => {
+  const q = document.getElementById('propertySearchInput').value.trim().toLowerCase();
+
+  const results = mockProperties.filter(p =>
+    p.address.toLowerCase().includes(q)
+  );
+
+  renderPropertyResults(q ? results : mockProperties);
+});
+
+document.getElementById('usePropertyBtn').addEventListener('click', () => {
+  fillAnalyzerFromProperty();
+});
 
 function analyze(){
   document.getElementById('results').classList.remove('hidden');
