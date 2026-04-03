@@ -20,14 +20,57 @@
       padding-bottom: 150px;
     }
 
-    .container { max-width: 1200px; margin: auto; padding: 15px; }
-    h1 { text-align: center; color: white; margin-bottom: 20px; font-size: 1.8em; }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 15px;
+    }
 
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
-    .card { background: rgba(255,255,255,0.95); padding: 18px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); display: flex; flex-direction: column; }
-    .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex-grow: 1; }
-    label { font-size: 13px; font-weight: bold; color: #555; margin-bottom: 4px; }
-    input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; font-size: 15px; }
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.95);
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      flex-grow: 1;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 15px;
+    }
 
     #summary {
       width: 480px;
@@ -56,7 +99,9 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.18);
     }
 
-    #analyzeBtn:hover { background: linear-gradient(90deg, #66BB6A, #388E3C); }
+    #analyzeBtn:hover {
+      background: linear-gradient(90deg, #66BB6A, #388E3C);
+    }
 
     .sticky-analyze-bar {
       position: fixed;
@@ -94,31 +139,109 @@
       transition: 0.25s;
     }
 
-    #saveBtn { background: #1976D2; }
-    #loadBtn { background: #455A64; }
+    #saveBtn {
+      background: #1976D2;
+    }
 
-    #saveBtn:hover { background: #1565C0; }
-    #loadBtn:hover { background: #37474F; }
+    #loadBtn {
+      background: #455A64;
+    }
 
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 25px 0; }
-    .kpi { background: white; padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .kpi-value { font-size: 18px; font-weight: bold; }
-    .positive { color: #2E7D32; }
-    .negative { color: #C62828; }
-    .neutral { color: black; }
+    #saveBtn:hover {
+      background: #1565C0;
+    }
 
-    .insights { background: white; padding: 12px; border-radius: 10px; margin-top: 20px; text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    #loadBtn:hover {
+      background: #37474F;
+    }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
-    th, td { border: 1px solid #ddd; padding: 6px; text-align: center; font-size: 13px; }
-    th { background: #4CAF50; color: white; }
-    .highlight-positive { background: #2E7D32; color: white; font-weight: bold; }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 25px 0;
+    }
 
-    .chart-container { margin-top: 25px; margin-bottom: 25px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.95); }
-    .monthly-table { margin-top: 15px; margin-bottom: 15px; }
+    .kpi {
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
 
-    .hidden { display: none; }
-    .table-container { overflow-x: auto; }
+    .kpi-value {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .positive {
+      color: #2E7D32;
+    }
+
+    .negative {
+      color: #C62828;
+    }
+
+    .neutral {
+      color: black;
+    }
+
+    .insights {
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 6px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    th {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .highlight-positive {
+      background: #2E7D32;
+      color: white;
+      font-weight: bold;
+    }
+
+    .chart-container {
+      margin-top: 25px;
+      margin-bottom: 25px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.95);
+    }
+
+    .monthly-table {
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
 
     .insight-list {
       display: flex;
@@ -165,112 +288,205 @@
       transform: rotate(180deg);
     }
 
-    @media(max-width: 430px){
-      .grid { grid-template-columns: 1fr; gap: 15px; }
-      .input-group { grid-template-columns: 1fr; gap: 12px; }
-      input { font-size: 16px; padding: 12px; }
-      label { font-size: 14px; }
-      #analyzeBtn { font-size: 18px; padding: 14px; }
-      .save-load-btn { font-size: 14px; }
-      th, td { font-size: 12px; padding: 5px; }
-      h1 { font-size: 1.5em; }
-      body { padding-bottom: 160px; }
+    .result-card {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-.result-card {
-  background: white;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
+    .result-card h4 {
+      margin: 0 0 6px 0;
+    }
 
-.result-card h4 {
-  margin: 0 0 6px 0;
-}
+    .result-meta {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 8px;
+    }
 
-.result-meta {
-  font-size: 14px;
-  color: #444;
-  margin-bottom: 8px;
-}
+    .result-actions {
+      display: flex;
+      gap: 8px;
+    }
 
-.result-actions {
-  display: flex;
-  gap: 8px;
-}
+    .result-btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    }
 
-.result-btn {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-}
+    .select-btn {
+      background: #2E7D32;
+    }
 
-.select-btn {
-  background: #2E7D32;
-}
+    .property-thumb {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
 
-@media(max-width: 430px){
-  .result-actions {
-    flex-direction: column;
-  }
-}
+    .property-hero {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
 
-.property-thumb {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
+    .about-home-block {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid #e0e0e0;
+    }
 
-.property-hero {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 12px;
-}
+    .about-home-text {
+      margin-top: 6px;
+      line-height: 1.4;
+      color: #444;
+      font-size: 14px;
+    }
 
-.about-home-block {
-  margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid #e0e0e0;
-}
+    .selected-property-header {
+      margin-bottom: 12px;
+    }
 
-.about-home-text {
-  margin-top: 6px;
-  line-height: 1.4;
-  color: #444;
-  font-size: 14px;
-}
+    .selected-property-address {
+      font-size: 20px;
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
 
+    .selected-property-price {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2E7D32;
+    }
+
+    .selected-property-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .selected-property-stat {
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .selected-property-stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .selected-property-stat-value {
+      font-size: 15px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    @media(max-width: 430px) {
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .input-group {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      input {
+        font-size: 16px;
+        padding: 12px;
+      }
+
+      label {
+        font-size: 14px;
+      }
+
+      #analyzeBtn {
+        font-size: 18px;
+        padding: 14px;
+      }
+
+      .save-load-btn {
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        font-size: 12px;
+        padding: 5px;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+
+      body {
+        padding-bottom: 160px;
+      }
+
+      .result-actions {
+        flex-direction: column;
+      }
+
+      .selected-property-address {
+        font-size: 18px;
+      }
+
+      .selected-property-price {
+        font-size: 22px;
+      }
+
+      .selected-property-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .selected-property-stat {
+        padding: 9px;
+      }
+
+      .selected-property-stat-value {
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
 <div class="container">
   <h1>🏡 Investment Property Analyzer</h1>
 
-<div class="card" style="margin-bottom:20px;">
-  <h2 style="margin-top:0;">Property Search</h2>
+  <div class="card" style="margin-bottom:20px;">
+    <h2 style="margin-top:0;">Property Search</h2>
 
-  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
-    <input id="propertySearchInput" type="text" placeholder="Search address, city, or ZIP" style="flex:1; min-width:220px;">
-    <button id="propertySearchBtn" style="padding:10px 14px; border:none; border-radius:8px; background:#1976D2; color:white;">Search</button>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+      <input id="propertySearchInput" type="text" placeholder="Search address, city, or ZIP" style="flex:1; min-width:220px;">
+      <button id="propertySearchBtn" style="padding:10px 14px; border:none; border-radius:8px; background:#1976D2; color:white;">Search</button>
+    </div>
+
+    <div id="propertyResults"></div>
   </div>
 
-  <div id="propertyResults"></div>
-</div>
-
-<div id="selectedPropertyCard" class="card hidden" style="margin-bottom:20px;">
-  <h2 style="margin-top:0;">Selected Property</h2>
-  <div id="selectedPropertyDetails"></div>
-  <div style="margin-top:12px;">
-    <button id="usePropertyBtn" style="padding:12px 16px; border:none; border-radius:8px; background:#2E7D32; color:white;">Use in Analyzer</button>
+  <div id="selectedPropertyCard" class="card hidden" style="margin-bottom:20px;">
+    <h2 style="margin-top:0;">Selected Property</h2>
+    <div id="selectedPropertyDetails"></div>
+    <div style="margin-top:12px;">
+      <button id="usePropertyBtn" style="padding:12px 16px; border:none; border-radius:8px; background:#2E7D32; color:white;">Use in Analyzer</button>
+    </div>
   </div>
-</div>
 
   <div class="grid">
     <div class="card">
@@ -340,14 +556,23 @@
 </div>
 
 <script>
-function fmt(n){return n<0 ? '($'+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})+')' : '$'+n.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});}
-function pct(n){return n.toFixed(1)+"%";}
+function fmt(n){
+  return n<0
+    ? '($'+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})+')'
+    : '$'+n.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});
+}
+
+function pct(n){
+  return n.toFixed(1)+"%";
+}
+
 function clsVal(val, type){
   if(type==='positiveIf>0') return val>0?'positive':'neutral';
   if(type==='negativeIf<0') return val<0?'negative':'positive';
   if(type==='dscr') return val<1?'negative':'positive';
   return 'neutral';
 }
+
 function calculateIRR(cf){
   let guess=0.1;
   for(let i=0;i<1000;i++){
@@ -363,10 +588,14 @@ function calculateIRR(cf){
   return guess;
 }
 
-function parsePercent(id){return parseFloat(document.getElementById(id).value.replace('%',''))/100;}
+function parsePercent(id){
+  return parseFloat(document.getElementById(id).value.replace('%',''))/100;
+}
 
 document.querySelectorAll('.percent').forEach(el=>{
-  el.addEventListener('focus', ()=>{ el.value = el.value.replace('%',''); });
+  el.addEventListener('focus', ()=>{
+    el.value = el.value.replace('%','');
+  });
   el.addEventListener('blur', ()=>{
     let val = el.value.replace(/[^0-9.]/g,'');
     if(val !== '') el.value = parseFloat(val).toFixed(1) + '%';
@@ -379,8 +608,12 @@ document.querySelectorAll('.dollar').forEach(el=>{
     return val ? '$' + parseFloat(val).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) : '';
   }
   el.value = formatDollar(el.value);
-  el.addEventListener('focus', ()=>{ el.value = el.value.replace(/[$,]/g,''); });
-  el.addEventListener('blur', ()=>{ el.value = formatDollar(el.value); });
+  el.addEventListener('focus', ()=>{
+    el.value = el.value.replace(/[$,]/g,'');
+  });
+  el.addEventListener('blur', ()=>{
+    el.value = formatDollar(el.value);
+  });
 });
 
 function getAllInputs(){
@@ -409,7 +642,9 @@ document.getElementById('saveBtn').addEventListener('click', ()=>{
   const btn = document.getElementById('saveBtn');
   const original = btn.innerText;
   btn.innerText = 'Saved ✓';
-  setTimeout(()=>{ btn.innerText = original; }, 1200);
+  setTimeout(()=>{
+    btn.innerText = original;
+  }, 1200);
 });
 
 document.getElementById('loadBtn').addEventListener('click', ()=>{
@@ -419,7 +654,9 @@ document.getElementById('loadBtn').addEventListener('click', ()=>{
     const btn = document.getElementById('loadBtn');
     const original = btn.innerText;
     btn.innerText = 'Loaded ✓';
-    setTimeout(()=>{ btn.innerText = original; }, 1200);
+    setTimeout(()=>{
+      btn.innerText = original;
+    }, 1200);
   }
 });
 
@@ -431,7 +668,6 @@ window.addEventListener('load', ()=>{
 });
 
 let analysisChart = null;
-
 let selectedProperty = null;
 
 const mockProperties = [
@@ -523,17 +759,59 @@ function selectProperty(id){
   document.getElementById('selectedPropertyCard').classList.remove('hidden');
   document.getElementById('selectedPropertyDetails').innerHTML = `
     ${selectedProperty.imageUrl ? `<img src="${selectedProperty.imageUrl}" alt="${selectedProperty.address}" class="property-hero">` : ''}
-    <div><b>Address:</b> ${selectedProperty.address}</div>
-    <div><b>Price:</b> ${formatDollarRaw(selectedProperty.price)}</div>
-    <div><b>Beds/Baths:</b> ${selectedProperty.beds} / ${selectedProperty.baths}</div>
-    <div><b>Sq Ft:</b> ${selectedProperty.sqft.toLocaleString()}</div>
-    <div><b>Price / Sq Ft:</b> ${ppsf ? formatDollarRaw(ppsf) : 'N/A'}</div>
-    <div><b>Property Type:</b> ${selectedProperty.propertyType}</div>
-    <div><b>Year Built:</b> ${selectedProperty.yearBuilt}</div>
-    <div><b>HOA:</b> ${formatDollarRaw(selectedProperty.hoa)}</div>
-    <div><b>Rent Estimate:</b> ${formatDollarRaw(selectedProperty.rentEstimate)}</div>
-    <div><b>Rent Range:</b> ${formatDollarRaw(selectedProperty.rentLow)} - ${formatDollarRaw(selectedProperty.rentHigh)}</div>
-    <div><b>Rental Comps:</b> ${selectedProperty.compCount}</div>
+
+    <div class="selected-property-header">
+      <div class="selected-property-address">${selectedProperty.address}</div>
+      <div class="selected-property-price">${formatDollarRaw(selectedProperty.price)}</div>
+    </div>
+
+    <div class="selected-property-grid">
+      <div class="selected-property-stat">
+        <div class="selected-property-stat-label">Beds / Baths</div>
+        <div class="selected-property-stat-value">${selectedProperty.beds} / ${selectedProperty.baths}</div>
+      </div>
+
+      <div class="selected-property-stat">
+        <div class="selected-property-stat-label">Sq Ft</div>
+        <div class="selected-property-stat-value">${selectedProperty.sqft.toLocaleString()}</div>
+      </div>
+
+      <div class="selected-property-stat">
+        <div class="selected-property-stat-label">Price / Sq Ft</div>
+        <div class="selected-property-stat-value">${ppsf ? formatDollarRaw(ppsf) : 'N/A'}</div>
+      </div>
+
+      <div class="selected-property-stat">
+        <div class="selected-property-stat-label">Property Type</div>
+        <div class="selected-property-stat-value">${selectedProperty.propertyType}</div>
+      </div>
+
+      <div class="selected-property-stat">
+        <div class="selected-property-stat-label">Year Built</div>
+        <div class="selected-property-stat-value">${selectedProperty.yearBuilt}</div>
+      </div>
+
+      <div class="selected-property-stat">
+        <div class="selected-property-stat-label">HOA</div>
+        <div class="selected-property-stat-value">${formatDollarRaw(selectedProperty.hoa)}</div>
+      </div>
+
+      <div class="selected-property-stat">
+        <div class="selected-property-stat-label">Rent Estimate</div>
+        <div class="selected-property-stat-value">${formatDollarRaw(selectedProperty.rentEstimate)}</div>
+      </div>
+
+      <div class="selected-property-stat">
+        <div class="selected-property-stat-label">Rent Range</div>
+        <div class="selected-property-stat-value">${formatDollarRaw(selectedProperty.rentLow)} - ${formatDollarRaw(selectedProperty.rentHigh)}</div>
+      </div>
+
+      <div class="selected-property-stat" style="grid-column: 1 / -1;">
+        <div class="selected-property-stat-label">Rental Comps</div>
+        <div class="selected-property-stat-value">${selectedProperty.compCount}</div>
+      </div>
+    </div>
+
     ${selectedProperty.description ? `
       <div class="about-home-block">
         <b>About this home</b>
