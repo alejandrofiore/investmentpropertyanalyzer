@@ -9,6 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -17,7 +18,7 @@
                   url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
       background-size: cover;
       background-position: center;
-      padding-bottom: 150px;
+      padding-bottom: 120px;
     }
 
     .container {
@@ -29,8 +30,55 @@
     h1 {
       text-align: center;
       color: white;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       font-size: 1.8em;
+    }
+
+    .app-tabs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .app-tab-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 15px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.85);
+      color: #333;
+      transition: 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .app-tab-btn.active {
+      background: linear-gradient(90deg, #4CAF50, #2E7D32);
+      color: white;
+    }
+
+    .app-step-indicator {
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+      font-size: 14px;
+      margin-bottom: 18px;
+      letter-spacing: 0.2px;
+    }
+
+    .app-tab-section {
+      display: none;
+    }
+
+    .app-tab-section.active {
+      display: block;
+      animation: fadeIn 0.22s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .grid {
@@ -72,17 +120,50 @@
       font-size: 15px;
     }
 
+    .hidden {
+      display: none;
+    }
+
     #summary {
       width: 480px;
       max-width: 100%;
-      margin: 15px auto;
+      margin: 0 auto 15px auto;
       display: block;
       border-radius: 10px;
       font-size: 18px;
       text-align: center;
     }
 
-    #analyzeBtn {
+    .summary-box {
+      max-width: 480px;
+      margin: 0 auto 15px auto;
+      border-radius: 10px;
+      background: white;
+      padding: 12px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    .sticky-action-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .sticky-action-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    #primaryActionBtn {
       width: 480px;
       max-width: 100%;
       margin: 0 auto;
@@ -99,31 +180,14 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.18);
     }
 
-    #analyzeBtn:hover {
+    #primaryActionBtn:hover {
       background: linear-gradient(90deg, #66BB6A, #388E3C);
-    }
-
-    .sticky-analyze-bar {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 1000;
-      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(8px);
-      border-top: 1px solid rgba(0,0,0,0.08);
-    }
-
-    .sticky-analyze-inner {
-      max-width: 1200px;
-      margin: 0 auto;
     }
 
     .save-load-bar {
       width: 480px;
       max-width: 100%;
-      margin: 0 auto 10px auto;
+      margin: 0 auto 18px auto;
       display: flex;
       gap: 10px;
     }
@@ -139,20 +203,35 @@
       transition: 0.25s;
     }
 
-    #saveBtn {
-      background: #1976D2;
+    #saveBtn { background: #1976D2; }
+    #loadBtn { background: #455A64; }
+
+    #saveBtn:hover { background: #1565C0; }
+    #loadBtn:hover { background: #37474F; }
+
+    .selected-property-mini {
+      background: rgba(255,255,255,0.96);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     }
 
-    #loadBtn {
-      background: #455A64;
+    .selected-property-mini-title {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 6px;
     }
 
-    #saveBtn:hover {
-      background: #1565C0;
+    .selected-property-mini-address {
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 4px;
     }
 
-    #loadBtn:hover {
-      background: #37474F;
+    .selected-property-mini-meta {
+      font-size: 14px;
+      color: #444;
     }
 
     .kpi-grid {
@@ -175,17 +254,9 @@
       font-weight: bold;
     }
 
-    .positive {
-      color: #2E7D32;
-    }
-
-    .negative {
-      color: #C62828;
-    }
-
-    .neutral {
-      color: black;
-    }
+    .positive { color: #2E7D32; }
+    .negative { color: #C62828; }
+    .neutral { color: black; }
 
     .insights {
       background: white;
@@ -194,6 +265,27 @@
       margin-top: 20px;
       text-align: left;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .insight-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 8px;
+      margin-top: 10px;
+    }
+
+    .insight-item {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 8px;
+      background: #f7f7f7;
+      border-radius: 6px;
+      font-size: 12.5px;
+      line-height: 1.2;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     table {
@@ -235,33 +327,8 @@
       margin-bottom: 15px;
     }
 
-    .hidden {
-      display: none;
-    }
-
     .table-container {
       overflow-x: auto;
-    }
-
-    .insight-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 8px;
-      margin-top: 10px;
-    }
-
-    .insight-item {
-      display: inline-flex;
-      align-items: center;
-      padding: 6px 8px;
-      background: #f7f7f7;
-      border-radius: 6px;
-      font-size: 12.5px;
-      line-height: 1.2;
-      white-space: normal;
-      overflow-wrap: anywhere;
-      max-width: 100%;
-      box-sizing: border-box;
     }
 
     details summary {
@@ -395,7 +462,16 @@
       color: #222;
     }
 
+    .results-section-title {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
     @media(max-width: 430px) {
+      body {
+        padding-bottom: 140px;
+      }
+
       .grid {
         grid-template-columns: 1fr;
         gap: 15px;
@@ -415,7 +491,7 @@
         font-size: 14px;
       }
 
-      #analyzeBtn {
+      #primaryActionBtn {
         font-size: 18px;
         padding: 14px;
       }
@@ -432,10 +508,6 @@
 
       h1 {
         font-size: 1.5em;
-      }
-
-      body {
-        padding-bottom: 160px;
       }
 
       .result-actions {
@@ -469,121 +541,149 @@
 <div class="container">
   <h1>🏡 Investment Property Analyzer</h1>
 
-  <div class="card" style="margin-bottom:20px;">
-    <h2 style="margin-top:0;">Property Search</h2>
-
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
-      <input id="propertySearchInput" type="text" placeholder="Search address, city, or ZIP" style="flex:1; min-width:220px;">
-      <button id="propertySearchBtn" style="padding:10px 14px; border:none; border-radius:8px; background:#1976D2; color:white;">Search</button>
-    </div>
-
-    <div id="propertyResults"></div>
+  <div class="app-tabs">
+    <button class="app-tab-btn active" data-tab="property">Property</button>
+    <button class="app-tab-btn" data-tab="inputs">Inputs</button>
+    <button class="app-tab-btn" data-tab="results">Results</button>
   </div>
 
-  <div id="selectedPropertyCard" class="card hidden" style="margin-bottom:20px;">
-    <h2 style="margin-top:0;">Selected Property</h2>
-    <div id="selectedPropertyDetails"></div>
-    <div style="margin-top:12px;">
-      <button id="usePropertyBtn" style="padding:12px 16px; border:none; border-radius:8px; background:#2E7D32; color:white;">Use in Analyzer</button>
-    </div>
-  </div>
+  <div class="app-step-indicator" id="stepIndicator">Step 1 of 3 · Property</div>
 
-  <div class="grid">
-    <div class="card">
-      <details open>
-        <summary>Purchase & Financing</summary>
-        <div class="input-group">
-          <div><label>Purchase Price</label><input class="dollar" id="price" type="text" value="$350,000.0"></div>
-          <div><label>Down Payment</label><input class="percent" id="down" type="text" value="40.0%"></div>
-          <div><label>Interest Rate</label><input class="percent" id="rate" type="text" value="6.25%"></div>
-          <div><label>Loan Term (Years)</label><input id="term" type="number" value="30"></div>
-          <div><label>Closing Costs</label><input class="percent" id="closing" type="text" value="2.5%"></div>
-        </div>
-      </details>
+  <section id="tab-property" class="app-tab-section active">
+    <div class="card" style="margin-bottom:20px;">
+      <h2 style="margin-top:0;">Property Search</h2>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+        <input id="propertySearchInput" type="text" placeholder="Search address, city, or ZIP" style="flex:1; min-width:220px;">
+        <button id="propertySearchBtn" style="padding:10px 14px; border:none; border-radius:8px; background:#1976D2; color:white;">Search</button>
+      </div>
+
+      <div id="propertyResults"></div>
     </div>
 
-    <div class="card">
-      <details>
-        <summary>Income & Expenses</summary>
-        <div class="input-group">
-          <div><label>Monthly Rent</label><input class="dollar" id="rent" type="text" value="$2,850.0"></div>
-          <div><label>Rent Growth</label><input class="percent" id="rentGrowth" type="text" value="3.0%"></div>
-          <div><label>Vacancy</label><input class="percent" id="vacancy" type="text" value="5.0%"></div>
-          <div><label>Management</label><input class="percent" id="management" type="text" value="10.0%"></div>
-          <div><label>Maintenance</label><input class="percent" id="maintenance" type="text" value="10.0%"></div>
-          <div><label>HOA</label><input class="dollar" id="hoa" type="text" value="$315.0"></div>
-          <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="$6,900.0"></div>
-          <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="$2,200.0"></div>
-          <div><label>Expense Growth</label><input class="percent" id="expenseGrowth" type="text" value="3.0%"></div>
-        </div>
-      </details>
+    <div id="selectedPropertyCard" class="card hidden" style="margin-bottom:20px;">
+      <h2 style="margin-top:0;">Selected Property</h2>
+      <div id="selectedPropertyDetails"></div>
+      <div style="margin-top:12px;">
+        <button id="usePropertyBtn" style="padding:12px 16px; border:none; border-radius:8px; background:#2E7D32; color:white;">Use in Analyzer</button>
+      </div>
     </div>
+  </section>
 
-    <div class="card">
-      <details>
-        <summary>Exit</summary>
-        <div class="input-group">
-          <div><label>Hold Years</label><input id="years" type="number" value="10"></div>
-          <div><label>Appreciation</label><input class="percent" id="appreciation" type="text" value="3.0%"></div>
-        </div>
-      </details>
-    </div>
-  </div>
+  <section id="tab-inputs" class="app-tab-section">
+    <div id="selectedPropertyMiniInputs" class="selected-property-mini hidden"></div>
 
-  <div id="summary" class="hidden"></div>
-
-  <div id="results" class="hidden">
-    <div id="loanInfo" class="kpi-grid"></div>
-    <div id="kpis" class="kpi-grid"></div>
-    <div id="insights" class="insights"></div>
-    <div class="chart-container card"><canvas id="chart"></canvas></div>
-    <div class="monthly-table card">
-      <h3>1st year financials</h3>
-      <div class="table-container" id="monthlyTableContainer"></div>
-    </div>
-    <div class="table-container card" id="table"></div>
-  </div>
-</div>
-
-<div class="sticky-analyze-bar">
-  <div class="sticky-analyze-inner">
     <div class="save-load-bar">
       <button id="saveBtn" class="save-load-btn">Save Deal</button>
       <button id="loadBtn" class="save-load-btn">Load Deal</button>
     </div>
-    <button id="analyzeBtn">Analyze Deal</button>
+
+    <div class="grid">
+      <div class="card">
+        <details open>
+          <summary>Purchase & Financing</summary>
+          <div class="input-group">
+            <div><label>Purchase Price</label><input class="dollar" id="price" type="text" value="$350,000.0"></div>
+            <div><label>Down Payment</label><input class="percent" id="down" type="text" value="40.0%"></div>
+            <div><label>Interest Rate</label><input class="percent" id="rate" type="text" value="6.25%"></div>
+            <div><label>Loan Term (Years)</label><input id="term" type="number" value="30"></div>
+            <div><label>Closing Costs</label><input class="percent" id="closing" type="text" value="2.5%"></div>
+          </div>
+        </details>
+      </div>
+
+      <div class="card">
+        <details>
+          <summary>Income & Expenses</summary>
+          <div class="input-group">
+            <div><label>Monthly Rent</label><input class="dollar" id="rent" type="text" value="$2,850.0"></div>
+            <div><label>Rent Growth</label><input class="percent" id="rentGrowth" type="text" value="3.0%"></div>
+            <div><label>Vacancy</label><input class="percent" id="vacancy" type="text" value="5.0%"></div>
+            <div><label>Management</label><input class="percent" id="management" type="text" value="10.0%"></div>
+            <div><label>Maintenance</label><input class="percent" id="maintenance" type="text" value="10.0%"></div>
+            <div><label>HOA</label><input class="dollar" id="hoa" type="text" value="$315.0"></div>
+            <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="$6,900.0"></div>
+            <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="$2,200.0"></div>
+            <div><label>Expense Growth</label><input class="percent" id="expenseGrowth" type="text" value="3.0%"></div>
+          </div>
+        </details>
+      </div>
+
+      <div class="card">
+        <details>
+          <summary>Exit</summary>
+          <div class="input-group">
+            <div><label>Hold Years</label><input id="years" type="number" value="10"></div>
+            <div><label>Appreciation</label><input class="percent" id="appreciation" type="text" value="3.0%"></div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-results" class="app-tab-section">
+    <div id="selectedPropertyMiniResults" class="selected-property-mini hidden"></div>
+
+    <div id="summary" class="hidden"></div>
+
+    <div id="results" class="hidden">
+      <div id="loanInfo" class="kpi-grid"></div>
+      <div id="kpis" class="kpi-grid"></div>
+      <div id="insights" class="insights"></div>
+
+      <div class="chart-container card">
+        <h3 class="results-section-title">Performance Chart</h3>
+        <canvas id="chart"></canvas>
+      </div>
+
+      <div class="monthly-table card">
+        <h3>1st year financials</h3>
+        <div class="table-container" id="monthlyTableContainer"></div>
+      </div>
+
+      <div class="table-container card">
+        <h3>Year-by-Year Projection</h3>
+        <div id="table"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="sticky-action-bar">
+  <div class="sticky-action-inner">
+    <button id="primaryActionBtn">Go to Inputs</button>
   </div>
 </div>
 
 <script>
 function fmt(n){
-  return n<0
-    ? '($'+Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1})+')'
-    : '$'+n.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});
+  return n < 0
+    ? '($' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) + ')'
+    : '$' + n.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});
 }
 
 function pct(n){
-  return n.toFixed(1)+"%";
+  return n.toFixed(1) + "%";
 }
 
 function clsVal(val, type){
-  if(type==='positiveIf>0') return val>0?'positive':'neutral';
-  if(type==='negativeIf<0') return val<0?'negative':'positive';
-  if(type==='dscr') return val<1?'negative':'positive';
+  if(type === 'positiveIf>0') return val > 0 ? 'positive' : 'neutral';
+  if(type === 'negativeIf<0') return val < 0 ? 'negative' : 'positive';
+  if(type === 'dscr') return val < 1 ? 'negative' : 'positive';
   return 'neutral';
 }
 
 function calculateIRR(cf){
-  let guess=0.1;
-  for(let i=0;i<1000;i++){
-    let npv=0,der=0;
-    for(let t=0;t<cf.length;t++){
-      npv+=cf[t]/Math.pow(1+guess,t);
-      der-=t*cf[t]/Math.pow(1+guess,t+1);
+  let guess = 0.1;
+  for(let i=0; i<1000; i++){
+    let npv = 0, der = 0;
+    for(let t=0; t<cf.length; t++){
+      npv += cf[t] / Math.pow(1 + guess, t);
+      der -= t * cf[t] / Math.pow(1 + guess, t + 1);
     }
-    let newGuess=guess-npv/der;
-    if(Math.abs(newGuess-guess)<1e-6)return newGuess;
-    guess=newGuess;
+    let newGuess = guess - npv / der;
+    if(Math.abs(newGuess - guess) < 1e-6) return newGuess;
+    guess = newGuess;
   }
   return guess;
 }
@@ -605,19 +705,25 @@ document.querySelectorAll('.percent').forEach(el=>{
 document.querySelectorAll('.dollar').forEach(el=>{
   function formatDollar(val){
     val = val.replace(/[^0-9.]/g,'');
-    return val ? '$' + parseFloat(val).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) : '';
+    return val ? '$' + parseFloat(val).toLocaleString(undefined,{
+      minimumFractionDigits:1,
+      maximumFractionDigits:1
+    }) : '';
   }
+
   el.value = formatDollar(el.value);
+
   el.addEventListener('focus', ()=>{
     el.value = el.value.replace(/[$,]/g,'');
   });
+
   el.addEventListener('blur', ()=>{
     el.value = formatDollar(el.value);
   });
 });
 
 function getAllInputs(){
-  const inputs = document.querySelectorAll('input');
+  const inputs = document.querySelectorAll('#tab-inputs input');
   let data = {};
   inputs.forEach(input=>{
     if(input.id){
@@ -669,6 +775,7 @@ window.addEventListener('load', ()=>{
 
 let analysisChart = null;
 let selectedProperty = null;
+let currentTab = 'property';
 
 const mockProperties = [
   {
@@ -820,7 +927,35 @@ function selectProperty(id){
     ` : ''}
   `;
 
+  renderPropertyMiniContext();
   document.getElementById('selectedPropertyCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  updatePrimaryAction();
+}
+
+function renderPropertyMiniContext(){
+  const inputsMini = document.getElementById('selectedPropertyMiniInputs');
+  const resultsMini = document.getElementById('selectedPropertyMiniResults');
+
+  if(!selectedProperty){
+    inputsMini.classList.add('hidden');
+    resultsMini.classList.add('hidden');
+    inputsMini.innerHTML = '';
+    resultsMini.innerHTML = '';
+    return;
+  }
+
+  const html = `
+    <div class="selected-property-mini-title">Selected Property</div>
+    <div class="selected-property-mini-address">${selectedProperty.address}</div>
+    <div class="selected-property-mini-meta">
+      ${formatDollarRaw(selectedProperty.price)} · ${selectedProperty.beds} bd · ${selectedProperty.baths} ba · ${selectedProperty.sqft.toLocaleString()} sqft · ${selectedProperty.propertyType}
+    </div>
+  `;
+
+  inputsMini.innerHTML = html;
+  resultsMini.innerHTML = html;
+  inputsMini.classList.remove('hidden');
+  resultsMini.classList.remove('hidden');
 }
 
 function fillAnalyzerFromProperty(){
@@ -834,11 +969,11 @@ function fillAnalyzerFromProperty(){
   document.getElementById('hoa').dispatchEvent(new Event('blur'));
   document.getElementById('rent').dispatchEvent(new Event('blur'));
 
-  document.querySelectorAll('details').forEach((d, i) => {
+  document.querySelectorAll('#tab-inputs details').forEach((d, i) => {
     if(i < 2) d.open = true;
   });
 
-  document.getElementById('price').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  renderPropertyMiniContext();
 }
 
 document.getElementById('propertySearchBtn').addEventListener('click', () => {
@@ -853,112 +988,160 @@ document.getElementById('propertySearchBtn').addEventListener('click', () => {
 
 document.getElementById('usePropertyBtn').addEventListener('click', () => {
   fillAnalyzerFromProperty();
+  switchTab('inputs');
+});
+
+function switchTab(tabName){
+  currentTab = tabName;
+
+  document.querySelectorAll('.app-tab-section').forEach(section=>{
+    section.classList.remove('active');
+  });
+
+  document.querySelectorAll('.app-tab-btn').forEach(btn=>{
+    btn.classList.remove('active');
+  });
+
+  document.getElementById('tab-' + tabName).classList.add('active');
+  document.querySelector(`.app-tab-btn[data-tab="${tabName}"]`).classList.add('active');
+
+  const stepMap = {
+    property: 'Step 1 of 3 · Property',
+    inputs: 'Step 2 of 3 · Inputs',
+    results: 'Step 3 of 3 · Results'
+  };
+
+  document.getElementById('stepIndicator').innerText = stepMap[tabName] || '';
+
+  updatePrimaryAction();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.querySelectorAll('.app-tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    switchTab(btn.dataset.tab);
+  });
+});
+
+function updatePrimaryAction(){
+  const btn = document.getElementById('primaryActionBtn');
+
+  if(currentTab === 'property'){
+    btn.textContent = selectedProperty ? 'Use in Inputs' : 'Go to Inputs';
+  } else if(currentTab === 'inputs'){
+    btn.textContent = 'Analyze Deal';
+  } else {
+    btn.textContent = 'Edit Inputs';
+  }
+}
+
+document.getElementById('primaryActionBtn').addEventListener('click', ()=>{
+  if(currentTab === 'property'){
+    if(selectedProperty){
+      fillAnalyzerFromProperty();
+    }
+    switchTab('inputs');
+  } else if(currentTab === 'inputs'){
+    analyze();
+  } else {
+    switchTab('inputs');
+  }
 });
 
 function analyze(){
   document.getElementById('results').classList.remove('hidden');
   document.getElementById('summary').classList.remove('hidden');
 
-  let price=parseFloat(document.getElementById('price').value.replace(/[^0-9.]/g,'')) || 0;
-  let down=parsePercent('down');
-  let rate=parsePercent('rate')/12;
-  let term=parseFloat(document.getElementById('term').value)*12 || 0;
-  let closing=parsePercent('closing');
-  let rentVal=parseFloat(document.getElementById('rent').value.replace(/[^0-9.]/g,'')) || 0;
-  let rentGrowth=parsePercent('rentGrowth');
-  let vacancy=parsePercent('vacancy');
-  let mgmt=parsePercent('management');
-  let maint=parsePercent('maintenance');
-  let hoaVal=parseFloat(document.getElementById('hoa').value.replace(/[^0-9.]/g,'')) || 0;
-  let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/[^0-9.]/g,'')) || 0;
-  let insVal=parseFloat(document.getElementById('insurance').value.replace(/[^0-9.]/g,'')) || 0;
-  let expGrowth=parsePercent('expenseGrowth');
-  let yearsVal=parseFloat(document.getElementById('years').value) || 0;
-  let appr=parsePercent('appreciation');
+  let price = parseFloat(document.getElementById('price').value.replace(/[^0-9.]/g,'')) || 0;
+  let down = parsePercent('down');
+  let rate = parsePercent('rate') / 12;
+  let term = parseFloat(document.getElementById('term').value) * 12 || 0;
+  let closing = parsePercent('closing');
+  let rentVal = parseFloat(document.getElementById('rent').value.replace(/[^0-9.]/g,'')) || 0;
+  let rentGrowth = parsePercent('rentGrowth');
+  let vacancy = parsePercent('vacancy');
+  let mgmt = parsePercent('management');
+  let maint = parsePercent('maintenance');
+  let hoaVal = parseFloat(document.getElementById('hoa').value.replace(/[^0-9.]/g,'')) || 0;
+  let taxesVal = parseFloat(document.getElementById('taxes').value.replace(/[^0-9.]/g,'')) || 0;
+  let insVal = parseFloat(document.getElementById('insurance').value.replace(/[^0-9.]/g,'')) || 0;
+  let expGrowth = parsePercent('expenseGrowth');
+  let yearsVal = parseFloat(document.getElementById('years').value) || 0;
+  let appr = parsePercent('appreciation');
 
-  let loan=price*(1-down);
-  let mortgage=loan*(rate*Math.pow(1+rate,term))/(Math.pow(1+rate,term)-1);
-  let annualDebt=mortgage*12;
-  let downPay=price*down;
-  let closeCost=price*closing;
+  let loan = price * (1 - down);
+  let mortgage = loan * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
+  let annualDebt = mortgage * 12;
+  let downPay = price * down;
+  let closeCost = price * closing;
 
-  document.getElementById('loanInfo').innerHTML=`
+  document.getElementById('loanInfo').innerHTML = `
     <div class='kpi'><div>Loan Amount</div><div class='kpi-value'>${fmt(loan)}</div></div>
     <div class='kpi'><div>Monthly Mortgage</div><div class='kpi-value'>${fmt(mortgage)}</div></div>
   `;
 
-  let cashFlows=[-(downPay+closeCost)];
-  let yearly=[], cumulative=[], rows=[];
-  let r=rentVal, t=taxesVal, i=insVal, h=hoaVal;
+  let cashFlows = [-(downPay + closeCost)];
+  let yearly = [], cumulative = [], rows = [];
+  let r = rentVal, t = taxesVal, i = insVal, h = hoaVal;
 
-  for(let y=1;y<=yearsVal;y++){
-    let gross=r*12;
-    let eff=gross*(1-vacancy);
-    let exp=eff*(mgmt+maint)+t+i+h*12;
-    let noi=eff-exp;
-    let cash=noi-annualDebt;
+  for(let y = 1; y <= yearsVal; y++){
+    let gross = r * 12;
+    let eff = gross * (1 - vacancy);
+    let exp = eff * (mgmt + maint) + t + i + h * 12;
+    let noi = eff - exp;
+    let cash = noi - annualDebt;
     yearly.push(cash);
     cashFlows.push(cash);
-    cumulative.push((cumulative[y-2]||0)+cash);
+    cumulative.push((cumulative[y-2] || 0) + cash);
     rows.push(`<tr><td>${y}</td><td>${fmt(gross)}</td><td>${fmt(noi)}</td><td class='${cash<0?'negative':'positive'}'>${fmt(cash)}</td></tr>`);
-    r*=1+rentGrowth;
-    t*=1+expGrowth;
-    i*=1+expGrowth;
-    h*=1+expGrowth;
+    r *= 1 + rentGrowth;
+    t *= 1 + expGrowth;
+    i *= 1 + expGrowth;
+    h *= 1 + expGrowth;
   }
 
-  let sale=price*Math.pow(1+appr,yearsVal);
-  cashFlows[cashFlows.length-1]+=sale-sale*0.06;
+  let sale = price * Math.pow(1 + appr, yearsVal);
+  cashFlows[cashFlows.length-1] += sale - sale * 0.06;
 
-  let irr=calculateIRR(cashFlows)*100;
-  let coc=(yearly[0]/(downPay+closeCost))*100;
-  let cap=((rentVal*12*(1-vacancy)-(rentVal*12*(1-vacancy)*(mgmt+maint)+taxesVal+insVal+hoaVal*12))/price)*100;
-  let dscr=(yearly[0]+annualDebt)/annualDebt;
-  let score=irr*0.4+coc*0.3+cap*0.2+(yearly[0]>0?5:-5);
-  let rating=score>15?"🔥 Great Deal":score>10?"👍 Good Deal":"⚠️ Risky";
+  let irr = calculateIRR(cashFlows) * 100;
+  let coc = (yearly[0] / (downPay + closeCost)) * 100;
+  let cap = ((rentVal * 12 * (1-vacancy) - (rentVal * 12 * (1-vacancy) * (mgmt + maint) + taxesVal + insVal + hoaVal * 12)) / price) * 100;
+  let dscr = (yearly[0] + annualDebt) / annualDebt;
+  let score = irr * 0.4 + coc * 0.3 + cap * 0.2 + (yearly[0] > 0 ? 5 : -5);
+  let rating = score > 15 ? "🔥 Great Deal" : score > 10 ? "👍 Good Deal" : "⚠️ Risky";
 
-  document.getElementById('summary').innerHTML=`
-  <div style="
-    max-width:480px;
-    margin:15px auto;
-    border-radius:10px;
-    background:white;
-    padding:12px;
-    text-align:center;
-    font-size:18px;
-    font-weight:bold;
-  ">
-    ${rating}
-  </div>
-`;
+  document.getElementById('summary').innerHTML = `
+    <div class="summary-box">${rating}</div>
+  `;
 
-  document.getElementById('kpis').innerHTML=`
+  document.getElementById('kpis').innerHTML = `
     <div class='kpi'><div>IRR</div><div class='kpi-value ${clsVal(irr,'positiveIf>0')}'>${pct(irr)}</div></div>
     <div class='kpi'><div>CoC</div><div class='kpi-value ${clsVal(coc,'negativeIf<0')}'>${pct(coc)}</div></div>
     <div class='kpi'><div>Cap Rate</div><div class='kpi-value ${clsVal(cap,'negativeIf<0')}'>${pct(cap)}</div></div>
     <div class='kpi'><div>DSCR</div><div class='kpi-value ${clsVal(dscr,'dscr')}'>${dscr.toFixed(1)}</div></div>`;
 
-  let insights=[];
+  let insights = [];
 
-  if(irr<8) insights.push("⚠️ Low return vs market.");
-  if(yearly[0]<0) insights.push("⚠️ Negative cash flow.");
-  if(dscr<1.2) insights.push("⚠️ Weak lender coverage (DSCR < 1.2).");
+  if(irr < 8) insights.push("⚠️ Low return vs market.");
+  if(yearly[0] < 0) insights.push("⚠️ Negative cash flow.");
+  if(dscr < 1.2) insights.push("⚠️ Weak lender coverage (DSCR < 1.2).");
 
-  let breakEvenRent = annualDebt / (12*(1-vacancy)*(1-(mgmt+maint)));
-  let rentDrop = (1 - breakEvenRent/rentVal)*100;
-  let breakEvenOccupancy = (annualDebt / (rentVal*12*(1-(mgmt+maint)))) * 100;
+  let breakEvenRent = annualDebt / (12 * (1 - vacancy) * (1 - (mgmt + maint)));
+  let rentDrop = (1 - breakEvenRent / rentVal) * 100;
+  let breakEvenOccupancy = (annualDebt / (rentVal * 12 * (1 - (mgmt + maint)))) * 100;
 
   insights.push(`📉 Break-even rent: ${fmt(breakEvenRent)} (${rentDrop.toFixed(1)}% cushion)`);
   insights.push(`📊 Break-even occupancy: ${breakEvenOccupancy.toFixed(1)}%`);
 
   let rentDown = rentVal * 0.9;
-  let effDown = rentDown*12*(1-vacancy);
-  let noiDown = effDown - (effDown*(mgmt+maint)+taxesVal+insVal+hoaVal*12);
+  let effDown = rentDown * 12 * (1 - vacancy);
+  let noiDown = effDown - (effDown * (mgmt + maint) + taxesVal + insVal + hoaVal * 12);
   let cashDown = noiDown - annualDebt;
 
-  let rateUp = (parsePercent('rate')+0.01)/12;
-  let mortgageUp = loan*(rateUp*Math.pow(1+rateUp,term))/(Math.pow(1+rateUp,term)-1);
-  let cashRateUp = (yearly[0]+annualDebt) - (mortgageUp*12);
+  let rateUp = (parsePercent('rate') + 0.01) / 12;
+  let mortgageUp = loan * (rateUp * Math.pow(1 + rateUp, term)) / (Math.pow(1 + rateUp, term) - 1);
+  let cashRateUp = (yearly[0] + annualDebt) - (mortgageUp * 12);
 
   insights.push(`📉 If rent -10% → Cash Flow: ${fmt(cashDown)}`);
   insights.push(`📈 If rate +1% → Cash Flow: ${fmt(cashRateUp)}`);
@@ -966,11 +1149,13 @@ function analyze(){
   let totalCashFlow = yearly.reduce((a,b)=>a+b,0);
   let loanBalance = loan;
   let monthlyRate = rate;
-  for(let m=0;m<yearsVal*12;m++){
+
+  for(let m=0; m<yearsVal*12; m++){
     let interest = loanBalance * monthlyRate;
     let principal = mortgage - interest;
     loanBalance -= principal;
   }
+
   let paydown = loan - loanBalance;
   let appreciationGain = sale - price;
 
@@ -1000,7 +1185,7 @@ function analyze(){
   let monthlyMortgage = mortgage;
   let monthlyCashFlow = monthlyNOI - monthlyMortgage;
 
-  document.getElementById('monthlyTableContainer').innerHTML=`
+  document.getElementById('monthlyTableContainer').innerHTML = `
 <table>
 <tr><th>Item</th><th>Monthly</th><th>Annual</th></tr>
 <tr><td>Gross Rent</td><td>${fmt(monthlyRent)}</td><td>${fmt(rentVal*12)}</td></tr>
@@ -1017,7 +1202,11 @@ function analyze(){
 <tr class="highlight-positive"><td>Cash Flow</td><td>${fmt(monthlyCashFlow)}</td><td>${fmt(yearly[0])}</td></tr>
 </table>`;
 
-  document.getElementById('table').innerHTML=`<table><tr><th>Year</th><th>Gross</th><th>NOI</th><th>Cash Flow</th></tr>${rows.join('')}</table>`;
+  document.getElementById('table').innerHTML = `
+<table>
+<tr><th>Year</th><th>Gross</th><th>NOI</th><th>Cash Flow</th></tr>
+${rows.join('')}
+</table>`;
 
   if(analysisChart) {
     analysisChart.destroy();
@@ -1025,14 +1214,22 @@ function analyze(){
 
   analysisChart = new Chart(document.getElementById('chart'),{
     type:'line',
-    data:{labels:yearly.map((_,i)=>i+1),datasets:[{label:'Annual Cash Flow',data:yearly},{label:'Cumulative Cash Flow',data:cumulative}]},
+    data:{
+      labels:yearly.map((_,i)=>i+1),
+      datasets:[
+        {label:'Annual Cash Flow',data:yearly},
+        {label:'Cumulative Cash Flow',data:cumulative}
+      ]
+    },
     options:{responsive:true, maintainAspectRatio:false}
   });
 
+  renderPropertyMiniContext();
+  switchTab('results');
   document.getElementById('summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-document.getElementById('analyzeBtn').addEventListener('click', analyze);
+updatePrimaryAction();
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
