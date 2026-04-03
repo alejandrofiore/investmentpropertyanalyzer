@@ -424,6 +424,8 @@ function analyze(){
     data:{labels:yearly.map((_,i)=>i+1),datasets:[{label:'Annual Cash Flow',data:yearly},{label:'Cumulative Cash Flow',data:cumulative}]},
     options:{responsive:true, maintainAspectRatio:false}
   });
+
+  document.getElementById('summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 document.getElementById('analyzeBtn').addEventListener('click', analyze);
