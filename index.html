@@ -17,7 +17,7 @@
                   url('https://images.unsplash.com/photo-1560518883-ce09059eeffa');
       background-size: cover;
       background-position: center;
-      padding-bottom: 110px;
+      padding-bottom: 150px;
     }
 
     .container { max-width: 1200px; margin: auto; padding: 15px; }
@@ -75,11 +75,36 @@
       margin: 0 auto;
     }
 
+    .save-load-bar {
+      width: 480px;
+      max-width: 100%;
+      margin: 0 auto 10px auto;
+      display: flex;
+      gap: 10px;
+    }
+
+    .save-load-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    #saveBtn { background: #1976D2; }
+    #loadBtn { background: #455A64; }
+
+    #saveBtn:hover { background: #1565C0; }
+    #loadBtn:hover { background: #37474F; }
+
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 25px 0; }
     .kpi { background: white; padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     .kpi-value { font-size: 18px; font-weight: bold; }
-    .positive { color: #2E7D32; } 
-    .negative { color: #C62828; } 
+    .positive { color: #2E7D32; }
+    .negative { color: #C62828; }
     .neutral { color: black; }
 
     .insights { background: white; padding: 12px; border-radius: 10px; margin-top: 20px; text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -93,19 +118,7 @@
     .monthly-table { margin-top: 15px; margin-bottom: 15px; }
 
     .hidden { display: none; }
-
     .table-container { overflow-x: auto; }
-
-    @media(max-width: 430px){
-      .grid { grid-template-columns: 1fr; gap: 15px; }
-      .input-group { grid-template-columns: 1fr; gap: 12px; }
-      input { font-size: 16px; padding: 12px; }
-      label { font-size: 14px; }
-      #analyzeBtn { font-size: 18px; padding: 14px; }
-      th, td { font-size: 12px; padding: 5px; }
-      h1 { font-size: 1.5em; }
-      body { padding-bottom: 120px; }
-    }
 
     .insight-list {
       display: flex;
@@ -150,6 +163,18 @@
 
     details[open] summary::after {
       transform: rotate(180deg);
+    }
+
+    @media(max-width: 430px){
+      .grid { grid-template-columns: 1fr; gap: 15px; }
+      .input-group { grid-template-columns: 1fr; gap: 12px; }
+      input { font-size: 16px; padding: 12px; }
+      label { font-size: 14px; }
+      #analyzeBtn { font-size: 18px; padding: 14px; }
+      .save-load-btn { font-size: 14px; }
+      th, td { font-size: 12px; padding: 5px; }
+      h1 { font-size: 1.5em; }
+      body { padding-bottom: 160px; }
     }
   </style>
 </head>
@@ -216,6 +241,10 @@
 
 <div class="sticky-analyze-bar">
   <div class="sticky-analyze-inner">
+    <div class="save-load-bar">
+      <button id="saveBtn" class="save-load-btn">Save Deal</button>
+      <button id="loadBtn" class="save-load-btn">Load Deal</button>
+    </div>
     <button id="analyzeBtn">Analyze Deal</button>
   </div>
 </div>
@@ -229,7 +258,20 @@ function clsVal(val, type){
   if(type==='dscr') return val<1?'negative':'positive';
   return 'neutral';
 }
-function calculateIRR(cf){let guess=0.1;for(let i=0;i<1000;i++){let npv=0,der=0;for(let t=0;t<cf.length;t++){npv+=cf[t]/Math.pow(1+guess,t);der-=t*cf[t]/Math.pow(1+guess,t+1);}let newGuess=guess-npv/der;if(Math.abs(newGuess-guess)<1e-6)return newGuess;guess=newGuess;}return guess;}
+function calculateIRR(cf){
+  let guess=0.1;
+  for(let i=0;i<1000;i++){
+    let npv=0,der=0;
+    for(let t=0;t<cf.length;t++){
+      npv+=cf[t]/Math.pow(1+guess,t);
+      der-=t*cf[t]/Math.pow(1+guess,t+1);
+    }
+    let newGuess=guess-npv/der;
+    if(Math.abs(newGuess-guess)<1e-6)return newGuess;
+    guess=newGuess;
+  }
+  return guess;
+}
 
 function parsePercent(id){return parseFloat(document.getElementById(id).value.replace('%',''))/100;}
 
@@ -251,27 +293,74 @@ document.querySelectorAll('.dollar').forEach(el=>{
   el.addEventListener('blur', ()=>{ el.value = formatDollar(el.value); });
 });
 
+function getAllInputs(){
+  const inputs = document.querySelectorAll('input');
+  let data = {};
+  inputs.forEach(input=>{
+    if(input.id){
+      data[input.id] = input.value;
+    }
+  });
+  return data;
+}
+
+function setAllInputs(data){
+  Object.keys(data).forEach(id=>{
+    let el = document.getElementById(id);
+    if(el){
+      el.value = data[id];
+    }
+  });
+}
+
+document.getElementById('saveBtn').addEventListener('click', ()=>{
+  const data = getAllInputs();
+  localStorage.setItem('investmentDeal', JSON.stringify(data));
+  const btn = document.getElementById('saveBtn');
+  const original = btn.innerText;
+  btn.innerText = 'Saved ✓';
+  setTimeout(()=>{ btn.innerText = original; }, 1200);
+});
+
+document.getElementById('loadBtn').addEventListener('click', ()=>{
+  const saved = localStorage.getItem('investmentDeal');
+  if(saved){
+    setAllInputs(JSON.parse(saved));
+    const btn = document.getElementById('loadBtn');
+    const original = btn.innerText;
+    btn.innerText = 'Loaded ✓';
+    setTimeout(()=>{ btn.innerText = original; }, 1200);
+  }
+});
+
+window.addEventListener('load', ()=>{
+  const saved = localStorage.getItem('investmentDeal');
+  if(saved){
+    setAllInputs(JSON.parse(saved));
+  }
+});
+
 let analysisChart = null;
 
 function analyze(){
   document.getElementById('results').classList.remove('hidden');
   document.getElementById('summary').classList.remove('hidden');
 
-  let price=parseFloat(document.getElementById('price').value.replace(/[^0-9.]/g,''));
+  let price=parseFloat(document.getElementById('price').value.replace(/[^0-9.]/g,'')) || 0;
   let down=parsePercent('down');
   let rate=parsePercent('rate')/12;
-  let term=parseFloat(document.getElementById('term').value)*12;
+  let term=parseFloat(document.getElementById('term').value)*12 || 0;
   let closing=parsePercent('closing');
-  let rentVal=parseFloat(document.getElementById('rent').value.replace(/[^0-9.]/g,''));
+  let rentVal=parseFloat(document.getElementById('rent').value.replace(/[^0-9.]/g,'')) || 0;
   let rentGrowth=parsePercent('rentGrowth');
   let vacancy=parsePercent('vacancy');
   let mgmt=parsePercent('management');
   let maint=parsePercent('maintenance');
-  let hoaVal=parseFloat(document.getElementById('hoa').value.replace(/[^0-9.]/g,''));
-  let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/[^0-9.]/g,''));
-  let insVal=parseFloat(document.getElementById('insurance').value.replace(/[^0-9.]/g,''));
+  let hoaVal=parseFloat(document.getElementById('hoa').value.replace(/[^0-9.]/g,'')) || 0;
+  let taxesVal=parseFloat(document.getElementById('taxes').value.replace(/[^0-9.]/g,'')) || 0;
+  let insVal=parseFloat(document.getElementById('insurance').value.replace(/[^0-9.]/g,'')) || 0;
   let expGrowth=parsePercent('expenseGrowth');
-  let yearsVal=parseFloat(document.getElementById('years').value);
+  let yearsVal=parseFloat(document.getElementById('years').value) || 0;
   let appr=parsePercent('appreciation');
 
   let loan=price*(1-down);
@@ -299,7 +388,10 @@ function analyze(){
     cashFlows.push(cash);
     cumulative.push((cumulative[y-2]||0)+cash);
     rows.push(`<tr><td>${y}</td><td>${fmt(gross)}</td><td>${fmt(noi)}</td><td class='${cash<0?'negative':'positive'}'>${fmt(cash)}</td></tr>`);
-    r*=1+rentGrowth; t*=1+expGrowth; i*=1+expGrowth; h*=1+expGrowth;
+    r*=1+rentGrowth;
+    t*=1+expGrowth;
+    i*=1+expGrowth;
+    h*=1+expGrowth;
   }
 
   let sale=price*Math.pow(1+appr,yearsVal);
@@ -341,7 +433,6 @@ function analyze(){
 
   let breakEvenRent = annualDebt / (12*(1-vacancy)*(1-(mgmt+maint)));
   let rentDrop = (1 - breakEvenRent/rentVal)*100;
-
   let breakEvenOccupancy = (annualDebt / (rentVal*12*(1-(mgmt+maint)))) * 100;
 
   insights.push(`📉 Break-even rent: ${fmt(breakEvenRent)} (${rentDrop.toFixed(1)}% cushion)`);
