@@ -62,25 +62,51 @@
       th, td { font-size: 12px; padding: 5px; }
       h1 { font-size: 1.5em; }
     }
-.insight-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 8px; /* vertical & horizontal spacing */
-  margin-top: 10px;
-}
 
-.insight-item {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 8px;
-  background: #f7f7f7;
-  border-radius: 6px;
-  font-size: 12.5px;
-  line-height: 1.1;
-  white-space: nowrap; /* prevents wrapping inside each item */
-  max-width: 100%;    /* keeps it responsive */
-  box-sizing: border-box;
-}
+    .insight-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 8px;
+      margin-top: 10px;
+    }
+
+    .insight-item {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 8px;
+      background: #f7f7f7;
+      border-radius: 6px;
+      font-size: 12.5px;
+      line-height: 1.2;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    details summary {
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      list-style: none;
+      margin-bottom: 12px;
+    }
+
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details summary::after {
+      content: "▾";
+      float: right;
+      font-size: 15px;
+      color: #666;
+      transition: transform 0.2s ease;
+    }
+
+    details[open] summary::after {
+      transform: rotate(180deg);
+    }
   </style>
 </head>
 <body>
@@ -89,37 +115,43 @@
 
   <div class="grid">
     <div class="card">
-      <h3>Purchase & Financing</h3>
-      <div class="input-group">
-        <div><label>Purchase Price</label><input class="dollar" id="price" type="text" value="$350,000.0"></div>
-        <div><label>Down Payment</label><input class="percent" id="down" type="text" value="40.0%"></div>
-        <div><label>Interest Rate</label><input class="percent" id="rate" type="text" value="6.25%"></div>
-        <div><label>Loan Term (Years)</label><input id="term" type="number" value="30"></div>
-        <div><label>Closing Costs</label><input class="percent" id="closing" type="text" value="2.5%"></div>
-      </div>
+      <details open>
+        <summary>Purchase & Financing</summary>
+        <div class="input-group">
+          <div><label>Purchase Price</label><input class="dollar" id="price" type="text" value="$350,000.0"></div>
+          <div><label>Down Payment</label><input class="percent" id="down" type="text" value="40.0%"></div>
+          <div><label>Interest Rate</label><input class="percent" id="rate" type="text" value="6.25%"></div>
+          <div><label>Loan Term (Years)</label><input id="term" type="number" value="30"></div>
+          <div><label>Closing Costs</label><input class="percent" id="closing" type="text" value="2.5%"></div>
+        </div>
+      </details>
     </div>
 
     <div class="card">
-      <h3>Income & Expenses</h3>
-      <div class="input-group">
-        <div><label>Monthly Rent</label><input class="dollar" id="rent" type="text" value="$2,850.0"></div>
-        <div><label>Rent Growth</label><input class="percent" id="rentGrowth" type="text" value="3.0%"></div>
-        <div><label>Vacancy</label><input class="percent" id="vacancy" type="text" value="5.0%"></div>
-        <div><label>Management</label><input class="percent" id="management" type="text" value="10.0%"></div>
-        <div><label>Maintenance</label><input class="percent" id="maintenance" type="text" value="10.0%"></div>
-        <div><label>HOA</label><input class="dollar" id="hoa" type="text" value="$315.0"></div>
-        <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="$6,900.0"></div>
-        <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="$2,200.0"></div>
-        <div><label>Expense Growth</label><input class="percent" id="expenseGrowth" type="text" value="3.0%"></div>
-      </div>
+      <details>
+        <summary>Income & Expenses</summary>
+        <div class="input-group">
+          <div><label>Monthly Rent</label><input class="dollar" id="rent" type="text" value="$2,850.0"></div>
+          <div><label>Rent Growth</label><input class="percent" id="rentGrowth" type="text" value="3.0%"></div>
+          <div><label>Vacancy</label><input class="percent" id="vacancy" type="text" value="5.0%"></div>
+          <div><label>Management</label><input class="percent" id="management" type="text" value="10.0%"></div>
+          <div><label>Maintenance</label><input class="percent" id="maintenance" type="text" value="10.0%"></div>
+          <div><label>HOA</label><input class="dollar" id="hoa" type="text" value="$315.0"></div>
+          <div><label>Annual Taxes</label><input class="dollar" id="taxes" type="text" value="$6,900.0"></div>
+          <div><label>Annual Insurance</label><input class="dollar" id="insurance" type="text" value="$2,200.0"></div>
+          <div><label>Expense Growth</label><input class="percent" id="expenseGrowth" type="text" value="3.0%"></div>
+        </div>
+      </details>
     </div>
 
     <div class="card">
-      <h3>Exit</h3>
-      <div class="input-group">
-        <div><label>Hold Years</label><input id="years" type="number" value="10"></div>
-        <div><label>Appreciation</label><input class="percent" id="appreciation" type="text" value="3.0%"></div>
-      </div>
+      <details>
+        <summary>Exit</summary>
+        <div class="input-group">
+          <div><label>Hold Years</label><input id="years" type="number" value="10"></div>
+          <div><label>Appreciation</label><input class="percent" id="appreciation" type="text" value="3.0%"></div>
+        </div>
+      </details>
     </div>
   </div>
 
@@ -250,61 +282,56 @@ function analyze(){
     <div class='kpi'><div>Cap Rate</div><div class='kpi-value ${clsVal(cap,'negativeIf<0')}'>${pct(cap)}</div></div>
     <div class='kpi'><div>DSCR</div><div class='kpi-value ${clsVal(dscr,'dscr')}'>${dscr.toFixed(1)}</div></div>`;
 
-// ===== ADVANCED INSIGHTS =====
-let insights=[];
+  let insights=[];
 
-// Core flags
-if(irr<8) insights.push("⚠️ Low return vs market.");
-if(yearly[0]<0) insights.push("⚠️ Negative cash flow.");
-if(dscr<1.2) insights.push("⚠️ Weak lender coverage (DSCR < 1.2).");
+  if(irr<8) insights.push("⚠️ Low return vs market.");
+  if(yearly[0]<0) insights.push("⚠️ Negative cash flow.");
+  if(dscr<1.2) insights.push("⚠️ Weak lender coverage (DSCR < 1.2).");
 
-// ===== BREAK-EVEN =====
-let breakEvenRent = annualDebt / (12*(1-vacancy)*(1-(mgmt+maint)));
-let rentDrop = (1 - breakEvenRent/rentVal)*100;
+  let breakEvenRent = annualDebt / (12*(1-vacancy)*(1-(mgmt+maint)));
+  let rentDrop = (1 - breakEvenRent/rentVal)*100;
 
-let breakEvenOccupancy = (annualDebt / (rentVal*12*(1-(mgmt+maint)))) * 100;
+  let breakEvenOccupancy = (annualDebt / (rentVal*12*(1-(mgmt+maint)))) * 100;
 
-insights.push(`📉 Break-even rent: ${fmt(breakEvenRent)} (${rentDrop.toFixed(1)}% cushion)`);
-insights.push(`📊 Break-even occupancy: ${breakEvenOccupancy.toFixed(1)}%`);
+  insights.push(`📉 Break-even rent: ${fmt(breakEvenRent)} (${rentDrop.toFixed(1)}% cushion)`);
+  insights.push(`📊 Break-even occupancy: ${breakEvenOccupancy.toFixed(1)}%`);
 
-// ===== SENSITIVITY =====
-let rentDown = rentVal * 0.9;
-let effDown = rentDown*12*(1-vacancy);
-let noiDown = effDown - (effDown*(mgmt+maint)+taxesVal+insVal+hoaVal*12);
-let cashDown = noiDown - annualDebt;
+  let rentDown = rentVal * 0.9;
+  let effDown = rentDown*12*(1-vacancy);
+  let noiDown = effDown - (effDown*(mgmt+maint)+taxesVal+insVal+hoaVal*12);
+  let cashDown = noiDown - annualDebt;
 
-let rateUp = (parsePercent('rate')+0.01)/12;
-let mortgageUp = loan*(rateUp*Math.pow(1+rateUp,term))/(Math.pow(1+rateUp,term)-1);
-let cashRateUp = (yearly[0]+annualDebt) - (mortgageUp*12);
+  let rateUp = (parsePercent('rate')+0.01)/12;
+  let mortgageUp = loan*(rateUp*Math.pow(1+rateUp,term))/(Math.pow(1+rateUp,term)-1);
+  let cashRateUp = (yearly[0]+annualDebt) - (mortgageUp*12);
 
-insights.push(`📉 If rent -10% → Cash Flow: ${fmt(cashDown)}`);
-insights.push(`📈 If rate +1% → Cash Flow: ${fmt(cashRateUp)}`);
+  insights.push(`📉 If rent -10% → Cash Flow: ${fmt(cashDown)}`);
+  insights.push(`📈 If rate +1% → Cash Flow: ${fmt(cashRateUp)}`);
 
-// ===== EQUITY BREAKDOWN =====
-let totalCashFlow = yearly.reduce((a,b)=>a+b,0);
-let loanBalance = loan;
-let monthlyRate = rate;
-for(let m=0;m<yearsVal*12;m++){
-  let interest = loanBalance * monthlyRate;
-  let principal = mortgage - interest;
-  loanBalance -= principal;
-}
-let paydown = loan - loanBalance;
-let appreciationGain = sale - price;
+  let totalCashFlow = yearly.reduce((a,b)=>a+b,0);
+  let loanBalance = loan;
+  let monthlyRate = rate;
+  for(let m=0;m<yearsVal*12;m++){
+    let interest = loanBalance * monthlyRate;
+    let principal = mortgage - interest;
+    loanBalance -= principal;
+  }
+  let paydown = loan - loanBalance;
+  let appreciationGain = sale - price;
 
-insights.push(`💰 Profit Breakdown → Appreciation: ${fmt(appreciationGain)}, Paydown: ${fmt(paydown)}, Cash Flow: ${fmt(totalCashFlow)}`);
+  insights.push(`💰 Profit Breakdown → Appreciation: ${fmt(appreciationGain)}, Paydown: ${fmt(paydown)}, Cash Flow: ${fmt(totalCashFlow)}`);
 
-// ===== FINAL RENDER =====
-const insightsEl = document.getElementById('insights');
-insightsEl.innerHTML = '';
-insightsEl.offsetHeight;
+  const insightsEl = document.getElementById('insights');
+  insightsEl.innerHTML = '';
+  insightsEl.offsetHeight;
 
-insightsEl.innerHTML = `
-  <b>Insights:</b>
-  <div class="insight-list">
-    ${insights.map(i => `<div class="insight-item">${i}</div>`).join('')}
-  </div>
-`;
+  insightsEl.innerHTML = `
+    <b>Insights:</b>
+    <div class="insight-list">
+      ${insights.map(i => `<div class="insight-item">${i}</div>`).join('')}
+    </div>
+  `;
+
   let monthlyRent = rentVal;
   let monthlyVacancy = monthlyRent * vacancy;
   let monthlyNetRent = monthlyRent - monthlyVacancy;
