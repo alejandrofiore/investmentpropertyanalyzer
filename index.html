@@ -43,9 +43,7 @@
 
     *{ box-sizing:border-box; }
 
-    html{
-      scroll-behavior:smooth;
-    }
+    html{ scroll-behavior:smooth; }
 
     body{
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -83,100 +81,15 @@
       padding:22px 16px 26px;
     }
 
-    .hero-shell{
-      margin-bottom:18px;
-      padding:22px;
-      border:1px solid var(--stroke);
-      background:linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.05));
-      backdrop-filter:blur(var(--blur));
-      -webkit-backdrop-filter:blur(var(--blur));
-      border-radius:32px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      position:relative;
-    }
-
-    .hero-shell::before{
-      content:"";
-      position:absolute;
-      inset:-20% auto auto -10%;
-      width:280px;
-      height:280px;
-      background:radial-gradient(circle, rgba(76,217,237,0.18), transparent 65%);
-      pointer-events:none;
-    }
-
-    .hero-shell::after{
-      content:"";
-      position:absolute;
-      inset:auto -5% -20% auto;
-      width:300px;
-      height:300px;
-      background:radial-gradient(circle, rgba(53,208,127,0.16), transparent 65%);
-      pointer-events:none;
-    }
-
-    .brand-row{
-      position:relative;
-      z-index:1;
+    .brand-bar{
       display:flex;
       justify-content:space-between;
-      align-items:flex-start;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-
-    .brand-left{
-      min-width:0;
-    }
-
-    .brand-badge{
-      display:inline-flex;
       align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border:1px solid rgba(255,255,255,0.12);
-      background:rgba(255,255,255,0.08);
-      border-radius:999px;
-      color:var(--text-soft);
-      font-size:12px;
-      font-weight:700;
-      letter-spacing:0.4px;
-      text-transform:uppercase;
-      margin-bottom:14px;
-    }
-
-    .brand-dot{
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:linear-gradient(180deg, var(--green), #79f2b0);
-      box-shadow:0 0 14px rgba(53,208,127,0.8);
-    }
-
-    h1{
-      margin:0 0 10px 0;
-      font-size:clamp(2rem, 4vw, 3.3rem);
-      line-height:1.02;
-      letter-spacing:-0.04em;
-      font-weight:800;
-    }
-
-    .hero-subtitle{
-      max-width:720px;
-      color:var(--text-soft);
-      font-size:15px;
-      line-height:1.55;
+      gap:12px;
       margin-bottom:18px;
     }
 
-    .hero-stats{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-    }
-
-    .hero-pill{
+    .brand-pill{
       display:inline-flex;
       align-items:center;
       gap:8px;
@@ -185,51 +98,20 @@
       background:rgba(255,255,255,0.08);
       border:1px solid rgba(255,255,255,0.10);
       color:var(--text-soft);
-      font-size:13px;
-      font-weight:600;
-    }
-
-    .hero-pill strong{
-      color:var(--text);
-      font-weight:700;
-    }
-
-    .hero-right{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      min-width:220px;
-      align-items:stretch;
-    }
-
-    .status-card{
-      padding:16px 18px;
-      border-radius:22px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
-      border:1px solid rgba(255,255,255,0.12);
-      box-shadow:var(--shadow-soft);
-    }
-
-    .status-card-label{
       font-size:12px;
-      color:var(--text-dim);
-      text-transform:uppercase;
-      letter-spacing:0.12em;
-      font-weight:700;
-      margin-bottom:8px;
-    }
-
-    .status-card-value{
-      font-size:22px;
       font-weight:800;
-      letter-spacing:-0.03em;
-      margin-bottom:4px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
     }
 
-    .status-card-text{
-      color:var(--text-soft);
-      font-size:13px;
-      line-height:1.45;
+    .brand-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--cyan);
+      box-shadow:0 0 14px rgba(76,217,237,0.8);
     }
 
     .app-step-indicator{
@@ -268,14 +150,8 @@
     }
 
     @keyframes fadeUp{
-      from{
-        opacity:0;
-        transform:translateY(10px);
-      }
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
+      from{ opacity:0; transform:translateY(10px); }
+      to{ opacity:1; transform:translateY(0); }
     }
 
     .section-grid{
@@ -341,6 +217,108 @@
       text-transform:uppercase;
     }
 
+    .intro-grid{
+      display:grid;
+      grid-template-columns:1.1fr 0.9fr;
+      gap:18px;
+      align-items:stretch;
+    }
+
+    .intro-hero{
+      min-height:360px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:26px;
+      border-radius:32px;
+      background:
+        radial-gradient(circle at top right, rgba(76,217,237,0.18), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(53,208,127,0.16), transparent 32%),
+        linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+      border:1px solid rgba(255,255,255,0.12);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+
+    .intro-kicker{
+      font-size:12px;
+      color:var(--text-dim);
+      font-weight:900;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      margin-bottom:14px;
+    }
+
+    .intro-title{
+      font-size:clamp(2rem, 4vw, 3.5rem);
+      line-height:0.98;
+      letter-spacing:-0.05em;
+      font-weight:900;
+      margin:0 0 12px 0;
+    }
+
+    .intro-text{
+      color:var(--text-soft);
+      font-size:15px;
+      line-height:1.6;
+      max-width:760px;
+    }
+
+    .intro-chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:20px;
+    }
+
+    .intro-chip{
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.10);
+      color:var(--text-soft);
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .intro-side{
+      display:grid;
+      gap:14px;
+    }
+
+    .intro-stat{
+      padding:20px;
+      border-radius:24px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+      border:1px solid rgba(255,255,255,0.10);
+      box-shadow:var(--shadow-soft);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+    }
+
+    .intro-stat-label{
+      font-size:11px;
+      color:var(--text-dim);
+      font-weight:800;
+      letter-spacing:0.10em;
+      text-transform:uppercase;
+      margin-bottom:8px;
+    }
+
+    .intro-stat-value{
+      font-size:26px;
+      font-weight:900;
+      letter-spacing:-0.04em;
+      margin-bottom:6px;
+    }
+
+    .intro-stat-text{
+      color:var(--text-soft);
+      font-size:14px;
+      line-height:1.5;
+    }
+
     .search-toolbar{
       display:flex;
       gap:10px;
@@ -379,9 +357,7 @@
       min-width:240px;
     }
 
-    button{
-      font-family:inherit;
-    }
+    button{ font-family:inherit; }
 
     .btn{
       border:none;
@@ -389,13 +365,8 @@
       transition:transform var(--fast), box-shadow var(--fast), opacity var(--fast), background var(--fast);
     }
 
-    .btn:hover{
-      transform:translateY(-1px);
-    }
-
-    .btn:active{
-      transform:translateY(1px) scale(0.99);
-    }
+    .btn:hover{ transform:translateY(-1px); }
+    .btn:active{ transform:translateY(1px) scale(0.99); }
 
     .btn-primary{
       padding:14px 18px;
@@ -727,13 +698,8 @@
       box-shadow:0 10px 24px rgba(0,0,0,0.18);
     }
 
-    #saveBtn{
-      background:linear-gradient(135deg, #2f6de0, #4c8eff);
-    }
-
-    #loadBtn{
-      background:linear-gradient(135deg, #34495e, #52697f);
-    }
+    #saveBtn{ background:linear-gradient(135deg, #2f6de0, #4c8eff); }
+    #loadBtn{ background:linear-gradient(135deg, #34495e, #52697f); }
 
     .grid{
       display:grid;
@@ -757,9 +723,7 @@
       color:#fff;
     }
 
-    details summary::-webkit-details-marker{
-      display:none;
-    }
+    details summary::-webkit-details-marker{ display:none; }
 
     details summary::after{
       content:"▾";
@@ -769,9 +733,7 @@
       transition:transform var(--fast);
     }
 
-    details[open] summary::after{
-      transform:rotate(180deg);
-    }
+    details[open] summary::after{ transform:rotate(180deg); }
 
     .input-group{
       display:grid;
@@ -821,17 +783,6 @@
       -webkit-backdrop-filter:blur(14px);
       position:relative;
       overflow:hidden;
-    }
-
-    .summary-hero::after{
-      content:"";
-      position:absolute;
-      right:-40px;
-      top:-20px;
-      width:200px;
-      height:200px;
-      background:radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%);
-      pointer-events:none;
     }
 
     .summary-label{
@@ -886,8 +837,6 @@
       place-items:center;
       position:relative;
       margin-bottom:14px;
-      background:conic-gradient(var(--green) 0deg, rgba(255,255,255,0.10) 0deg);
-      transition:background 500ms ease;
       box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08), 0 12px 28px rgba(0,0,0,0.20);
     }
 
@@ -1089,9 +1038,7 @@
       margin-top:8px;
     }
 
-    .monthly-table{
-      height:100%;
-    }
+    .monthly-table{ height:100%; }
 
     .table-container{
       overflow-x:auto;
@@ -1125,9 +1072,7 @@
       border-bottom:none;
     }
 
-    tr:last-child td{
-      border-bottom:none;
-    }
+    tr:last-child td{ border-bottom:none; }
 
     td{
       color:var(--text-soft);
@@ -1147,15 +1092,23 @@
       right:0;
       bottom:0;
       z-index:1000;
-      padding:10px 12px calc(12px + env(safe-area-inset-bottom));
-      background:linear-gradient(to top, rgba(4,10,18,0.88), rgba(4,10,18,0.18));
+      padding:0 0 calc(env(safe-area-inset-bottom));
+      background:linear-gradient(to top, rgba(4,10,18,0.98), rgba(4,10,18,0.70) 65%, rgba(4,10,18,0.18));
       backdrop-filter:blur(18px);
       -webkit-backdrop-filter:blur(18px);
+      border-top:1px solid rgba(255,255,255,0.08);
     }
 
     .sticky-action-inner{
+      max-width:none;
+      width:100%;
+      margin:0;
+    }
+
+    .sticky-cta-shell{
       max-width:760px;
       margin:0 auto;
+      padding:10px 12px 12px;
     }
 
     #primaryActionBtn{
@@ -1172,7 +1125,6 @@
       cursor:pointer;
       transition:transform var(--fast), box-shadow var(--fast), filter var(--fast);
       box-shadow:0 18px 36px rgba(21,153,87,0.34);
-      margin-bottom:12px;
       letter-spacing:-0.01em;
     }
 
@@ -1182,14 +1134,13 @@
     }
 
     .bottom-app-nav{
+      width:100%;
       display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:8px;
-      background:rgba(255,255,255,0.10);
-      border:1px solid rgba(255,255,255,0.14);
-      border-radius:28px;
-      padding:8px;
-      box-shadow:var(--shadow);
+      grid-template-columns:repeat(4, 1fr);
+      gap:0;
+      background:rgba(10,18,31,0.96);
+      border-top:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 -10px 30px rgba(0,0,0,0.25);
       backdrop-filter:blur(18px);
       -webkit-backdrop-filter:blur(18px);
     }
@@ -1197,7 +1148,6 @@
     .nav-tab-btn{
       border:none;
       background:transparent;
-      border-radius:20px;
       padding:12px 8px 11px;
       cursor:pointer;
       display:flex;
@@ -1207,32 +1157,37 @@
       gap:6px;
       color:var(--text-dim);
       transition:all var(--normal);
-      min-height:68px;
+      min-height:72px;
       position:relative;
       overflow:hidden;
+      border-radius:0;
     }
 
     .nav-tab-btn::before{
       content:"";
       position:absolute;
-      inset:0;
+      left:10%;
+      right:10%;
+      top:6px;
+      bottom:6px;
+      border-radius:18px;
       opacity:0;
-      transition:opacity var(--normal);
+      transition:opacity var(--normal), transform var(--normal);
       background:linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+      transform:scale(0.96);
     }
 
-    .nav-tab-btn:hover{
-      color:#fff;
-    }
+    .nav-tab-btn:hover{ color:#fff; }
 
     .nav-tab-btn.active{
       color:#fff;
       transform:translateY(-1px);
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);
     }
 
     .nav-tab-btn.active::before{
       opacity:1;
+      transform:scale(1);
     }
 
     .nav-icon-wrap{
@@ -1257,9 +1212,7 @@
       transition:transform var(--normal);
     }
 
-    .nav-tab-btn.active .nav-icon{
-      transform:scale(1.08);
-    }
+    .nav-tab-btn.active .nav-icon{ transform:scale(1.08); }
 
     .nav-label{
       font-size:11px;
@@ -1270,9 +1223,7 @@
       z-index:1;
     }
 
-    .hidden{
-      display:none !important;
-    }
+    .hidden{ display:none !important; }
 
     .skeleton{
       position:relative;
@@ -1293,29 +1244,22 @@
     }
 
     @keyframes shimmer{
-      100%{
-        transform:translateX(100%);
-      }
+      100%{ transform:translateX(100%); }
     }
 
     @media (max-width: 1100px){
       .section-grid,
       .summary-shell,
-      .dashboard-grid{
+      .dashboard-grid,
+      .intro-grid{
         grid-template-columns:1fr;
       }
 
-      .grid{
-        grid-template-columns:1fr;
-      }
+      .grid{ grid-template-columns:1fr; }
 
-      .selected-property-grid{
-        grid-template-columns:repeat(2, 1fr);
-      }
+      .selected-property-grid{ grid-template-columns:repeat(2, 1fr); }
 
-      .result-card{
-        grid-template-columns:130px 1fr;
-      }
+      .result-card{ grid-template-columns:130px 1fr; }
 
       .result-actions{
         grid-column:1 / -1;
@@ -1324,98 +1268,47 @@
     }
 
     @media (max-width: 680px){
-      body{
-        padding-bottom:220px;
-      }
+      body{ padding-bottom:220px; }
 
-      .hero-shell{
-        padding:18px;
-        border-radius:28px;
-      }
+      .search-toolbar{ flex-direction:column; }
 
-      .brand-row{
-        flex-direction:column;
-      }
+      .result-card{ grid-template-columns:1fr; }
 
-      .status-card{
-        width:100%;
-      }
+      .property-thumb{ height:180px; }
 
-      .search-toolbar{
-        flex-direction:column;
-      }
-
-      .result-card{
-        grid-template-columns:1fr;
-      }
-
-      .property-thumb{
-        height:180px;
-      }
-
-      .property-hero{
-        min-height:500px;
-      }
+      .property-hero{ min-height:500px; }
 
       .property-hero-content{
         min-height:500px;
         padding:18px;
       }
 
-      .selected-property-grid{
-        grid-template-columns:1fr 1fr;
-      }
+      .selected-property-grid{ grid-template-columns:1fr 1fr; }
 
-      .input-group{
-        grid-template-columns:1fr;
-      }
+      .input-group{ grid-template-columns:1fr; }
 
-      .save-load-bar{
-        width:100%;
-      }
+      .save-load-bar{ width:100%; }
 
-      .chart-canvas-wrap{
-        height:300px;
-      }
+      .chart-canvas-wrap{ height:300px; }
 
-      .kpi-value{
-        font-size:24px;
-      }
+      .kpi-value{ font-size:24px; }
     }
 
     @media (max-width: 430px){
-      .container{
-        padding:16px 12px 24px;
-      }
+      .container{ padding:16px 12px 24px; }
 
-      .hero-subtitle{
-        font-size:14px;
-      }
+      .selected-property-address{ font-size:28px; }
 
-      .selected-property-address{
-        font-size:28px;
-      }
+      .selected-property-price{ font-size:26px; }
 
-      .selected-property-price{
-        font-size:26px;
-      }
-
-      .selected-property-grid{
-        grid-template-columns:1fr;
-      }
-
-      .bottom-app-nav{
-        border-radius:24px;
-      }
+      .selected-property-grid{ grid-template-columns:1fr; }
 
       .nav-tab-btn{
-        min-height:64px;
+        min-height:68px;
         padding:10px 6px;
       }
 
-      #primaryActionBtn{
-        font-size:17px;
-      }
+      #primaryActionBtn{ font-size:17px; }
 
       th, td{
         font-size:12px;
@@ -1426,43 +1319,53 @@
 </head>
 <body>
   <div class="container">
-    <section class="hero-shell">
-      <div class="brand-row">
-        <div class="brand-left">
-          <div class="brand-badge">
-            <span class="brand-dot"></span>
-            Institutional-Style Underwriting
+    <div class="brand-bar">
+      <div class="brand-pill">
+        <span class="brand-dot"></span>
+        Investment Property Analyzer
+      </div>
+    </div>
+
+    <div class="app-step-indicator" id="stepIndicator">
+      <span class="step-pulse"></span>
+      Intro
+    </div>
+
+    <section id="tab-intro" class="app-tab-section active">
+      <div class="intro-grid">
+        <div class="intro-hero">
+          <div>
+            <div class="intro-kicker">Institutional-Style Underwriting</div>
+            <h1 class="intro-title">Analyze properties with clarity, speed, and conviction.</h1>
+            <div class="intro-text">
+              Find a property, model your assumptions, and get a polished investment verdict with premium deal analytics, visual projections, and downside checks.
+            </div>
           </div>
 
-          <h1>Analyze properties with clarity, speed, and conviction.</h1>
-
-          <div class="hero-subtitle">
-            Find a property, model your assumptions, and get a polished investment verdict with premium deal analytics, visual projections, and downside checks.
-          </div>
-
-          <div class="hero-stats">
-            <div class="hero-pill"><strong>3-step flow</strong> Search · Model · Decide</div>
-            <div class="hero-pill"><strong>Fast deal reads</strong> IRR, CoC, Cap, DSCR</div>
-            <div class="hero-pill"><strong>Decision support</strong> Break-even, stress tests, upside</div>
+          <div class="intro-chip-row">
+            <div class="intro-chip">3-step flow · Search · Model · Decide</div>
+            <div class="intro-chip">Fast deal reads · IRR · CoC · Cap · DSCR</div>
+            <div class="intro-chip">Decision support · Break-even · Stress tests · Upside</div>
           </div>
         </div>
 
-        <div class="hero-right">
-          <div class="status-card">
-            <div class="status-card-label">Current Experience</div>
-            <div class="status-card-value">Premium Mobile UI</div>
-            <div class="status-card-text">Refined glass surfaces, guided flow, motion, and a sharper executive dashboard.</div>
+        <div class="intro-side">
+          <div class="intro-stat">
+            <div class="intro-stat-label">Current Experience</div>
+            <div class="intro-stat-value">Premium Mobile UI</div>
+            <div class="intro-stat-text">Refined glass surfaces, guided flow, a cleaner dashboard, and a more app-like structure.</div>
+          </div>
+
+          <div class="intro-stat">
+            <div class="intro-stat-label">Best Use</div>
+            <div class="intro-stat-value">Quick Deal Screening</div>
+            <div class="intro-stat-text">Move from property selection to investment decision in a simple, guided flow.</div>
           </div>
         </div>
       </div>
     </section>
 
-    <div class="app-step-indicator" id="stepIndicator">
-      <span class="step-pulse"></span>
-      Step 1 of 3 · Property Discovery
-    </div>
-
-    <section id="tab-property" class="app-tab-section active">
+    <section id="tab-property" class="app-tab-section">
       <div class="section-grid">
         <div class="card">
           <div class="card-header">
@@ -1542,7 +1445,7 @@
         </div>
 
         <div class="card">
-          <details>
+          <details open>
             <summary>Income & Expenses</summary>
             <div class="input-group">
               <div class="input-field">
@@ -1595,7 +1498,7 @@
         </div>
 
         <div class="card">
-          <details>
+          <details open>
             <summary>Exit Assumptions</summary>
             <div class="input-group">
               <div class="input-field">
@@ -1651,10 +1554,23 @@
 
   <div class="sticky-action-bar">
     <div class="sticky-action-inner">
-      <button id="primaryActionBtn">Continue to Inputs</button>
+      <div class="sticky-cta-shell">
+        <button id="primaryActionBtn">Go to Property Search</button>
+      </div>
 
       <div class="bottom-app-nav">
-        <button class="nav-tab-btn active" data-tab="property" aria-label="Property tab">
+        <button class="nav-tab-btn active" data-tab="intro" aria-label="Intro tab">
+          <div class="nav-icon-wrap">
+            <svg class="nav-icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9"></circle>
+              <line x1="12" y1="10" x2="12" y2="16"></line>
+              <circle cx="12" cy="7.5" r="0.8"></circle>
+            </svg>
+          </div>
+          <div class="nav-label">Intro</div>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="property" aria-label="Property tab">
           <div class="nav-icon-wrap">
             <svg class="nav-icon" viewBox="0 0 24 24">
               <path d="M3 10.5 12 3l9 7.5"></path>
@@ -1747,7 +1663,7 @@
     }
 
     function animateValue(el, target, formatter, duration = 850){
-      if(!el) return;
+      if(!el || !isFinite(target)) return;
       const start = performance.now();
       const from = 0;
       function step(now){
@@ -1764,15 +1680,16 @@
       requestAnimationFrame(step);
     }
 
-    function animateDealScore(score){
+    function setDealScore(score){
       const ring = document.getElementById('dealScoreRing');
       const number = document.getElementById('dealScoreNumber');
-      if(!ring || !number) return;
+      if(!ring || !number || !isFinite(score)) return;
 
-      const bounded = Math.max(0, Math.min(100, score));
+      const bounded = Math.max(0, Math.min(100, Math.round(score)));
       const degrees = bounded * 3.6;
-      ring.style.background = `conic-gradient(var(--green) ${degrees}deg, rgba(255,255,255,0.10) ${degrees}deg)`;
-      animateValue(number, bounded, v => Math.round(v));
+
+      ring.style.background = `conic-gradient(#35d07f 0deg ${degrees}deg, rgba(255,255,255,0.10) ${degrees}deg 360deg)`;
+      animateValue(number, bounded, v => Math.round(v), 900);
     }
 
     function buildInsightCards(items){
@@ -1858,18 +1775,9 @@
       }
     });
 
-    window.addEventListener('load', ()=>{
-      const saved = localStorage.getItem('investmentDeal');
-      if(saved){
-        setAllInputs(JSON.parse(saved));
-      }
-      renderPropertyResults(mockProperties);
-      updatePrimaryAction();
-    });
-
     let analysisChart = null;
     let selectedProperty = null;
-    let currentTab = 'property';
+    let currentTab = 'intro';
 
     const mockProperties = [
       {
@@ -2041,8 +1949,8 @@
       `;
 
       renderPropertyMiniContext();
-      document.getElementById('selectedPropertyCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
       updatePrimaryAction();
+      document.getElementById('selectedPropertyCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function fillAnalyzerFromProperty(){
@@ -2055,10 +1963,6 @@
       document.getElementById('price').dispatchEvent(new Event('blur'));
       document.getElementById('hoa').dispatchEvent(new Event('blur'));
       document.getElementById('rent').dispatchEvent(new Event('blur'));
-
-      document.querySelectorAll('#tab-inputs details').forEach((d, i) => {
-        if(i < 2) d.open = true;
-      });
 
       renderPropertyMiniContext();
     }
@@ -2102,6 +2006,7 @@
       document.querySelector(`.nav-tab-btn[data-tab="${tabName}"]`).classList.add('active');
 
       const stepMap = {
+        intro: 'Intro',
         property: 'Step 1 of 3 · Property Discovery',
         inputs: 'Step 2 of 3 · Underwriting Inputs',
         results: 'Step 3 of 3 · Investment Verdict'
@@ -2121,7 +2026,9 @@
     function updatePrimaryAction(){
       const btn = document.getElementById('primaryActionBtn');
 
-      if(currentTab === 'property'){
+      if(currentTab === 'intro'){
+        btn.textContent = 'Go to Property Search';
+      } else if(currentTab === 'property'){
         btn.textContent = selectedProperty ? 'Use Selected Property in Inputs' : 'Continue to Inputs';
       } else if(currentTab === 'inputs'){
         btn.textContent = 'Analyze Deal';
@@ -2131,7 +2038,9 @@
     }
 
     document.getElementById('primaryActionBtn').addEventListener('click', ()=>{
-      if(currentTab === 'property'){
+      if(currentTab === 'intro'){
+        switchTab('property');
+      } else if(currentTab === 'property'){
         if(selectedProperty){
           fillAnalyzerFromProperty();
         }
@@ -2143,7 +2052,7 @@
       }
     });
 
-    function createSummaryMarkup(rating, summaryText, dealScore){
+    function createSummaryMarkup(rating, summaryText){
       return `
         <div class="summary-shell">
           <div class="summary-hero">
@@ -2159,7 +2068,7 @@
                 <div class="deal-score-max">Deal Score</div>
               </div>
             </div>
-            <div class="deal-score-caption">A blended score of projected return, income resilience, lender safety, and overall underwriting quality.</div>
+            <div class="deal-score-caption">A blended score of return, income quality, lender safety, and downside resilience.</div>
           </div>
         </div>
       `;
@@ -2226,20 +2135,29 @@
 
       let irr = calculateIRR(cashFlows) * 100;
       let coc = (yearly[0] / (downPay + closeCost)) * 100;
-      let cap = ((rentVal * 12 * (1 - vacancy) - (rentVal * 12 * (1 - vacancy) * (mgmt + maint) + taxesVal + insVal + hoaVal * 12)) / price) * 100;
+      let cap = ((rentVal * 12 * (1-vacancy) - (rentVal * 12 * (1-vacancy) * (mgmt + maint) + taxesVal + insVal + hoaVal * 12)) / price) * 100;
       let dscr = annualDebt ? (yearly[0] + annualDebt) / annualDebt : 0;
-      let score = irr * 0.4 + coc * 0.3 + cap * 0.2 + (yearly[0] > 0 ? 5 : -5);
 
-      let rating = score > 15 ? "🔥 Great Deal" : score > 10 ? "👍 Good Deal" : "⚠️ Risky";
-      let summaryText = score > 15
-        ? "Strong projected returns, solid income profile, and a more attractive overall risk-reward balance based on the current assumptions."
-        : score > 10
-        ? "Promising fundamentals with reasonable projected performance, though the outcome still depends on assumption discipline and execution."
-        : "This underwriting shows weaker economics or tighter downside protection, so it may require a better price, stronger rent, or cleaner financing terms.";
+      let rawScore = irr * 0.4 + coc * 0.3 + cap * 0.2 + (yearly[0] > 0 ? 5 : -5);
+      let rating = rawScore > 15 ? "🔥 Great Deal" : rawScore > 10 ? "👍 Good Deal" : "⚠️ Risky";
 
-      let dealScore = Math.max(0, Math.min(100, Math.round((score / 20) * 100)));
+      let summaryText = rawScore > 15
+        ? "Strong projected returns, solid income support, and a more attractive overall risk-reward balance based on the current assumptions."
+        : rawScore > 10
+        ? "Promising economics with reasonable projected performance, though execution and assumption discipline still matter."
+        : "This underwriting looks weaker or tighter on downside protection, so it may need a better price, better rent, or improved financing.";
 
-      document.getElementById('summary').innerHTML = createSummaryMarkup(rating, summaryText, dealScore);
+      let normalizedScore = (
+        (Math.max(Math.min(irr, 20), 0) / 20) * 35 +
+        (Math.max(Math.min(coc, 12), 0) / 12) * 25 +
+        (Math.max(Math.min(cap, 10), 0) / 10) * 20 +
+        (Math.max(Math.min(dscr, 1.6), 0) / 1.6) * 20
+      );
+
+      if(yearly[0] < 0) normalizedScore -= 8;
+      normalizedScore = Math.max(0, Math.min(100, normalizedScore));
+
+      document.getElementById('summary').innerHTML = createSummaryMarkup(rating, summaryText);
 
       document.getElementById('loanInfo').innerHTML = `
         <div class="kpi">
@@ -2287,7 +2205,6 @@
         </div>
       `;
 
-      animateDealScore(dealScore);
       animateValue(document.getElementById('loanAmountValue'), loan, fmt);
       animateValue(document.getElementById('mortgageValue'), mortgage, fmt);
       animateValue(document.getElementById('irrValue'), irr, pct);
@@ -2296,6 +2213,8 @@
       animateValue(document.getElementById('dscrValue'), dscr, v => v.toFixed(1));
       animateValue(document.getElementById('cashFlowValue'), yearly[0], fmt);
       animateValue(document.getElementById('saleValue'), sale, fmt);
+
+      requestAnimationFrame(() => setDealScore(normalizedScore));
 
       let breakEvenRent = annualDebt / (12 * (1 - vacancy) * (1 - (mgmt + maint)));
       let rentDrop = (1 - breakEvenRent / rentVal) * 100;
@@ -2527,6 +2446,15 @@
       switchTab('results');
       document.getElementById('summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
+    window.addEventListener('load', ()=>{
+      const saved = localStorage.getItem('investmentDeal');
+      if(saved){
+        setAllInputs(JSON.parse(saved));
+      }
+      renderPropertyResults(mockProperties);
+      updatePrimaryAction();
+    });
 
     if('serviceWorker' in navigator){
       navigator.serviceWorker.register('sw.js');
