@@ -2,47 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Investment Property Analyzer</title>
+  <title>RealtyIQ Analyzer</title>
 
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon.png">
-  <meta name="theme-color" content="#0b1220">
+  <meta name="theme-color" content="#081223">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root{
-      --bg-1:#06111f;
-      --bg-2:#0b1220;
-      --bg-3:#101a2f;
+      --bg-1:#05111f;
+      --bg-2:#0b1730;
+      --bg-3:#10213e;
       --panel:rgba(255,255,255,0.08);
-      --panel-strong:rgba(255,255,255,0.12);
-      --panel-soft:rgba(255,255,255,0.06);
-      --stroke:rgba(255,255,255,0.12);
-      --stroke-strong:rgba(255,255,255,0.20);
+      --panel-2:rgba(255,255,255,0.11);
+      --stroke:rgba(255,255,255,0.10);
       --text:#f6f8fb;
-      --text-soft:rgba(255,255,255,0.72);
+      --text-soft:rgba(255,255,255,0.75);
       --text-dim:rgba(255,255,255,0.50);
       --green:#35d07f;
       --green-2:#159957;
       --blue:#5da9ff;
       --cyan:#4cd9ed;
-      --gold:#f8c55f;
+      --gold:#e8c26b;
       --red:#ff6b6b;
-      --shadow:0 18px 50px rgba(0,0,0,0.35);
-      --shadow-soft:0 12px 30px rgba(0,0,0,0.24);
+      --shadow:0 20px 50px rgba(0,0,0,0.35);
+      --shadow-soft:0 10px 24px rgba(0,0,0,0.22);
       --radius-xl:28px;
       --radius-lg:22px;
       --radius-md:16px;
-      --radius-sm:12px;
-      --blur:16px;
       --fast:160ms cubic-bezier(.2,.8,.2,1);
       --normal:260ms cubic-bezier(.2,.8,.2,1);
     }
 
     *{ box-sizing:border-box; }
-
     html{ scroll-behavior:smooth; }
 
     body{
@@ -51,10 +46,10 @@
       color:var(--text);
       min-height:100vh;
       background:
-        radial-gradient(circle at top left, rgba(76,217,237,0.16), transparent 28%),
-        radial-gradient(circle at top right, rgba(53,208,127,0.14), transparent 24%),
+        radial-gradient(circle at top left, rgba(76,217,237,0.15), transparent 26%),
+        radial-gradient(circle at top right, rgba(53,208,127,0.12), transparent 26%),
         radial-gradient(circle at bottom center, rgba(93,169,255,0.14), transparent 30%),
-        linear-gradient(160deg, rgba(6,17,31,0.86), rgba(11,18,32,0.94)),
+        linear-gradient(160deg, rgba(5,17,31,0.92), rgba(11,23,48,0.96)),
         url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1800&q=80');
       background-size:cover;
       background-position:center;
@@ -217,108 +212,6 @@
       text-transform:uppercase;
     }
 
-    .intro-grid{
-      display:grid;
-      grid-template-columns:1.1fr 0.9fr;
-      gap:18px;
-      align-items:stretch;
-    }
-
-    .intro-hero{
-      min-height:360px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      padding:26px;
-      border-radius:32px;
-      background:
-        radial-gradient(circle at top right, rgba(76,217,237,0.18), transparent 30%),
-        radial-gradient(circle at bottom left, rgba(53,208,127,0.16), transparent 32%),
-        linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
-      border:1px solid rgba(255,255,255,0.12);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(16px);
-      -webkit-backdrop-filter:blur(16px);
-    }
-
-    .intro-kicker{
-      font-size:12px;
-      color:var(--text-dim);
-      font-weight:900;
-      letter-spacing:0.12em;
-      text-transform:uppercase;
-      margin-bottom:14px;
-    }
-
-    .intro-title{
-      font-size:clamp(2rem, 4vw, 3.5rem);
-      line-height:0.98;
-      letter-spacing:-0.05em;
-      font-weight:900;
-      margin:0 0 12px 0;
-    }
-
-    .intro-text{
-      color:var(--text-soft);
-      font-size:15px;
-      line-height:1.6;
-      max-width:760px;
-    }
-
-    .intro-chip-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:20px;
-    }
-
-    .intro-chip{
-      padding:10px 14px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.10);
-      color:var(--text-soft);
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .intro-side{
-      display:grid;
-      gap:14px;
-    }
-
-    .intro-stat{
-      padding:20px;
-      border-radius:24px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
-      border:1px solid rgba(255,255,255,0.10);
-      box-shadow:var(--shadow-soft);
-      backdrop-filter:blur(14px);
-      -webkit-backdrop-filter:blur(14px);
-    }
-
-    .intro-stat-label{
-      font-size:11px;
-      color:var(--text-dim);
-      font-weight:800;
-      letter-spacing:0.10em;
-      text-transform:uppercase;
-      margin-bottom:8px;
-    }
-
-    .intro-stat-value{
-      font-size:26px;
-      font-weight:900;
-      letter-spacing:-0.04em;
-      margin-bottom:6px;
-    }
-
-    .intro-stat-text{
-      color:var(--text-soft);
-      font-size:14px;
-      line-height:1.5;
-    }
-
     .search-toolbar{
       display:flex;
       gap:10px;
@@ -328,7 +221,6 @@
       z-index:1;
     }
 
-    .text-input,
     input{
       width:100%;
       padding:14px 14px;
@@ -362,7 +254,7 @@
     .btn{
       border:none;
       cursor:pointer;
-      transition:transform var(--fast), box-shadow var(--fast), opacity var(--fast), background var(--fast);
+      transition:transform var(--fast), box-shadow var(--fast), opacity var(--fast), filter var(--fast);
     }
 
     .btn:hover{ transform:translateY(-1px); }
@@ -386,16 +278,6 @@
       font-weight:800;
       letter-spacing:0.01em;
       box-shadow:0 10px 24px rgba(47,109,224,0.28);
-    }
-
-    .btn-muted{
-      padding:12px 16px;
-      border-radius:14px;
-      background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.10);
-      color:var(--text);
-      font-weight:700;
-      box-shadow:0 8px 18px rgba(0,0,0,0.14);
     }
 
     .result-stack{
@@ -838,6 +720,7 @@
       position:relative;
       margin-bottom:14px;
       box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08), 0 12px 28px rgba(0,0,0,0.20);
+      background:conic-gradient(#35d07f 0deg 0deg, rgba(255,255,255,0.10) 0deg 360deg);
     }
 
     .deal-score-ring::before{
@@ -1136,7 +1019,7 @@
     .bottom-app-nav{
       width:100%;
       display:grid;
-      grid-template-columns:repeat(4, 1fr);
+      grid-template-columns:repeat(3, 1fr);
       gap:0;
       background:rgba(10,18,31,0.96);
       border-top:1px solid rgba(255,255,255,0.08);
@@ -1247,16 +1130,178 @@
       100%{ transform:translateX(100%); }
     }
 
+    /* Welcome overlay */
+    .welcome-overlay{
+      position:fixed;
+      inset:0;
+      z-index:4000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:
+        radial-gradient(circle at top center, rgba(93,169,255,0.18), transparent 22%),
+        radial-gradient(circle at center, rgba(76,217,237,0.10), transparent 30%),
+        linear-gradient(180deg, rgba(3,10,20,0.96), rgba(5,14,27,0.985));
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      transition:opacity 520ms ease, visibility 520ms ease, transform 520ms ease;
+    }
+
+    .welcome-overlay.hide{
+      opacity:0;
+      visibility:hidden;
+      transform:scale(1.02);
+      pointer-events:none;
+    }
+
+    .welcome-card{
+      width:min(760px, 100%);
+      padding:34px 28px 28px;
+      border-radius:34px;
+      background:
+        radial-gradient(circle at top right, rgba(76,217,237,0.10), transparent 24%),
+        radial-gradient(circle at bottom left, rgba(53,208,127,0.12), transparent 26%),
+        linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+      border:1px solid rgba(255,255,255,0.12);
+      box-shadow:0 30px 80px rgba(0,0,0,0.42);
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .welcome-card::before{
+      content:"";
+      position:absolute;
+      inset:-30% auto auto -15%;
+      width:320px;
+      height:320px;
+      background:radial-gradient(circle, rgba(93,169,255,0.16), transparent 68%);
+      pointer-events:none;
+    }
+
+    .welcome-card::after{
+      content:"";
+      position:absolute;
+      inset:auto -12% -28% auto;
+      width:340px;
+      height:340px;
+      background:radial-gradient(circle, rgba(232,194,107,0.10), transparent 70%);
+      pointer-events:none;
+    }
+
+    .welcome-logo-wrap{
+      position:relative;
+      z-index:1;
+      display:flex;
+      justify-content:center;
+      margin-bottom:18px;
+      animation:logoFloat 2.4s ease-in-out infinite;
+    }
+
+    .welcome-logo{
+      width:min(320px, 72vw);
+      max-height:220px;
+      object-fit:contain;
+      filter:drop-shadow(0 18px 30px rgba(0,0,0,0.34));
+      animation:logoReveal 1s ease;
+    }
+
+    @keyframes logoReveal{
+      from{ opacity:0; transform:translateY(10px) scale(0.96); }
+      to{ opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    @keyframes logoFloat{
+      0%,100%{ transform:translateY(0); }
+      50%{ transform:translateY(-4px); }
+    }
+
+    .welcome-kicker{
+      position:relative;
+      z-index:1;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.60);
+      margin-bottom:12px;
+    }
+
+    .welcome-title{
+      position:relative;
+      z-index:1;
+      margin:0 0 12px 0;
+      font-size:clamp(2rem, 4vw, 3.5rem);
+      line-height:0.98;
+      font-weight:900;
+      letter-spacing:-0.05em;
+    }
+
+    .welcome-text{
+      position:relative;
+      z-index:1;
+      max-width:620px;
+      margin:0 auto 22px;
+      color:var(--text-soft);
+      font-size:15px;
+      line-height:1.6;
+    }
+
+    .welcome-chip-row{
+      position:relative;
+      z-index:1;
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:10px;
+      margin-bottom:24px;
+    }
+
+    .welcome-chip{
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.10);
+      color:var(--text-soft);
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .welcome-btn{
+      position:relative;
+      z-index:1;
+      min-width:280px;
+      max-width:100%;
+      padding:16px 22px;
+      border:none;
+      border-radius:18px;
+      background:linear-gradient(135deg, var(--green), var(--green-2));
+      color:white;
+      font-size:17px;
+      font-weight:900;
+      letter-spacing:-0.01em;
+      cursor:pointer;
+      box-shadow:0 18px 36px rgba(21,153,87,0.34);
+    }
+
+    .welcome-subnote{
+      position:relative;
+      z-index:1;
+      margin-top:12px;
+      color:rgba(255,255,255,0.48);
+      font-size:12px;
+      letter-spacing:0.02em;
+    }
+
     @media (max-width: 1100px){
       .section-grid,
       .summary-shell,
-      .dashboard-grid,
-      .intro-grid{
+      .dashboard-grid{
         grid-template-columns:1fr;
       }
 
       .grid{ grid-template-columns:1fr; }
-
       .selected-property-grid{ grid-template-columns:repeat(2, 1fr); }
 
       .result-card{ grid-template-columns:130px 1fr; }
@@ -1269,38 +1314,31 @@
 
     @media (max-width: 680px){
       body{ padding-bottom:220px; }
-
       .search-toolbar{ flex-direction:column; }
-
       .result-card{ grid-template-columns:1fr; }
-
       .property-thumb{ height:180px; }
 
       .property-hero{ min-height:500px; }
-
       .property-hero-content{
         min-height:500px;
         padding:18px;
       }
 
       .selected-property-grid{ grid-template-columns:1fr 1fr; }
-
       .input-group{ grid-template-columns:1fr; }
-
       .save-load-bar{ width:100%; }
-
       .chart-canvas-wrap{ height:300px; }
-
       .kpi-value{ font-size:24px; }
+
+      .welcome-card{ padding:28px 18px 22px; }
+      .welcome-logo{ width:min(260px, 72vw); }
+      .welcome-btn{ width:100%; min-width:0; }
     }
 
     @media (max-width: 430px){
       .container{ padding:16px 12px 24px; }
-
       .selected-property-address{ font-size:28px; }
-
       .selected-property-price{ font-size:26px; }
-
       .selected-property-grid{ grid-template-columns:1fr; }
 
       .nav-tab-btn{
@@ -1318,54 +1356,43 @@
   </style>
 </head>
 <body>
+  <div id="welcomeOverlay" class="welcome-overlay">
+    <div class="welcome-card">
+      <div class="welcome-logo-wrap">
+        <img src="icon.png" alt="RealtyIQ USA" class="welcome-logo">
+      </div>
+
+      <div class="welcome-kicker">Luxury Underwriting Experience</div>
+      <h1 class="welcome-title">Analyze investment properties with confidence.</h1>
+      <div class="welcome-text">
+        Fast underwriting, cleaner assumptions, stronger decision support, and a premium experience built around the RealtyIQ workflow.
+      </div>
+
+      <div class="welcome-chip-row">
+        <div class="welcome-chip">Property Selection</div>
+        <div class="welcome-chip">Financial Inputs</div>
+        <div class="welcome-chip">Results & Deal Verdict</div>
+      </div>
+
+      <button id="enterAppBtn" class="welcome-btn">Take me to RealtyIQ Analyzer</button>
+      <div class="welcome-subnote">Tap to enter</div>
+    </div>
+  </div>
+
   <div class="container">
     <div class="brand-bar">
       <div class="brand-pill">
         <span class="brand-dot"></span>
-        Investment Property Analyzer
+        RealtyIQ Analyzer
       </div>
     </div>
 
     <div class="app-step-indicator" id="stepIndicator">
       <span class="step-pulse"></span>
-      Intro
+      Step 1 of 3 · Property Discovery
     </div>
 
-    <section id="tab-intro" class="app-tab-section active">
-      <div class="intro-grid">
-        <div class="intro-hero">
-          <div>
-            <div class="intro-kicker">Institutional-Style Underwriting</div>
-            <h1 class="intro-title">Analyze properties with clarity, speed, and conviction.</h1>
-            <div class="intro-text">
-              Find a property, model your assumptions, and get a polished investment verdict with premium deal analytics, visual projections, and downside checks.
-            </div>
-          </div>
-
-          <div class="intro-chip-row">
-            <div class="intro-chip">3-step flow · Search · Model · Decide</div>
-            <div class="intro-chip">Fast deal reads · IRR · CoC · Cap · DSCR</div>
-            <div class="intro-chip">Decision support · Break-even · Stress tests · Upside</div>
-          </div>
-        </div>
-
-        <div class="intro-side">
-          <div class="intro-stat">
-            <div class="intro-stat-label">Current Experience</div>
-            <div class="intro-stat-value">Premium Mobile UI</div>
-            <div class="intro-stat-text">Refined glass surfaces, guided flow, a cleaner dashboard, and a more app-like structure.</div>
-          </div>
-
-          <div class="intro-stat">
-            <div class="intro-stat-label">Best Use</div>
-            <div class="intro-stat-value">Quick Deal Screening</div>
-            <div class="intro-stat-text">Move from property selection to investment decision in a simple, guided flow.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="tab-property" class="app-tab-section">
+    <section id="tab-property" class="app-tab-section active">
       <div class="section-grid">
         <div class="card">
           <div class="card-header">
@@ -1555,22 +1582,11 @@
   <div class="sticky-action-bar">
     <div class="sticky-action-inner">
       <div class="sticky-cta-shell">
-        <button id="primaryActionBtn">Go to Property Search</button>
+        <button id="primaryActionBtn">Continue to Inputs</button>
       </div>
 
       <div class="bottom-app-nav">
-        <button class="nav-tab-btn active" data-tab="intro" aria-label="Intro tab">
-          <div class="nav-icon-wrap">
-            <svg class="nav-icon" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="9"></circle>
-              <line x1="12" y1="10" x2="12" y2="16"></line>
-              <circle cx="12" cy="7.5" r="0.8"></circle>
-            </svg>
-          </div>
-          <div class="nav-label">Intro</div>
-        </button>
-
-        <button class="nav-tab-btn" data-tab="property" aria-label="Property tab">
+        <button class="nav-tab-btn active" data-tab="property" aria-label="Property tab">
           <div class="nav-icon-wrap">
             <svg class="nav-icon" viewBox="0 0 24 24">
               <path d="M3 10.5 12 3l9 7.5"></path>
@@ -1701,6 +1717,62 @@
       `).join('');
     }
 
+    function playStartupChime(){
+      try{
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(!AudioCtx) return;
+
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(0.0001, now);
+        master.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
+        master.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+        master.connect(ctx.destination);
+
+        function tone(freq, start, duration, type, volume){
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type || 'sine';
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(volume || 0.12, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+          osc.connect(gain);
+          gain.connect(master);
+          osc.start(start);
+          osc.stop(start + duration + 0.03);
+        }
+
+        tone(392.00, now + 0.02, 0.30, 'sine', 0.14);
+        tone(587.33, now + 0.18, 0.45, 'triangle', 0.12);
+        tone(783.99, now + 0.36, 0.62, 'sine', 0.10);
+
+        const shimmer = ctx.createOscillator();
+        const shimmerGain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1800, now);
+
+        shimmer.type = 'triangle';
+        shimmer.frequency.setValueAtTime(1174.66, now + 0.28);
+
+        shimmerGain.gain.setValueAtTime(0.0001, now + 0.28);
+        shimmerGain.gain.exponentialRampToValueAtTime(0.035, now + 0.36);
+        shimmerGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.00);
+
+        shimmer.connect(filter);
+        filter.connect(shimmerGain);
+        shimmerGain.connect(master);
+        shimmer.start(now + 0.28);
+        shimmer.stop(now + 1.05);
+      }catch(e){
+        console.log('Startup sound unavailable', e);
+      }
+    }
+
     document.querySelectorAll('.percent').forEach(el=>{
       el.addEventListener('focus', ()=>{
         el.value = el.value.replace('%','');
@@ -1777,7 +1849,7 @@
 
     let analysisChart = null;
     let selectedProperty = null;
-    let currentTab = 'intro';
+    let currentTab = 'property';
 
     const mockProperties = [
       {
@@ -2006,7 +2078,6 @@
       document.querySelector(`.nav-tab-btn[data-tab="${tabName}"]`).classList.add('active');
 
       const stepMap = {
-        intro: 'Intro',
         property: 'Step 1 of 3 · Property Discovery',
         inputs: 'Step 2 of 3 · Underwriting Inputs',
         results: 'Step 3 of 3 · Investment Verdict'
@@ -2026,9 +2097,7 @@
     function updatePrimaryAction(){
       const btn = document.getElementById('primaryActionBtn');
 
-      if(currentTab === 'intro'){
-        btn.textContent = 'Go to Property Search';
-      } else if(currentTab === 'property'){
+      if(currentTab === 'property'){
         btn.textContent = selectedProperty ? 'Use Selected Property in Inputs' : 'Continue to Inputs';
       } else if(currentTab === 'inputs'){
         btn.textContent = 'Analyze Deal';
@@ -2038,9 +2107,7 @@
     }
 
     document.getElementById('primaryActionBtn').addEventListener('click', ()=>{
-      if(currentTab === 'intro'){
-        switchTab('property');
-      } else if(currentTab === 'property'){
+      if(currentTab === 'property'){
         if(selectedProperty){
           fillAnalyzerFromProperty();
         }
@@ -2414,28 +2481,18 @@
           },
           scales: {
             x: {
-              grid: {
-                color: 'rgba(255,255,255,0.06)'
-              },
+              grid: { color: 'rgba(255,255,255,0.06)' },
               ticks: {
                 color: 'rgba(255,255,255,0.58)',
-                font: {
-                  weight: '700'
-                }
+                font: { weight: '700' }
               }
             },
             y: {
-              grid: {
-                color: 'rgba(255,255,255,0.06)'
-              },
+              grid: { color: 'rgba(255,255,255,0.06)' },
               ticks: {
                 color: 'rgba(255,255,255,0.58)',
-                callback: function(value){
-                  return fmt(value);
-                },
-                font: {
-                  weight: '700'
-                }
+                callback: function(value){ return fmt(value); },
+                font: { weight: '700' }
               }
             }
           }
@@ -2446,6 +2503,15 @@
       switchTab('results');
       document.getElementById('summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
+    document.getElementById('enterAppBtn').addEventListener('click', ()=>{
+      playStartupChime();
+      const overlay = document.getElementById('welcomeOverlay');
+      overlay.classList.add('hide');
+      setTimeout(()=>{
+        overlay.style.display = 'none';
+      }, 560);
+    });
 
     window.addEventListener('load', ()=>{
       const saved = localStorage.getItem('investmentDeal');
