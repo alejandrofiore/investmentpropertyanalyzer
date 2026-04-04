@@ -610,6 +610,128 @@
       margin-top:2px;
     }
 
+    .api-note{
+      margin:12px 0 14px;
+      padding:14px 16px;
+      border-radius:18px;
+      background:linear-gradient(180deg, #f8fbff, #f3f8ff);
+      border:1px solid #dbe7fb;
+      color:var(--text-soft);
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .api-note strong{
+      color:var(--text);
+    }
+
+    .api-note code{
+      font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size:12px;
+      background:#ffffff;
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:2px 6px;
+      color:var(--text);
+    }
+
+    .live-pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .live-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid var(--border);
+      color:var(--text-soft);
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .status-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#cbd5e1;
+      flex:0 0 auto;
+    }
+
+    .status-dot.live{ background:var(--green); }
+    .status-dot.demo{ background:var(--gold); }
+
+    .property-source-note{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--text-dim);
+      line-height:1.45;
+    }
+
+    .neighborhood-panel{
+      margin-top:16px;
+      padding:16px 18px;
+      border-radius:18px;
+      background:rgba(255,255,255,0.88);
+      border:1px solid rgba(255,255,255,0.98);
+      box-shadow:var(--shadow-soft);
+      max-width:950px;
+    }
+
+    .neighborhood-title{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.10em;
+      font-weight:800;
+      color:var(--text-dim);
+      margin-bottom:10px;
+    }
+
+    .neighborhood-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+      gap:10px;
+    }
+
+    .neighborhood-stat{
+      background:rgba(255,255,255,0.96);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:12px;
+    }
+
+    .neighborhood-stat-label{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      color:var(--text-dim);
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .neighborhood-stat-value{
+      font-size:15px;
+      font-weight:800;
+      color:var(--text);
+      line-height:1.3;
+    }
+
+    .search-error{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:var(--red-soft);
+      border:1px solid #fecaca;
+      color:#991b1b;
+      font-size:13px;
+      line-height:1.45;
+    }
+
     .summary-shell{
       display:grid;
       grid-template-columns:1.1fr 0.9fr;
@@ -1359,6 +1481,14 @@
             <button id="propertySearchBtn" class="btn btn-blue">Search</button>
           </div>
 
+          <div class="api-note">
+            <strong>Live free-data mode is built in.</strong> Add your free <code>RENTCAST_API_KEY</code> below to pull live U.S. sale listings and rent estimates, and optionally add a <code>CENSUS_API_KEY</code> for neighborhood demographics. If no key is added, the app safely stays in demo mode with your existing sample properties.
+            <div class="live-pill-row">
+              <div class="live-pill"><span id="rentcastStatusDot" class="status-dot demo"></span><span id="rentcastStatusText">RentCast: demo mode</span></div>
+              <div class="live-pill"><span id="censusStatusDot" class="status-dot demo"></span><span id="censusStatusText">Census: optional</span></div>
+            </div>
+          </div>
+
           <div id="propertyResults" class="result-stack"></div>
         </div>
 
@@ -1800,6 +1930,16 @@
     let analysisChart = null;
     let selectedProperty = null;
     let currentTab = 'property';
+    let latestSearchResults = [];
+    let activeSearchAbortController = null;
+
+    const API_CONFIG = {
+      DATA_MODE: 'auto',
+      RENTCAST_API_KEY: '3b79a2b2831348c28181c80f3f993a74',
+      CENSUS_API_KEY: '',
+      RENTCAST_BASE_URL: 'https://api.rentcast.io/v1',
+      CENSUS_YEAR: '2023'
+    };
 
     const mockProperties = [
       {
@@ -1816,8 +1956,12 @@
         rentLow: 3250,
         rentHigh: 3650,
         compCount: 7,
+        zipCode: "33139",
+        city: "Miami",
+        state: "FL",
         imageUrl: "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?auto=format&fit=crop&w=1200&q=80",
-        description: "Bright condo in a high-demand area with open living space, updated finishes, strong rental appeal, and convenient access to shopping, dining, and the beach."
+        description: "Bright condo in a high-demand area with open living space, updated finishes, strong rental appeal, and convenient access to shopping, dining, and the beach.",
+        dataSource: "Demo"
       },
       {
         id: 2,
@@ -1833,10 +1977,274 @@
         rentLow: 3700,
         rentHigh: 4200,
         compCount: 6,
+        zipCode: "33301",
+        city: "Fort Lauderdale",
+        state: "FL",
         imageUrl: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80",
-        description: "Well-kept single-family home with generous square footage, private outdoor space, and a layout that supports both owner-occupants and long-term rental demand."
+        description: "Well-kept single-family home with generous square footage, private outdoor space, and a layout that supports both owner-occupants and long-term rental demand.",
+        dataSource: "Demo"
       }
     ];
+
+    function hasRentCastKey(){
+      return !!API_CONFIG.RENTCAST_API_KEY && API_CONFIG.RENTCAST_API_KEY.trim() !== '';
+    }
+
+    function hasCensusKey(){
+      return !!API_CONFIG.CENSUS_API_KEY && API_CONFIG.CENSUS_API_KEY.trim() !== '';
+    }
+
+    function usingLiveSearch(){
+      return API_CONFIG.DATA_MODE === 'rentcast' || (API_CONFIG.DATA_MODE === 'auto' && hasRentCastKey());
+    }
+
+    function normalizeUrlImage(url){
+      if(!url) return '';
+      return url;
+    }
+
+    function coalesce(){
+      for(const value of arguments){
+        if(value !== undefined && value !== null && value !== '') return value;
+      }
+      return null;
+    }
+
+    function toNumber(value){
+      if(value === undefined || value === null || value === '') return null;
+      const n = Number(value);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function safeText(value, fallback = 'N/A'){
+      if(value === undefined || value === null || value === '') return fallback;
+      return value;
+    }
+
+    function buildAddressFromParts(item){
+      const line1 = coalesce(item.formattedAddress, item.addressLine1, item.address, item.streetAddress);
+      if(line1 && String(line1).includes(',')) return line1;
+      const city = coalesce(item.city, item.addressCity);
+      const state = coalesce(item.state, item.addressState);
+      const zip = coalesce(item.zipCode, item.zip);
+      return [line1, [city, state].filter(Boolean).join(', '), zip].filter(Boolean).join(', ');
+    }
+
+    function mapRentCastProperty(item, index){
+      const hoaRaw = item.hoa && typeof item.hoa === 'object' ? coalesce(item.hoa.fee, item.hoa.amount) : item.hoa;
+      const media = Array.isArray(item.photos) && item.photos.length ? item.photos[0] : null;
+      const address = buildAddressFromParts(item);
+
+      return {
+        id: String(coalesce(item.id, item.propertyId, item.listingId, `${Date.now()}-${index}`)),
+        propertyId: coalesce(item.id, item.propertyId),
+        address: address || 'Address unavailable',
+        price: toNumber(coalesce(item.listPrice, item.price, item.lastSalePrice, item.assessedValue)) || 0,
+        beds: toNumber(coalesce(item.bedrooms, item.beds)) || 0,
+        baths: toNumber(coalesce(item.bathrooms, item.baths)) || 0,
+        sqft: toNumber(coalesce(item.squareFootage, item.livingArea, item.sqft)) || 0,
+        yearBuilt: toNumber(item.yearBuilt) || 'N/A',
+        propertyType: safeText(coalesce(item.propertyType, item.type), 'Residential'),
+        hoa: toNumber(hoaRaw) || 0,
+        rentEstimate: toNumber(coalesce(item.rentEstimate, item.rent, item.predictedRent)),
+        rentLow: toNumber(coalesce(item.rentRangeLow, item.rentLow)),
+        rentHigh: toNumber(coalesce(item.rentRangeHigh, item.rentHigh)),
+        compCount: toNumber(coalesce(item.compCount, item.comparableCount)) || 0,
+        imageUrl: normalizeUrlImage(coalesce(media, item.primaryPhotoUrl, item.photo, item.imageUrl)) || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80",
+        description: safeText(coalesce(item.description, item.summary), ''),
+        zipCode: String(coalesce(item.zipCode, item.zip, '') || ''),
+        city: safeText(coalesce(item.city, item.addressCity), ''),
+        state: safeText(coalesce(item.state, item.addressState), ''),
+        latitude: toNumber(coalesce(item.latitude, item.lat)),
+        longitude: toNumber(coalesce(item.longitude, item.lng, item.lon)),
+        dataSource: 'RentCast'
+      };
+    }
+
+    function detectQueryParts(query){
+      const cleaned = query.trim();
+      const zipMatch = cleaned.match(/\b(\d{5})(?:-\d{4})?\b/);
+      if(zipMatch){
+        return { zipCode: zipMatch[1], limit: 8 };
+      }
+
+      const parts = cleaned.split(',').map(part => part.trim()).filter(Boolean);
+      if(parts.length >= 2){
+        const stateMatch = parts[parts.length - 1].match(/^[A-Za-z]{2}$/);
+        if(stateMatch){
+          return {
+            city: parts.slice(0, -1).join(', '),
+            state: stateMatch[0].toUpperCase(),
+            limit: 8
+          };
+        }
+      }
+
+      return { address: cleaned, limit: 8 };
+    }
+
+    async function rentCastFetch(path, params = {}, signal){
+      const url = new URL(`${API_CONFIG.RENTCAST_BASE_URL}${path}`);
+      Object.entries(params).forEach(([key, value]) => {
+        if(value !== undefined && value !== null && value !== ''){
+          url.searchParams.set(key, value);
+        }
+      });
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'X-Api-Key': API_CONFIG.RENTCAST_API_KEY,
+          'Accept': 'application/json'
+        },
+        signal
+      });
+
+      if(!response.ok){
+        throw new Error(`RentCast request failed (${response.status})`);
+      }
+
+      return response.json();
+    }
+
+    async function fetchLiveProperties(query, signal){
+      const params = detectQueryParts(query);
+      const data = await rentCastFetch('/properties', params, signal);
+      const rows = Array.isArray(data) ? data : (Array.isArray(data.properties) ? data.properties : []);
+      return rows.map(mapRentCastProperty).filter(item => item.address);
+    }
+
+    async function fetchRentEstimateForProperty(property, signal){
+      if(!hasRentCastKey() || !property) return property;
+
+      try{
+        const params = {};
+        if(property.address) params.address = property.address;
+        if(property.zipCode) params.zipCode = property.zipCode;
+        if(property.city && !params.address) params.city = property.city;
+        if(property.state && !params.address) params.state = property.state;
+        if(property.propertyType && property.propertyType !== 'N/A') params.propertyType = property.propertyType;
+        if(property.beds) params.bedrooms = property.beds;
+        if(property.baths) params.bathrooms = property.baths;
+        if(property.sqft) params.squareFootage = property.sqft;
+        if(property.latitude) params.latitude = property.latitude;
+        if(property.longitude) params.longitude = property.longitude;
+        if(property.compCount) params.compCount = Math.min(Math.max(property.compCount, 5), 10);
+
+        const data = await rentCastFetch('/avm/rent/long-term', params, signal);
+        const estimate = toNumber(coalesce(data.rent, data.rentEstimate, data.price));
+        const low = toNumber(coalesce(data.rentRangeLow, data.lowRent, data.low));
+        const high = toNumber(coalesce(data.rentRangeHigh, data.highRent, data.high));
+        const compCount = toNumber(coalesce(data.compCount, data.comparableCount));
+
+        return {
+          ...property,
+          rentEstimate: estimate ?? property.rentEstimate,
+          rentLow: low ?? property.rentLow,
+          rentHigh: high ?? property.rentHigh,
+          compCount: compCount ?? property.compCount
+        };
+      }catch(error){
+        console.log('Rent estimate unavailable', error);
+        return property;
+      }
+    }
+
+    async function fetchNeighborhoodStats(zipCode, signal){
+      if(!zipCode) return null;
+
+      const base = `https://api.census.gov/data/${API_CONFIG.CENSUS_YEAR}/acs/acs5/profile`;
+      const url = new URL(base);
+      url.searchParams.set('get', 'NAME,DP03_0062E,DP04_0046PE,DP04_0089E');
+      url.searchParams.set('for', `zip code tabulation area:${zipCode}`);
+      if(hasCensusKey()){
+        url.searchParams.set('key', API_CONFIG.CENSUS_API_KEY);
+      }
+
+      const response = await fetch(url.toString(), { signal });
+      if(!response.ok){
+        throw new Error(`Census request failed (${response.status})`);
+      }
+
+      const rows = await response.json();
+      if(!Array.isArray(rows) || rows.length < 2) return null;
+
+      const headers = rows[0];
+      const values = rows[1];
+      const map = {};
+      headers.forEach((header, idx) => map[header] = values[idx]);
+
+      return {
+        areaName: map.NAME || `ZIP ${zipCode}`,
+        medianHouseholdIncome: toNumber(map.DP03_0062E),
+        ownerOccupiedPct: toNumber(map.DP04_0046PE),
+        medianHomeValue: toNumber(map.DP04_0089E),
+        source: 'U.S. Census ACS 5-year'
+      };
+    }
+
+    async function enrichSelectedProperty(property){
+      if(!property) return;
+
+      const pendingProperty = { ...property };
+      if(!pendingProperty.neighborhood && pendingProperty.zipCode){
+        pendingProperty.neighborhood = { loading: true };
+      }
+      selectedProperty = pendingProperty;
+      renderSelectedProperty();
+      renderPropertyMiniContext();
+      updatePrimaryAction();
+
+      const controller = new AbortController();
+      const tasks = [];
+
+      if(hasRentCastKey() && !pendingProperty.rentEstimate){
+        tasks.push(fetchRentEstimateForProperty(pendingProperty, controller.signal).then(updated => {
+          selectedProperty = { ...selectedProperty, ...updated };
+        }));
+      }
+
+      if(pendingProperty.zipCode){
+        tasks.push(fetchNeighborhoodStats(pendingProperty.zipCode, controller.signal).then(neighborhood => {
+          if(neighborhood){
+            selectedProperty = { ...selectedProperty, neighborhood };
+          }else if(selectedProperty){
+            selectedProperty = { ...selectedProperty, neighborhood: null };
+          }
+        }).catch(error => {
+          console.log('Neighborhood stats unavailable', error);
+          if(selectedProperty){
+            selectedProperty = { ...selectedProperty, neighborhood: null };
+          }
+        }));
+      }
+
+      if(!tasks.length) return;
+
+      await Promise.allSettled(tasks);
+      renderSelectedProperty();
+      renderPropertyMiniContext();
+    }
+
+    function setApiStatusPills(){
+      const rentcastLive = hasRentCastKey();
+      const censusLive = hasCensusKey();
+
+      const rentcastDot = document.getElementById('rentcastStatusDot');
+      const rentcastText = document.getElementById('rentcastStatusText');
+      const censusDot = document.getElementById('censusStatusDot');
+      const censusText = document.getElementById('censusStatusText');
+
+      if(rentcastDot && rentcastText){
+        rentcastDot.className = `status-dot ${rentcastLive ? 'live' : 'demo'}`;
+        rentcastText.textContent = rentcastLive ? 'RentCast: live free tier' : 'RentCast: demo mode';
+      }
+
+      if(censusDot && censusText){
+        censusDot.className = `status-dot ${censusLive ? 'live' : 'demo'}`;
+        censusText.textContent = censusLive ? 'Census: API key added' : 'Census: key optional';
+      }
+    }
 
     function showPropertySkeleton(){
       const container = document.getElementById('propertyResults');
@@ -1848,6 +2256,7 @@
 
     function renderPropertyResults(results){
       const container = document.getElementById('propertyResults');
+      latestSearchResults = results.slice();
 
       if(!results.length){
         container.innerHTML = `<div class="empty-state">No properties found. Try another address, city, or ZIP.</div>`;
@@ -1856,6 +2265,9 @@
 
       container.innerHTML = results.map(p => {
         const ppsf = calcPricePerSqft(p.price, p.sqft);
+        const rentChip = p.rentEstimate ? `Rent Est ${formatDollarRaw(p.rentEstimate)}` : 'Rent est on select';
+        const compChip = p.compCount ? `${p.compCount} rental comps` : 'Rental comps pending';
+
         return `
           <div class="result-card">
             <div>
@@ -1864,21 +2276,117 @@
 
             <div class="result-main">
               <h4 class="result-title">${p.address}</h4>
-              <div class="result-meta">${formatDollarRaw(p.price)} · ${p.beds} bd · ${p.baths} ba · ${p.sqft.toLocaleString()} sqft</div>
-              <div class="result-meta">${p.propertyType} · Built ${p.yearBuilt} · ${ppsf ? formatDollarRaw(ppsf) + '/sqft' : 'N/A'}</div>
+              <div class="result-meta">${p.price ? formatDollarRaw(p.price) : 'Price unavailable'} · ${p.beds || 'N/A'} bd · ${p.baths || 'N/A'} ba · ${p.sqft ? p.sqft.toLocaleString() + ' sqft' : 'Sqft unavailable'}</div>
+              <div class="result-meta">${safeText(p.propertyType, 'Residential')} · Built ${safeText(p.yearBuilt, 'N/A')} · ${ppsf ? formatDollarRaw(ppsf) + '/sqft' : 'PPSF unavailable'}</div>
               <div class="result-quick-row">
-                <span class="quick-chip">HOA ${formatDollarRaw(p.hoa)}</span>
-                <span class="quick-chip">Rent Est ${formatDollarRaw(p.rentEstimate)}</span>
-                <span class="quick-chip">${p.compCount} rental comps</span>
+                <span class="quick-chip">HOA ${formatDollarRaw(p.hoa || 0)}</span>
+                <span class="quick-chip">${rentChip}</span>
+                <span class="quick-chip">${compChip}</span>
               </div>
+              <div class="property-source-note">${p.dataSource || 'Demo'}${p.zipCode ? ` · ZIP ${p.zipCode}` : ''}</div>
             </div>
 
             <div class="result-actions">
-              <button class="result-btn" onclick="selectProperty(${p.id})">Select</button>
+              <button class="result-btn" onclick="selectProperty('${String(p.id).replace(/'/g, "\\'")}')">Select</button>
             </div>
           </div>
         `;
       }).join('');
+    }
+
+    function renderSelectedProperty(){
+      if(!selectedProperty) return;
+
+      const ppsf = calcPricePerSqft(selectedProperty.price, selectedProperty.sqft);
+      const neighborhood = selectedProperty.neighborhood;
+      const neighborhoodMarkup = neighborhood && !neighborhood.loading ? `
+        <div class="neighborhood-panel">
+          <div class="neighborhood-title">Neighborhood Context</div>
+          <div class="neighborhood-grid">
+            <div class="neighborhood-stat">
+              <div class="neighborhood-stat-label">Area</div>
+              <div class="neighborhood-stat-value">${safeText(neighborhood.areaName, selectedProperty.zipCode ? `ZIP ${selectedProperty.zipCode}` : 'Not available')}</div>
+            </div>
+            <div class="neighborhood-stat">
+              <div class="neighborhood-stat-label">Median Household Income</div>
+              <div class="neighborhood-stat-value">${neighborhood.medianHouseholdIncome ? formatDollarRaw(neighborhood.medianHouseholdIncome) : 'Not available'}</div>
+            </div>
+            <div class="neighborhood-stat">
+              <div class="neighborhood-stat-label">Owner-Occupied Share</div>
+              <div class="neighborhood-stat-value">${neighborhood.ownerOccupiedPct !== null && neighborhood.ownerOccupiedPct !== undefined ? pct(neighborhood.ownerOccupiedPct) : 'Not available'}</div>
+            </div>
+            <div class="neighborhood-stat">
+              <div class="neighborhood-stat-label">Median Home Value</div>
+              <div class="neighborhood-stat-value">${neighborhood.medianHomeValue ? formatDollarRaw(neighborhood.medianHomeValue) : 'Not available'}</div>
+            </div>
+          </div>
+          <div class="property-source-note">Source: ${neighborhood.source}</div>
+        </div>
+      ` : neighborhood && neighborhood.loading ? `
+        <div class="neighborhood-panel">
+          <div class="neighborhood-title">Neighborhood Context</div>
+          <div class="property-source-note">Loading free Census neighborhood data for ZIP ${selectedProperty.zipCode || 'area'}...</div>
+        </div>
+      ` : '';
+
+      document.getElementById('selectedPropertyCard').classList.remove('hidden');
+      document.getElementById('selectedPropertyDetails').innerHTML = `
+        <div class="property-hero">
+          ${selectedProperty.imageUrl ? `<img src="${selectedProperty.imageUrl}" alt="${selectedProperty.address}" class="property-hero-img">` : ''}
+          <div class="property-hero-overlay"></div>
+
+          <div class="property-hero-content">
+            <div class="hero-topline">${selectedProperty.dataSource || 'Property Data'}</div>
+
+            <div class="selected-property-address">${selectedProperty.address}</div>
+            <div class="selected-property-price">${selectedProperty.price ? formatDollarRaw(selectedProperty.price) : 'Price unavailable'}</div>
+
+            <div class="hero-chip-row">
+              <div class="hero-stat-chip">${selectedProperty.beds || 'N/A'} Beds</div>
+              <div class="hero-stat-chip">${selectedProperty.baths || 'N/A'} Baths</div>
+              <div class="hero-stat-chip">${selectedProperty.sqft ? selectedProperty.sqft.toLocaleString() + ' Sq Ft' : 'Sq Ft N/A'}</div>
+              <div class="hero-stat-chip">${safeText(selectedProperty.propertyType, 'Residential')}</div>
+              <div class="hero-stat-chip">${ppsf ? formatDollarRaw(ppsf) + '/sqft' : 'PPSF unavailable'}</div>
+            </div>
+
+            <div class="selected-property-grid">
+              <div class="selected-property-stat">
+                <div class="selected-property-stat-label">Year Built</div>
+                <div class="selected-property-stat-value">${safeText(selectedProperty.yearBuilt, 'N/A')}</div>
+              </div>
+
+              <div class="selected-property-stat">
+                <div class="selected-property-stat-label">HOA</div>
+                <div class="selected-property-stat-value">${formatDollarRaw(selectedProperty.hoa || 0)}</div>
+              </div>
+
+              <div class="selected-property-stat">
+                <div class="selected-property-stat-label">Rent Estimate</div>
+                <div class="selected-property-stat-value">${selectedProperty.rentEstimate ? formatDollarRaw(selectedProperty.rentEstimate) : 'Tap Use / Analyze'}</div>
+              </div>
+
+              <div class="selected-property-stat">
+                <div class="selected-property-stat-label">Rent Range</div>
+                <div class="selected-property-stat-value">${selectedProperty.rentLow && selectedProperty.rentHigh ? `${formatDollarRaw(selectedProperty.rentLow)} - ${formatDollarRaw(selectedProperty.rentHigh)}` : 'Not available yet'}</div>
+              </div>
+
+              <div class="selected-property-stat" style="grid-column: 1 / -1;">
+                <div class="selected-property-stat-label">Rental Comps</div>
+                <div class="selected-property-stat-value">${selectedProperty.compCount ? `${selectedProperty.compCount} comparable rentals identified` : 'Comp count pending or unavailable on free tier'}</div>
+              </div>
+            </div>
+
+            ${selectedProperty.description ? `
+              <div class="about-home-block">
+                <strong>About this property</strong>
+                ${selectedProperty.description}
+              </div>
+            ` : ''}
+
+            ${neighborhoodMarkup}
+          </div>
+        </div>
+      `;
     }
 
     function renderPropertyMiniContext(){
@@ -1908,79 +2416,26 @@
     }
 
     function selectProperty(id){
-      selectedProperty = mockProperties.find(p => p.id === id);
+      selectedProperty = latestSearchResults.find(p => String(p.id) === String(id)) || mockProperties.find(p => String(p.id) === String(id));
       if(!selectedProperty) return;
 
-      const ppsf = calcPricePerSqft(selectedProperty.price, selectedProperty.sqft);
-
-      document.getElementById('selectedPropertyCard').classList.remove('hidden');
-      document.getElementById('selectedPropertyDetails').innerHTML = `
-        <div class="property-hero">
-          ${selectedProperty.imageUrl ? `<img src="${selectedProperty.imageUrl}" alt="${selectedProperty.address}" class="property-hero-img">` : ''}
-          <div class="property-hero-overlay"></div>
-
-          <div class="property-hero-content">
-            <div class="hero-topline">Deal Candidate</div>
-
-            <div class="selected-property-address">${selectedProperty.address}</div>
-            <div class="selected-property-price">${formatDollarRaw(selectedProperty.price)}</div>
-
-            <div class="hero-chip-row">
-              <div class="hero-stat-chip">${selectedProperty.beds} Beds</div>
-              <div class="hero-stat-chip">${selectedProperty.baths} Baths</div>
-              <div class="hero-stat-chip">${selectedProperty.sqft.toLocaleString()} Sq Ft</div>
-              <div class="hero-stat-chip">${selectedProperty.propertyType}</div>
-              <div class="hero-stat-chip">${ppsf ? formatDollarRaw(ppsf) + '/sqft' : 'N/A'}</div>
-            </div>
-
-            <div class="selected-property-grid">
-              <div class="selected-property-stat">
-                <div class="selected-property-stat-label">Year Built</div>
-                <div class="selected-property-stat-value">${selectedProperty.yearBuilt}</div>
-              </div>
-
-              <div class="selected-property-stat">
-                <div class="selected-property-stat-label">HOA</div>
-                <div class="selected-property-stat-value">${formatDollarRaw(selectedProperty.hoa)}</div>
-              </div>
-
-              <div class="selected-property-stat">
-                <div class="selected-property-stat-label">Rent Estimate</div>
-                <div class="selected-property-stat-value">${formatDollarRaw(selectedProperty.rentEstimate)}</div>
-              </div>
-
-              <div class="selected-property-stat">
-                <div class="selected-property-stat-label">Rent Range</div>
-                <div class="selected-property-stat-value">${formatDollarRaw(selectedProperty.rentLow)} - ${formatDollarRaw(selectedProperty.rentHigh)}</div>
-              </div>
-
-              <div class="selected-property-stat" style="grid-column: 1 / -1;">
-                <div class="selected-property-stat-label">Rental Comps</div>
-                <div class="selected-property-stat-value">${selectedProperty.compCount} comparable rentals identified</div>
-              </div>
-            </div>
-
-            ${selectedProperty.description ? `
-              <div class="about-home-block">
-                <strong>About this property</strong>
-                ${selectedProperty.description}
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      `;
-
+      renderSelectedProperty();
       renderPropertyMiniContext();
       updatePrimaryAction();
       document.getElementById('selectedPropertyCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      enrichSelectedProperty(selectedProperty);
     }
 
     function fillAnalyzerFromProperty(){
       if(!selectedProperty) return;
 
-      document.getElementById('price').value = formatDollarRaw(selectedProperty.price);
+      if(selectedProperty.price){
+        document.getElementById('price').value = formatDollarRaw(selectedProperty.price);
+      }
       document.getElementById('hoa').value = formatDollarRaw(selectedProperty.hoa || 0);
-      document.getElementById('rent').value = formatDollarRaw(selectedProperty.rentEstimate || 0);
+      if(selectedProperty.rentEstimate){
+        document.getElementById('rent').value = formatDollarRaw(selectedProperty.rentEstimate || 0);
+      }
 
       document.getElementById('price').dispatchEvent(new Event('blur'));
       document.getElementById('hoa').dispatchEvent(new Event('blur'));
@@ -1989,23 +2444,47 @@
       renderPropertyMiniContext();
     }
 
-    document.getElementById('propertySearchBtn').addEventListener('click', () => {
-      const q = document.getElementById('propertySearchInput').value.trim().toLowerCase();
+    async function runPropertySearch(){
+      const q = document.getElementById('propertySearchInput').value.trim();
+      const container = document.getElementById('propertyResults');
 
+      if(activeSearchAbortController){
+        activeSearchAbortController.abort();
+      }
+
+      if(!q){
+        renderPropertyResults(mockProperties);
+        return;
+      }
+
+      activeSearchAbortController = new AbortController();
       showPropertySkeleton();
 
-      setTimeout(() => {
-        const results = mockProperties.filter(p =>
-          p.address.toLowerCase().includes(q)
-        );
-        renderPropertyResults(q ? results : mockProperties);
-      }, 280);
-    });
-
-    document.getElementById('propertySearchInput').addEventListener('keydown', (e) => {
-      if(e.key === 'Enter'){
-        document.getElementById('propertySearchBtn').click();
+      try{
+        if(usingLiveSearch()){
+          const liveResults = await fetchLiveProperties(q, activeSearchAbortController.signal);
+          if(liveResults.length){
+            renderPropertyResults(liveResults);
+          }else{
+            container.innerHTML = `<div class="empty-state">No live properties matched that search. The app stayed connected correctly, but this query returned no rows.</div>`;
+          }
+        }else{
+          await new Promise(resolve => setTimeout(resolve, 280));
+          const results = mockProperties.filter(p => p.address.toLowerCase().includes(q.toLowerCase()));
+          renderPropertyResults(results);
+        }
+      }catch(error){
+        if(error.name === 'AbortError') return;
+        console.log('Property search failed', error);
+        container.innerHTML = `
+          <div class="empty-state">Live property search did not return data right now, so demo mode is still available below.</div>
+          <div class="search-error">Check your RentCast key, browser network settings, or API limits. This app keeps working even without the live key.</div>
+        `;
       }
+    }
+
+    document.getElementById('propertySearchBtn').addEventListener('click', () => {
+      runPropertySearch();
     });
 
     document.getElementById('usePropertyBtn').addEventListener('click', () => {
@@ -2259,7 +2738,13 @@
       let paydown = loan - loanBalance;
       let appreciationGain = sale - price;
 
+      const neighborhoodSummary = selectedProperty && selectedProperty.neighborhood && !selectedProperty.neighborhood.loading ? {
+        kicker: "Neighborhood",
+        text: `${selectedProperty.neighborhood.areaName || (selectedProperty.zipCode ? 'ZIP ' + selectedProperty.zipCode : 'Area')} shows median household income of ${selectedProperty.neighborhood.medianHouseholdIncome ? fmt(selectedProperty.neighborhood.medianHouseholdIncome) : 'N/A'} and owner-occupied share of ${selectedProperty.neighborhood.ownerOccupiedPct !== null && selectedProperty.neighborhood.ownerOccupiedPct !== undefined ? pct(selectedProperty.neighborhood.ownerOccupiedPct) : 'N/A'}.`
+      } : null;
+
       const insightCards = [
+        ...(neighborhoodSummary ? [neighborhoodSummary] : []),
         {
           kicker: "Returns",
           text: irr < 8
@@ -2468,6 +2953,7 @@
       if(saved){
         setAllInputs(JSON.parse(saved));
       }
+      setApiStatusPills();
       renderPropertyResults(mockProperties);
       updatePrimaryAction();
     });
