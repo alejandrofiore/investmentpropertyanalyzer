@@ -449,7 +449,7 @@
             <div class="input-field"><label for="otherIncome">Other monthly income</label><input id="otherIncome" inputmode="decimal"><div class="field-helper">Parking, laundry, storage, etc.</div></div>
             <div class="input-field"><label for="vacancyPct">Vacancy %</label><input id="vacancyPct" inputmode="decimal"><div class="field-helper">Default 0% (set your own if using a manager).</div></div>
             <div class="input-field"><label for="managementPct">Management %</label><input id="managementPct" inputmode="decimal"><div class="field-helper">Percent of collected rent.</div></div>
-            <div class="input-field review-field" id="propertyTaxField"><label for="propertyTaxAnnual">Property tax (annual)</label><input id="propertyTaxAnnual" inputmode="decimal"><div class="review-actions"><button type="button" class="btn confirm-btn hidden" id="confirmTaxBtn">Confirm Tax</button><div class="review-badge" id="taxReviewBadge">Awaiting import</div></div><div class="field-helper" id="propertyTaxHelper">Property tax defaults to Purchase Price × 80% × 2% and must be confirmed or changed before analysis.</div></div>
+            <div class="input-field review-field" id="propertyTaxField"><label for="propertyTaxAnnual">Property tax (annual)</label><input id="propertyTaxAnnual" inputmode="decimal"><div class="review-actions"><button type="button" class="btn confirm-btn hidden" id="confirmTaxBtn">Confirm Tax</button><div class="review-badge" id="taxReviewBadge">Awaiting import</div></div><div class="field-helper" id="propertyTaxHelper">Property tax uses a purchase-based county proxy when county lookup succeeds, and still must be confirmed or changed before analysis.</div></div>
             <div class="input-field"><label for="insuranceAnnual">Insurance (annual)</label><input id="insuranceAnnual" inputmode="decimal"><div class="field-helper">Imported from pasted text if available; otherwise defaults to 0.40% of purchase price.</div></div>
             <div class="input-field"><label for="maintenancePct">Maintenance %</label><input id="maintenancePct" inputmode="decimal"><div class="field-helper">Default 0% (set your own if using a manager).</div></div>
             <div class="input-field"><label for="capexPct">CapEx reserve %</label><input id="capexPct" inputmode="decimal"><div class="field-helper">Optional reserve for large future replacements. Default is 0.</div></div>
@@ -575,6 +575,8 @@
       expenseGrowthPct: 3,
           };
 
+    const ACS_5YEAR_YEAR = 2024;
+
     const CORE_IMPORT_FIELDS = [
       'address','purchasePrice','monthlyRent','propertyTaxAnnual','hoaMonthly','propertyType','beds','baths','sqft','yearBuilt'
     ];
@@ -590,13 +592,20 @@
       importedRentValue: 0,
       taxConfirmed: false,
       taxNeedsConfirmation: false,
-      importedTaxValue: 0
+      importedTaxValue: 0,
+      taxEstimateDetail: '',
+      taxEstimateSource: '',
+      taxLookupInProgress: false,
+      taxEstimateMethod: '',
+      rawCountyTaxRate: 0,
+      adjustedPurchaseTaxRate: 0
     };
 
     function emptyProperty(){
       return {
         address: '', cityStateZip: '', price: '', beds: '', baths: '', sqft: '', yearBuilt: '', hoaMonthly: '',
-        propertyType: '', description: '', rentEstimate: '', propertyTaxAnnual: '', insuranceAnnual: '', sourceText: '', confidence: 0
+        propertyType: '', description: '', rentEstimate: '', propertyTaxAnnual: '', insuranceAnnual: '', sourceText: '', confidence: 0,
+        countyName: '', countyFips: '', stateCode: '', stateFips: '', effectiveTaxRate: 0
       };
     }
 
@@ -710,6 +719,12 @@
       appState.taxConfirmed = false;
       appState.taxNeedsConfirmation = false;
       appState.importedTaxValue = 0;
+      appState.taxEstimateDetail = '';
+      appState.taxEstimateSource = '';
+      appState.taxLookupInProgress = false;
+      appState.taxEstimateMethod = '';
+      appState.rawCountyTaxRate = 0;
+      appState.adjustedPurchaseTaxRate = 0;
       updateImportAudit();
       updatePropertyPreview();
       updateMiniProperty();
@@ -723,7 +738,7 @@
       showToast('Demo text loaded. Click Import Listing.');
     }
 
-    function importListingFromPaste(){
+    async function importListingFromPaste(){
       const raw = el('listingPaste').value.trim();
       if (!raw) {
         showToast('Paste Zillow text first.');
@@ -739,6 +754,11 @@
       autosaveCurrentState();
       switchTab('inputs');
       showToast(`Listing imported. ${parsed.importedCount} fields populated automatically.`);
+      applyCountyTaxEstimate(parsed.property).catch(err => {
+        console.error(err);
+        const price = parseInputValue('purchasePrice');
+        applyFallbackTaxEstimate(price, 'County tax lookup failed, so the app used the fallback estimate: Purchase Price × 80% × 2%. Confirm it or type your own annual property tax before running the analysis.');
+      });
     }
 
     function parseListingText(raw){
@@ -761,6 +781,7 @@
       property.propertyTaxAnnual = findTax(text);
       property.insuranceAnnual = findInsurance(text);
       property.cityStateZip = findCityStateZip(property.address);
+      property.stateCode = findStateCode(property.address);
 
       const audit = [];
       const mapping = [
@@ -773,7 +794,7 @@
         ['Year built', property.yearBuilt, 'Used for reference only.'],
         ['HOA', property.hoaMonthly, 'Monthly HOA if Zillow text included it.'],
         ['Monthly rent', property.rentEstimate || 0, 'Uses Rent Zestimate if found. Otherwise the app sets rent to 0 and requires manual review.'],
-        ['Annual property tax', property.propertyTaxAnnual, 'Used for reference only; analyzer still defaults to the Florida estimate.'],
+        ['Annual property tax', property.propertyTaxAnnual, 'Used for reference only; the analyzer now tries to estimate tax with a purchase-based county proxy.'],
         ['Annual insurance', property.insuranceAnnual, 'Imported only when insurance text was present. Otherwise enter manually.']
       ];
 
@@ -823,6 +844,11 @@
       if (!address) return '';
       const parts = address.split(',').map(v => v.trim());
       return parts.length >= 2 ? parts.slice(1).join(', ') : '';
+    }
+
+    function findStateCode(address){
+      const match = String(address || '').match(/,\s*[A-Za-z .'-]+,\s*([A-Z]{2})\s*\d{5}(?:-\d{4})?$/);
+      return match ? match[1].trim().toUpperCase() : '';
     }
 
     function findPrice(text){
@@ -945,15 +971,23 @@
 
       if (property.price) {
         el('closingCosts').value = formatNumber(Math.round(property.price * 0.025));
-        const estimatedTax = Math.round(property.price * 0.8 * 0.02);
-        el('propertyTaxAnnual').value = formatNumber(estimatedTax);
-        appState.importedTaxValue = estimatedTax;
+        const startingTax = Math.round(property.price * 0.8 * 0.02);
+        el('propertyTaxAnnual').value = formatNumber(startingTax);
+        appState.importedTaxValue = startingTax;
       } else {
         el('propertyTaxAnnual').value = formatNumber(0);
         appState.importedTaxValue = 0;
       }
       appState.taxConfirmed = false;
       appState.taxNeedsConfirmation = true;
+      appState.taxLookupInProgress = Boolean(property.address && property.price);
+      appState.taxEstimateSource = '';
+      appState.taxEstimateMethod = '';
+      appState.rawCountyTaxRate = 0;
+      appState.adjustedPurchaseTaxRate = 0;
+      appState.taxEstimateDetail = appState.taxLookupInProgress
+        ? 'Looking up the county tax profile for this address. If the lookup succeeds, the app will estimate property tax using a purchase-based county proxy, then you must confirm or edit it before analysis.'
+        : 'County tax lookup needs a valid U.S. address and purchase price. The app is using the fallback estimate: Purchase Price × 80% × 2%. Confirm it or type your own annual property tax before running the analysis.';
 
       if (property.insuranceAnnual) {
         el('insuranceAnnual').value = formatNumber(property.insuranceAnnual);
@@ -1038,9 +1072,21 @@
       if (!price) return;
       el('closingCosts').value = formatNumber(Math.round(price * 0.025));
       if (appState.taxNeedsConfirmation || !appState.taxConfirmed) {
-        const estimatedTax = Math.round(price * 0.8 * 0.02);
+        const adjustedRate = Number(appState.adjustedPurchaseTaxRate || appState.importedProperty.effectiveTaxRate || 0);
+        const estimatedTax = adjustedRate ? Math.round(price * adjustedRate) : Math.round(price * 0.8 * 0.02);
         el('propertyTaxAnnual').value = formatNumber(estimatedTax);
         appState.importedTaxValue = estimatedTax;
+        if (adjustedRate) {
+          appState.taxEstimateDetail = `Estimated using a purchase-based county proxy for ${appState.importedProperty.countyName || 'the matched county'}. Confirm it or type your own annual property tax before running the analysis.`;
+          if (appState.rawCountyTaxRate) {
+            appState.taxEstimateSource = `${appState.importedProperty.countyName || 'Matched county'} raw rate ${formatRatePct(appState.rawCountyTaxRate)} → purchase proxy ${formatRatePct(adjustedRate)} (${appState.taxEstimateMethod || 'purchase proxy'})`;
+          } else {
+            appState.taxEstimateSource = `${appState.importedProperty.countyName || 'Matched county'} purchase proxy rate: ${formatRatePct(adjustedRate)}`;
+          }
+        } else if (!appState.taxLookupInProgress) {
+          appState.taxEstimateDetail = 'County tax lookup was unavailable, so the app is using the fallback estimate: Purchase Price × 80% × 2%. Confirm it or type your own annual property tax before running the analysis.';
+          appState.taxEstimateSource = 'Fallback estimate';
+        }
         updateTaxReviewUI();
       }
       if (!appState.importedProperty.insuranceAnnual) {
@@ -1090,6 +1136,201 @@
       }
     }
 
+    function setTaxEstimateContext({
+      detail = '',
+      source = '',
+      countyName = '',
+      countyFips = '',
+      stateCode = '',
+      stateFips = '',
+      effectiveTaxRate = 0,
+      lookupInProgress = false,
+      method = '',
+      rawRate = 0,
+      adjustedRate = 0
+    } = {}){
+      appState.taxEstimateDetail = detail;
+      appState.taxEstimateSource = source;
+      appState.taxLookupInProgress = lookupInProgress;
+      appState.taxEstimateMethod = method;
+      appState.rawCountyTaxRate = rawRate;
+      appState.adjustedPurchaseTaxRate = adjustedRate;
+      if (countyName) appState.importedProperty.countyName = countyName;
+      if (countyFips) appState.importedProperty.countyFips = countyFips;
+      if (stateCode) appState.importedProperty.stateCode = stateCode;
+      if (stateFips) appState.importedProperty.stateFips = stateFips;
+      if (effectiveTaxRate) appState.importedProperty.effectiveTaxRate = effectiveTaxRate;
+    }
+
+    function getPurchaseTaxProxyProfile(stateCode){
+      const upper = String(stateCode || '').toUpperCase();
+      const profiles = {
+        FL: { multiplier: 1.85, floorRate: 0.015, label: 'Florida purchase-based proxy', note: 'Florida investment-property taxes for new buyers often run meaningfully above owner-occupied county effective rates, so the app uses a stronger uplift.' },
+        CA: { multiplier: 1.15, floorRate: 0.0105, label: 'California purchase-based proxy', note: 'California usually reassesses on sale, so the app adds a smaller uplift above the county effective rate.' },
+        NJ: { multiplier: 1.10, floorRate: 0.0175, label: 'New Jersey purchase-based proxy', note: 'New Jersey taxes are often high relative to county effective-rate snapshots, so the app enforces a higher floor.' },
+        IL: { multiplier: 1.10, floorRate: 0.016, label: 'Illinois purchase-based proxy', note: 'Illinois taxes are often high relative to home value, so the app enforces a higher floor.' },
+        TX: { multiplier: 1.15, floorRate: 0.013, label: 'Texas purchase-based proxy', note: 'Texas taxes are typically above many county effective-rate snapshots, so the app applies a modest uplift and floor.' },
+        NY: { multiplier: 1.10, floorRate: 0.012, label: 'New York purchase-based proxy', note: 'New York tax burden varies widely, so the app uses a light uplift and floor.' }
+      };
+      return profiles[upper] || {
+        multiplier: 1.15,
+        floorRate: 0.0075,
+        label: 'National purchase-based proxy',
+        note: 'The app starts with the county effective rate and applies a modest purchase-based uplift to better approximate a new buyer estimate.'
+      };
+    }
+
+    function formatRatePct(rate){
+      return `${(Number(rate || 0) * 100).toFixed(2)}%`;
+    }
+
+    function calculatePurchaseProxyRate(rawCountyRate, stateCode){
+      const profile = getPurchaseTaxProxyProfile(stateCode);
+      const upliftedRate = Number(rawCountyRate || 0) * profile.multiplier;
+      const adjustedRate = Math.max(upliftedRate, profile.floorRate || 0);
+      return { ...profile, rawCountyRate: Number(rawCountyRate || 0), adjustedRate };
+    }
+
+    function applyFallbackTaxEstimate(price, detail){
+      const estimatedTax = price ? Math.round(price * 0.8 * 0.02) : 0;
+      el('propertyTaxAnnual').value = formatNumber(estimatedTax);
+      appState.importedTaxValue = estimatedTax;
+      setTaxEstimateContext({
+        detail: detail || 'County tax lookup was unavailable, so the app used the fallback estimate: Purchase Price × 80% × 2%. Confirm it or type your own annual property tax before running the analysis.',
+        source: 'Fallback estimate',
+        effectiveTaxRate: 0,
+        lookupInProgress: false,
+        method: 'Fallback formula',
+        rawRate: 0,
+        adjustedRate: 0
+      });
+      updateTaxReviewUI();
+      autosaveCurrentState();
+      return estimatedTax;
+    }
+
+    function jsonpRequest(url){
+      return new Promise((resolve, reject) => {
+        const callbackName = `jsonpCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const cleanup = () => {
+          try { delete window[callbackName]; } catch (_) {}
+          if (script.parentNode) script.parentNode.removeChild(script);
+          clearTimeout(timer);
+        };
+        const script = document.createElement('script');
+        const joiner = url.includes('?') ? '&' : '?';
+        script.src = `${url}${joiner}callback=${callbackName}`;
+        script.async = true;
+        window[callbackName] = data => {
+          cleanup();
+          resolve(data);
+        };
+        script.onerror = () => {
+          cleanup();
+          reject(new Error('JSONP request failed.'));
+        };
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error('JSONP request timed out.'));
+        }, 12000);
+        document.body.appendChild(script);
+      });
+    }
+
+    async function geocodeAddressToCounty(address){
+      const url = `https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=${encodeURIComponent(address)}&benchmark=Public_AR_Current&vintage=Current_Current&format=jsonp`;
+      const data = await jsonpRequest(url);
+      const match = data && data.result && Array.isArray(data.result.addressMatches) ? data.result.addressMatches[0] : null;
+      const county = match && match.geographies && Array.isArray(match.geographies.Counties) ? match.geographies.Counties[0] : null;
+      if (!county) return null;
+      const countyName = county.BASENAME || String(county.NAME || '').replace(/ County$/i, '').trim();
+      return {
+        countyName,
+        countyFips: String(county.COUNTY || '').padStart(3, '0'),
+        stateFips: String(county.STATE || '').padStart(2, '0'),
+        stateCode: appState.importedProperty.stateCode || ''
+      };
+    }
+
+    async function fetchCountyEffectiveTaxRate(stateFips, countyFips){
+      const url = `https://api.census.gov/data/${ACS_5YEAR_YEAR}/acs/acs5?get=NAME,B25077_001E,B25103_001E&for=county:${countyFips}&in=state:${stateFips}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('ACS county lookup failed.');
+      const rows = await response.json();
+      if (!Array.isArray(rows) || rows.length < 2) return null;
+      const headers = rows[0];
+      const values = rows[1];
+      const record = Object.fromEntries(headers.map((key, idx) => [key, values[idx]]));
+      const homeValue = Number(record.B25077_001E || 0);
+      const medianTax = Number(record.B25103_001E || 0);
+      if (!homeValue || !medianTax) return null;
+      return {
+        countyName: String(record.NAME || '').replace(/,.*$/, '').trim(),
+        effectiveRate: medianTax / homeValue,
+        medianHomeValue: homeValue,
+        medianTax
+      };
+    }
+
+    async function applyCountyTaxEstimate(property){
+      const price = Number(property.price || parseInputValue('purchasePrice') || 0);
+      if (!property.address || !price) {
+        applyFallbackTaxEstimate(price, 'County tax lookup needs a valid U.S. address and purchase price. The app is using the fallback estimate: Purchase Price × 80% × 2%. Confirm it or type your own annual property tax before running the analysis.');
+        return;
+      }
+
+      setTaxEstimateContext({
+        detail: 'Looking up the county tax profile for this address. If the lookup succeeds, the app will estimate property tax using a purchase-based county proxy, then you must confirm or edit it before analysis.',
+        source: '',
+        lookupInProgress: true,
+        method: '',
+        rawRate: 0,
+        adjustedRate: 0
+      });
+      updateTaxReviewUI();
+
+      try {
+        const countyGeo = await geocodeAddressToCounty(property.address);
+        if (!countyGeo) {
+          applyFallbackTaxEstimate(price, 'The app could not match this address to a U.S. county, so it used the fallback estimate: Purchase Price × 80% × 2%. Confirm it or type your own annual property tax before running the analysis.');
+          return;
+        }
+
+        const rateData = await fetchCountyEffectiveTaxRate(countyGeo.stateFips, countyGeo.countyFips);
+        if (!rateData || !rateData.effectiveRate) {
+          applyFallbackTaxEstimate(price, `The app matched ${countyGeo.countyName} County but could not retrieve a usable county tax profile, so it used the fallback estimate: Purchase Price × 80% × 2%. Confirm it or type your own annual property tax before running the analysis.`);
+          return;
+        }
+
+        const proxy = calculatePurchaseProxyRate(rateData.effectiveRate, countyGeo.stateCode || property.stateCode);
+        const estimatedTax = Math.round(price * proxy.adjustedRate);
+
+        el('propertyTaxAnnual').value = formatNumber(estimatedTax);
+        appState.importedTaxValue = estimatedTax;
+
+        setTaxEstimateContext({
+          detail: `Estimated using a purchase-based county proxy for ${countyGeo.countyName} County. The app started with the county effective rate, then adjusted it for a new-buyer estimate. Confirm it or type your own annual property tax before running the analysis.`,
+          source: `${countyGeo.countyName} County raw rate ${formatRatePct(proxy.rawCountyRate)} → purchase proxy ${formatRatePct(proxy.adjustedRate)} (${proxy.label})`,
+          countyName: countyGeo.countyName,
+          countyFips: countyGeo.countyFips,
+          stateCode: countyGeo.stateCode,
+          stateFips: countyGeo.stateFips,
+          effectiveTaxRate: proxy.adjustedRate,
+          lookupInProgress: false,
+          method: proxy.label,
+          rawRate: proxy.rawCountyRate,
+          adjustedRate: proxy.adjustedRate
+        });
+
+        updateTaxReviewUI();
+        autosaveCurrentState();
+        showToast(`County tax estimate loaded for ${countyGeo.countyName} County.`);
+      } catch (err) {
+        console.error(err);
+        applyFallbackTaxEstimate(price, 'County tax lookup failed, so the app used the fallback estimate: Purchase Price × 80% × 2%. Confirm it or type your own annual property tax before running the analysis.');
+      }
+    }
+
     function updateTaxReviewUI(){
       const field = el('propertyTaxField');
       const badge = el('taxReviewBadge');
@@ -1103,7 +1344,7 @@
         field.classList.add('needs-review');
         badge.className = 'review-badge warn';
         badge.textContent = 'Needs confirmation';
-        helper.textContent = 'Property tax is using the Florida estimate: Purchase Price × 80% × 2%. Confirm it or type your own annual property tax before running the analysis.';
+        helper.textContent = 'Property tax uses a purchase-based county proxy when available and still must be confirmed or changed before analysis.';
         confirmBtn.classList.remove('hidden');
       } else if (appState.taxConfirmed) {
         field.classList.add('confirmed');
@@ -1114,7 +1355,7 @@
       } else {
         badge.className = 'review-badge';
         badge.textContent = 'Awaiting import';
-        helper.textContent = 'Property tax defaults to Purchase Price × 80% × 2% and must be confirmed or changed before analysis.';
+        helper.textContent = 'Property tax uses a purchase-based county proxy when county lookup succeeds, and still must be confirmed or changed before analysis.';
         confirmBtn.classList.add('hidden');
       }
     }
@@ -1482,7 +1723,16 @@
         lastResults: appState.lastResults,
         rentConfirmed: appState.rentConfirmed,
         rentNeedsConfirmation: appState.rentNeedsConfirmation,
-        importedRentValue: appState.importedRentValue
+        importedRentValue: appState.importedRentValue,
+        taxConfirmed: appState.taxConfirmed,
+        taxNeedsConfirmation: appState.taxNeedsConfirmation,
+        importedTaxValue: appState.importedTaxValue,
+        taxEstimateDetail: appState.taxEstimateDetail,
+        taxEstimateSource: appState.taxEstimateSource,
+        taxLookupInProgress: appState.taxLookupInProgress,
+        taxEstimateMethod: appState.taxEstimateMethod,
+        rawCountyTaxRate: appState.rawCountyTaxRate,
+        adjustedPurchaseTaxRate: appState.adjustedPurchaseTaxRate
       };
     }
 
@@ -1496,10 +1746,20 @@
       appState.rentConfirmed = Boolean(deal.rentConfirmed);
       appState.rentNeedsConfirmation = Boolean(deal.rentNeedsConfirmation);
       appState.importedRentValue = Number(deal.importedRentValue || 0);
+      appState.taxConfirmed = Boolean(deal.taxConfirmed);
+      appState.taxNeedsConfirmation = Boolean(deal.taxNeedsConfirmation);
+      appState.importedTaxValue = Number(deal.importedTaxValue || 0);
+      appState.taxEstimateDetail = deal.taxEstimateDetail || '';
+      appState.taxEstimateSource = deal.taxEstimateSource || '';
+      appState.taxLookupInProgress = Boolean(deal.taxLookupInProgress);
+      appState.taxEstimateMethod = deal.taxEstimateMethod || '';
+      appState.rawCountyTaxRate = Number(deal.rawCountyTaxRate || 0);
+      appState.adjustedPurchaseTaxRate = Number(deal.adjustedPurchaseTaxRate || 0);
       updateImportAudit();
       updatePropertyPreview();
       updateMiniProperty();
       updateRentReviewUI();
+      updateTaxReviewUI();
       if (appState.importedProperty.sourceText) el('listingPaste').value = appState.importedProperty.sourceText;
       appState.lastResults = deal.lastResults || null;
       if (appState.lastResults) renderResults(appState.lastResults);
