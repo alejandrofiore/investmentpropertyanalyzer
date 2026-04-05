@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>RealtyIQ Analyzer</title>
-
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon.png">
   <meta name="theme-color" content="#ffffff">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     :root{
       --bg:#f6f8fb;
@@ -32,8 +29,9 @@
       --red:#dc2626;
       --red-soft:#fef2f2;
       --gold:#b98523;
-      --shadow:0 16px 40px rgba(17, 24, 39, 0.08);
-      --shadow-soft:0 8px 24px rgba(17, 24, 39, 0.06);
+      --gold-soft:#fff7e8;
+      --shadow:0 16px 40px rgba(17,24,39,0.08);
+      --shadow-soft:0 8px 24px rgba(17,24,39,0.06);
       --radius-xl:28px;
       --radius-lg:22px;
       --radius-md:16px;
@@ -41,10 +39,8 @@
       --fast:160ms cubic-bezier(.2,.8,.2,1);
       --normal:260ms cubic-bezier(.2,.8,.2,1);
     }
-
     *{ box-sizing:border-box; }
     html{ scroll-behavior:smooth; }
-
     body{
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin:0;
@@ -57,1604 +53,485 @@
       padding-bottom:210px;
       overflow-x:hidden;
     }
-
-    .container{
-      max-width:1240px;
-      margin:0 auto;
-      padding:22px 16px 26px;
+    .container{ max-width:1240px; margin:0 auto; padding:22px 16px 26px; }
+    .brand-bar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+    .brand-pill, .app-step-indicator{
+      display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:999px;
+      background:#fff; border:1px solid var(--border); color:var(--text-soft); font-size:12px;
+      font-weight:800; letter-spacing:0.08em; text-transform:uppercase; box-shadow:var(--shadow-soft);
     }
-
-    .brand-bar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin-bottom:18px;
-    }
-
-    .brand-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:10px 14px;
-      border-radius:999px;
-      background:#ffffff;
-      border:1px solid var(--border);
-      color:var(--text-soft);
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-      box-shadow:var(--shadow-soft);
-    }
-
-    .brand-dot{
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--blue);
-      box-shadow:0 0 0 4px rgba(37,99,235,0.10);
-    }
-
-    .app-step-indicator{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      margin:0 0 18px 2px;
-      padding:10px 14px;
-      border-radius:999px;
-      background:#ffffff;
-      border:1px solid var(--border);
-      color:var(--text-soft);
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-      box-shadow:var(--shadow-soft);
-    }
-
-    .step-pulse{
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--blue);
-      box-shadow:0 0 0 4px rgba(37,99,235,0.10);
-    }
-
-    .app-tab-section{
-      display:none;
-      animation:fadeUp 260ms ease;
-    }
-
-    .app-tab-section.active{
-      display:block;
-    }
-
-    @keyframes fadeUp{
-      from{ opacity:0; transform:translateY(10px); }
-      to{ opacity:1; transform:translateY(0); }
-    }
-
-    .section-grid{
-      display:grid;
-      grid-template-columns:1.25fr 1fr;
-      gap:18px;
-      align-items:start;
-    }
-
+    .brand-dot, .step-pulse{ width:8px; height:8px; border-radius:50%; background:var(--blue); box-shadow:0 0 0 4px rgba(37,99,235,0.10); }
+    .app-step-indicator{ margin:0 0 18px 2px; gap:10px; }
+    .app-tab-section{ display:none; animation:fadeUp 260ms ease; }
+    .app-tab-section.active{ display:block; }
+    @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
     .card{
-      background:var(--surface);
-      border:1px solid var(--border);
-      box-shadow:var(--shadow-soft);
-      border-radius:var(--radius-xl);
-      padding:18px;
-      position:relative;
-      overflow:hidden;
+      background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-soft); border-radius:var(--radius-xl);
+      padding:18px; position:relative; overflow:hidden;
     }
-
-    .card-header{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-      margin-bottom:14px;
+    .card-header{ display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:14px; }
+    .card-title{ margin:0; font-size:22px; letter-spacing:-0.03em; color:var(--text); }
+    .card-subtitle{ color:var(--text-soft); font-size:14px; line-height:1.5; margin-top:6px; }
+    .card-tag{ flex-shrink:0; padding:8px 10px; border-radius:999px; border:1px solid var(--border); background:var(--surface-3); color:var(--text-soft); font-size:11px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; }
+    .section-grid{ display:grid; grid-template-columns:1.2fr .8fr; gap:18px; align-items:start; }
+    .result-stack, .stack{ display:grid; gap:14px; }
+    .status-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px; }
+    .status-card{ background:#fff; border:1px solid var(--border); border-radius:22px; padding:16px; box-shadow:var(--shadow-soft); }
+    .status-label{ font-size:11px; text-transform:uppercase; letter-spacing:.1em; font-weight:800; color:var(--text-dim); margin-bottom:8px; }
+    .status-value{ font-size:28px; font-weight:900; letter-spacing:-.05em; color:var(--text); }
+    .status-sub{ color:var(--text-soft); font-size:12px; line-height:1.45; margin-top:6px; }
+    textarea, input, select{
+      width:100%; padding:14px 14px; border-radius:16px; border:1px solid var(--border); background:#fff; color:var(--text);
+      font-size:15px; outline:none; transition:border-color var(--fast), transform var(--fast), background var(--fast), box-shadow var(--fast);
+      font-family:inherit;
     }
-
-    .card-title{
-      margin:0;
-      font-size:22px;
-      letter-spacing:-0.03em;
-      color:var(--text);
+    textarea{ min-height:280px; resize:vertical; }
+    input::placeholder, textarea::placeholder{ color:#9aa7b8; }
+    input:focus, textarea:focus, select:focus{
+      border-color:#9fc1ff; box-shadow:0 0 0 4px rgba(37,99,235,.10); transform:translateY(-1px);
     }
-
-    .card-subtitle{
-      color:var(--text-soft);
-      font-size:14px;
-      line-height:1.5;
-      margin-top:6px;
-    }
-
-    .card-tag{
-      flex-shrink:0;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:var(--surface-3);
-      color:var(--text-soft);
-      font-size:11px;
-      font-weight:800;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-    }
-
-    .search-toolbar{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-bottom:12px;
-    }
-
-    input{
-      width:100%;
-      padding:14px 14px;
-      border-radius:16px;
-      border:1px solid var(--border);
-      background:#fff;
-      color:var(--text);
-      font-size:15px;
-      outline:none;
-      transition:border-color var(--fast), transform var(--fast), background var(--fast), box-shadow var(--fast);
-    }
-
-    input::placeholder{
-      color:#9aa7b8;
-    }
-
-    input:focus{
-      border-color:#9fc1ff;
-      background:#fff;
-      box-shadow:0 0 0 4px rgba(37,99,235,0.10);
-      transform:translateY(-1px);
-    }
-
-    .search-toolbar input{
-      flex:1;
-      min-width:240px;
-    }
-
     button{ font-family:inherit; }
-
-    .btn{
-      border:none;
-      cursor:pointer;
-      transition:transform var(--fast), box-shadow var(--fast), opacity var(--fast), filter var(--fast);
-    }
-
+    .btn{ border:none; cursor:pointer; transition:transform var(--fast), box-shadow var(--fast), opacity var(--fast), filter var(--fast); }
     .btn:hover{ transform:translateY(-1px); }
-    .btn:active{ transform:translateY(1px) scale(0.99); }
-
-    .btn-primary{
-      padding:14px 18px;
-      border-radius:16px;
-      background:linear-gradient(135deg, var(--blue), var(--blue-2));
-      color:white;
-      font-weight:800;
-      letter-spacing:0.01em;
-      box-shadow:0 10px 24px rgba(37,99,235,0.20);
+    .btn:active{ transform:translateY(1px) scale(.99); }
+    .btn-primary, .btn-blue, .result-btn, .welcome-btn{
+      background:linear-gradient(135deg, var(--blue), var(--blue-2)); color:#fff; font-weight:800;
+      box-shadow:0 10px 24px rgba(37,99,235,.18);
     }
-
-    .btn-blue{
-      padding:14px 18px;
-      border-radius:16px;
-      background:linear-gradient(135deg, var(--blue), var(--blue-2));
-      color:white;
-      font-weight:800;
-      letter-spacing:0.01em;
-      box-shadow:0 10px 24px rgba(37,99,235,0.18);
+    .btn-primary, .btn-blue{ padding:14px 18px; border-radius:16px; letter-spacing:.01em; }
+    .btn-secondary{ padding:14px 18px; border-radius:16px; background:#fff; border:1px solid var(--border); color:var(--text); font-weight:800; cursor:pointer; }
+    .btn-ghost{ padding:13px 16px; border-radius:16px; background:var(--surface-3); border:1px solid var(--border); color:var(--text-soft); font-weight:800; cursor:pointer; }
+    .toolbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .chip-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .chip{ padding:8px 10px; border-radius:999px; background:var(--surface-3); border:1px solid var(--border); color:var(--text-soft); font-size:12px; font-weight:700; }
+    .helper-note{ margin-top:12px; padding:14px 16px; border-radius:18px; background:linear-gradient(180deg,#f8fbff,#f3f8ff); border:1px solid #dbe7fb; color:var(--text-soft); font-size:13px; line-height:1.55; }
+    .helper-note strong{ color:var(--text); }
+    .helper-note code{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; background:#fff; border:1px solid var(--border); border-radius:8px; padding:2px 6px; color:var(--text); }
+    .confidence-list, .audit-list{ display:grid; gap:10px; margin-top:14px; }
+    .confidence-item, .audit-item{ display:flex; justify-content:space-between; gap:12px; align-items:center; padding:12px 14px; border-radius:16px; background:var(--surface-2); border:1px solid var(--border); }
+    .audit-left{ min-width:0; }
+    .audit-name{ font-size:13px; font-weight:800; color:var(--text); margin-bottom:4px; }
+    .audit-detail{ font-size:12px; color:var(--text-soft); line-height:1.4; }
+    .pill-ok, .pill-warn, .pill-missing{
+      display:inline-flex; align-items:center; justify-content:center; min-width:98px; padding:8px 10px; border-radius:999px; font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase;
     }
-
-    .result-stack{
-      display:grid;
-      gap:14px;
-    }
-
-    .result-card{
-      display:grid;
-      grid-template-columns:150px 1fr auto;
-      gap:14px;
-      align-items:stretch;
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:22px;
-      padding:12px;
-      box-shadow:var(--shadow-soft);
-      transition:transform var(--normal), border-color var(--normal), box-shadow var(--normal);
-    }
-
-    .result-card:hover{
-      transform:translateY(-3px);
-      border-color:#cfdced;
-      box-shadow:0 14px 34px rgba(17,24,39,0.09);
-    }
-
-    .property-thumb{
-      width:100%;
-      height:132px;
-      object-fit:cover;
-      border-radius:18px;
-      display:block;
-    }
-
-    .result-main{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-    }
-
-    .result-title{
-      font-size:20px;
-      font-weight:800;
-      letter-spacing:-0.03em;
-      line-height:1.1;
-      margin:0 0 10px 0;
-      color:var(--text);
-    }
-
-    .result-meta{
-      color:var(--text-soft);
-      font-size:14px;
-      line-height:1.45;
-      margin-bottom:6px;
-    }
-
-    .result-quick-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:6px;
-    }
-
-    .quick-chip{
-      padding:8px 10px;
-      border-radius:999px;
-      background:var(--surface-3);
-      border:1px solid var(--border);
-      color:var(--text-soft);
-      font-size:12px;
-      font-weight:700;
-    }
-
-    .result-actions{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .result-btn{
-      padding:12px 16px;
-      border:none;
-      border-radius:14px;
-      background:linear-gradient(135deg, var(--blue), var(--blue-2));
-      color:#fff;
-      cursor:pointer;
-      font-weight:800;
-      min-width:90px;
-      box-shadow:0 10px 20px rgba(37,99,235,0.18);
-    }
-
-    .empty-state{
-      padding:22px;
-      border-radius:22px;
-      text-align:center;
-      color:var(--text-soft);
-      background:#fff;
-      border:1px dashed var(--border-strong);
-      font-size:14px;
-    }
-
-    .property-hero{
-      position:relative;
-      min-height:380px;
-      border-radius:28px;
-      overflow:hidden;
-      background:#dfe8f3;
-      box-shadow:var(--shadow-soft);
-      margin-top:2px;
-    }
-
-    .property-hero-img{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-
-    .property-hero-overlay{
-      position:absolute;
-      inset:0;
-      background:
-        linear-gradient(to top, rgba(255,255,255,0.96) 8%, rgba(255,255,255,0.78) 40%, rgba(255,255,255,0.20) 72%),
-        linear-gradient(to right, rgba(255,255,255,0.68), transparent 55%);
-    }
-
-    .property-hero-content{
-      position:relative;
-      z-index:1;
-      height:100%;
-      min-height:380px;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-      padding:22px;
-    }
-
-    .hero-topline{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      width:max-content;
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.88);
-      border:1px solid rgba(255,255,255,0.94);
-      color:var(--text-soft);
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:0.06em;
-      text-transform:uppercase;
-      margin-bottom:14px;
-      box-shadow:var(--shadow-soft);
-    }
-
-    .selected-property-address{
-      font-size:clamp(1.7rem, 3vw, 2.5rem);
-      font-weight:800;
-      letter-spacing:-0.04em;
-      line-height:1.02;
-      margin-bottom:8px;
-      max-width:820px;
-      color:var(--text);
-    }
-
-    .selected-property-price{
-      font-size:clamp(1.6rem, 2.6vw, 2.2rem);
-      font-weight:800;
-      color:var(--blue);
-      letter-spacing:-0.04em;
-      margin-bottom:16px;
-    }
-
-    .hero-chip-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-bottom:14px;
-    }
-
-    .hero-stat-chip{
-      padding:10px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.90);
-      border:1px solid rgba(255,255,255,0.96);
-      color:var(--text);
-      font-size:13px;
-      font-weight:700;
-      box-shadow:var(--shadow-soft);
-    }
-
-    .selected-property-grid{
-      display:grid;
-      grid-template-columns:repeat(4, 1fr);
-      gap:10px;
-      margin-top:8px;
-    }
-
-    .selected-property-stat{
-      padding:14px;
-      border-radius:18px;
-      background:rgba(255,255,255,0.88);
-      border:1px solid rgba(255,255,255,0.98);
-      box-shadow:var(--shadow-soft);
-    }
-
-    .selected-property-stat-label{
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-      color:var(--text-dim);
-      margin-bottom:8px;
-      font-weight:800;
-    }
-
-    .selected-property-stat-value{
-      font-size:15px;
-      font-weight:800;
-      color:var(--text);
-      line-height:1.25;
-    }
-
-    .about-home-block{
-      margin-top:16px;
-      padding:16px 18px;
-      border-radius:18px;
-      background:rgba(255,255,255,0.88);
-      border:1px solid rgba(255,255,255,0.98);
-      color:var(--text-soft);
-      line-height:1.55;
-      max-width:950px;
-      box-shadow:var(--shadow-soft);
-    }
-
-    .about-home-block strong{
-      color:var(--text);
-      display:block;
-      margin-bottom:8px;
-      font-size:14px;
-      letter-spacing:0.03em;
-      text-transform:uppercase;
-    }
-
-    .selected-property-mini{
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:24px;
-      padding:16px;
-      margin-bottom:16px;
-      box-shadow:var(--shadow-soft);
-    }
-
-    .selected-property-mini-title{
-      font-size:11px;
-      color:var(--text-dim);
-      margin-bottom:8px;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:0.10em;
-    }
-
-    .selected-property-mini-address{
-      font-weight:800;
-      color:var(--text);
-      margin-bottom:6px;
-      font-size:20px;
-      letter-spacing:-0.03em;
-    }
-
-    .selected-property-mini-meta{
-      font-size:14px;
-      color:var(--text-soft);
-      line-height:1.5;
-    }
-
-    .save-load-bar{
-      width:520px;
-      max-width:100%;
-      margin:0 auto 18px auto;
-      display:flex;
-      gap:10px;
-    }
-
-    .save-load-btn{
-      flex:1;
-      padding:13px 14px;
-      border-radius:16px;
-      border:1px solid var(--border);
-      color:#fff;
-      font-size:14px;
-      font-weight:800;
-      cursor:pointer;
-      transition:transform var(--fast), background var(--fast), box-shadow var(--fast), opacity var(--fast);
-      box-shadow:var(--shadow-soft);
-    }
-
+    .pill-ok{ background:var(--green-soft); color:var(--green-2); }
+    .pill-warn{ background:var(--gold-soft); color:var(--gold); }
+    .pill-missing{ background:var(--red-soft); color:var(--red); }
+    .property-hero{ position:relative; min-height:380px; border-radius:28px; overflow:hidden; background:#dfe8f3; box-shadow:var(--shadow-soft); }
+    .property-hero::before{ content:""; position:absolute; inset:0; background:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat; filter:saturate(.95); }
+    .property-hero-overlay{ position:absolute; inset:0; background:linear-gradient(to top, rgba(255,255,255,.97) 8%, rgba(255,255,255,.80) 40%, rgba(255,255,255,.18) 72%), linear-gradient(to right, rgba(255,255,255,.70), transparent 55%); }
+    .property-hero-content{ position:relative; z-index:1; min-height:380px; display:flex; flex-direction:column; justify-content:flex-end; padding:22px; }
+    .hero-topline{ display:inline-flex; align-items:center; gap:8px; width:max-content; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.88); border:1px solid rgba(255,255,255,.94); color:var(--text-soft); font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; margin-bottom:14px; box-shadow:var(--shadow-soft); }
+    .selected-property-address{ font-size:clamp(1.7rem, 3vw, 2.5rem); font-weight:800; letter-spacing:-.04em; line-height:1.02; margin-bottom:8px; max-width:820px; color:var(--text); }
+    .selected-property-price{ font-size:clamp(1.6rem, 2.6vw, 2.2rem); font-weight:800; color:var(--blue); letter-spacing:-.04em; margin-bottom:16px; }
+    .hero-chip-row{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+    .hero-stat-chip{ padding:10px 12px; border-radius:999px; background:rgba(255,255,255,.90); border:1px solid rgba(255,255,255,.96); color:var(--text); font-size:13px; font-weight:700; box-shadow:var(--shadow-soft); }
+    .selected-property-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:8px; }
+    .selected-property-stat{ padding:14px; border-radius:18px; background:rgba(255,255,255,.88); border:1px solid rgba(255,255,255,.98); box-shadow:var(--shadow-soft); }
+    .selected-property-stat-label{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim); margin-bottom:8px; font-weight:800; }
+    .selected-property-stat-value{ font-size:15px; font-weight:800; color:var(--text); line-height:1.25; }
+    .about-home-block{ margin-top:16px; padding:16px 18px; border-radius:18px; background:rgba(255,255,255,.88); border:1px solid rgba(255,255,255,.98); color:var(--text-soft); line-height:1.55; max-width:950px; box-shadow:var(--shadow-soft); }
+    .about-home-block strong{ color:var(--text); display:block; margin-bottom:8px; font-size:14px; letter-spacing:.03em; text-transform:uppercase; }
+    .selected-property-mini{ background:#fff; border:1px solid var(--border); border-radius:24px; padding:16px; margin-bottom:16px; box-shadow:var(--shadow-soft); }
+    .selected-property-mini-title{ font-size:11px; color:var(--text-dim); margin-bottom:8px; font-weight:800; text-transform:uppercase; letter-spacing:.10em; }
+    .selected-property-mini-address{ font-weight:800; color:var(--text); margin-bottom:6px; font-size:20px; letter-spacing:-.03em; }
+    .selected-property-mini-meta{ font-size:14px; color:var(--text-soft); line-height:1.5; }
+    .save-load-bar{ width:520px; max-width:100%; margin:0 auto 18px auto; display:flex; gap:10px; }
+    .save-load-btn{ flex:1; padding:13px 14px; border-radius:16px; border:1px solid var(--border); color:#fff; font-size:14px; font-weight:800; cursor:pointer; transition:transform var(--fast), background var(--fast), box-shadow var(--fast), opacity var(--fast); box-shadow:var(--shadow-soft); }
     #saveBtn{ background:linear-gradient(135deg, var(--blue), var(--blue-2)); }
     #loadBtn{ background:linear-gradient(135deg, #64748b, #475569); }
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:18px;
-      align-items:stretch;
-    }
-
-    details summary{
-      font-size:18px;
-      font-weight:800;
-      cursor:pointer;
-      list-style:none;
-      margin-bottom:14px;
-      letter-spacing:-0.02em;
-      color:var(--text);
-    }
-
+    .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; align-items:stretch; }
+    details summary{ font-size:18px; font-weight:800; cursor:pointer; list-style:none; margin-bottom:14px; letter-spacing:-.02em; color:var(--text); }
     details summary::-webkit-details-marker{ display:none; }
-
-    details summary::after{
-      content:"▾";
-      float:right;
-      font-size:15px;
-      color:var(--text-dim);
-      transition:transform var(--fast);
-    }
-
+    details summary::after{ content:"▾"; float:right; font-size:15px; color:var(--text-dim); transition:transform var(--fast); }
     details[open] summary::after{ transform:rotate(180deg); }
-
-    .input-group{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-      flex-grow:1;
-    }
-
-    .input-field{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-
-    label{
-      font-size:12px;
-      font-weight:800;
-      color:var(--text-soft);
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-      margin-bottom:2px;
-    }
-
-    .field-helper{
-      font-size:11px;
-      color:var(--text-dim);
-      line-height:1.35;
-      margin-top:2px;
-    }
-
-    .api-note{
-      margin:12px 0 14px;
-      padding:14px 16px;
+    .input-group{ display:grid; grid-template-columns:1fr 1fr; gap:14px; flex-grow:1; }
+    .input-field{ display:flex; flex-direction:column; gap:6px; }
+    label{ font-size:12px; font-weight:800; color:var(--text-soft); text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }
+    .field-helper{ font-size:11px; color:var(--text-dim); line-height:1.35; margin-top:2px; }
+    .summary-shell{ display:grid; grid-template-columns:1.1fr .9fr; gap:16px; margin-bottom:16px; }
+    .summary-hero, .deal-score-card, .chart-container, .monthly-table, .table-card, .insights{ padding:22px; border-radius:28px; background:#fff; border:1px solid var(--border); box-shadow:var(--shadow-soft); }
+    .summary-hero{ position:relative; overflow:hidden; }
+    .summary-hero::before{ content:""; position:absolute; inset:0 auto 0 0; width:8px; background:linear-gradient(180deg, var(--blue), #5aa2ff); }
+    .summary-label{ font-size:12px; text-transform:uppercase; letter-spacing:.12em; font-weight:800; color:var(--text-dim); margin-bottom:10px; }
+    .summary-rating{ font-size:clamp(2rem, 4vw, 3.2rem); font-weight:900; line-height:.98; letter-spacing:-.05em; margin-bottom:10px; color:var(--text); }
+    .summary-text{ max-width:700px; color:var(--text-soft); font-size:15px; line-height:1.55; }
+    .deal-score-card{ display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; min-height:200px; }
+    .deal-score-ring{ width:132px; height:132px; border-radius:50%; display:grid; place-items:center; position:relative; margin-bottom:14px; box-shadow:inset 0 0 0 1px rgba(17,24,39,.03), 0 12px 24px rgba(17,24,39,.06); background:conic-gradient(var(--blue) 0deg 0deg, #e8eef7 0deg 360deg); }
+    .deal-score-ring::before{ content:""; position:absolute; inset:12px; border-radius:50%; background:#fff; box-shadow:inset 0 0 0 1px var(--border); }
+    .deal-score-inner{ position:relative; z-index:1; }
+    .deal-score-number{ font-size:34px; font-weight:900; letter-spacing:-.05em; line-height:1; color:var(--text); }
+    .deal-score-max{ margin-top:4px; color:var(--text-dim); font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+    .deal-score-caption{ font-size:14px; color:var(--text-soft); line-height:1.45; max-width:280px; }
+    .kpi-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin:18px 0; }
+    .kpi{ background:#fff; border:1px solid var(--border); padding:16px; border-radius:22px; box-shadow:var(--shadow-soft); min-height:108px; display:flex; flex-direction:column; justify-content:space-between; transition:transform var(--normal), border-color var(--normal), background var(--normal); }
+    .kpi:hover{ transform:translateY(-2px); border-color:#d2dfef; }
+    .kpi-label{ color:var(--text-dim); font-size:11px; text-transform:uppercase; letter-spacing:.10em; font-weight:800; }
+    .kpi-value{ font-size:28px; font-weight:900; letter-spacing:-.05em; line-height:1.05; margin-top:8px; color:var(--text); }
+    .kpi-sub{ color:var(--text-soft); font-size:12px; line-height:1.4; margin-top:8px; }
+    .positive{ color:var(--green)!important; }
+    .negative{ color:var(--red)!important; }
+    .neutral{ color:var(--text)!important; }
+    .insights-header{ display:flex; justify-content:space-between; align-items:flex-end; gap:12px; margin-bottom:14px; }
+    .insights-title{ margin:0; font-size:22px; letter-spacing:-.03em; color:var(--text); }
+    .insights-subtitle{ color:var(--text-soft); font-size:14px; line-height:1.45; }
+    .insight-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:12px; }
+    .insight-item{ padding:14px; border-radius:20px; background:var(--surface-2); border:1px solid var(--border); min-height:92px; transition:transform var(--normal), border-color var(--normal); }
+    .insight-item:hover{ transform:translateY(-2px); border-color:#d7e4f3; }
+    .insight-kicker{ font-size:11px; font-weight:800; letter-spacing:.10em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; }
+    .insight-text{ font-size:14px; line-height:1.45; color:var(--text); }
+    .dashboard-grid{ display:grid; grid-template-columns:1.25fr .75fr; gap:16px; margin-top:18px; }
+    .results-section-title{ margin:0 0 6px 0; font-size:22px; letter-spacing:-.03em; color:var(--text); }
+    .results-section-subtitle{ color:var(--text-soft); font-size:14px; line-height:1.45; margin-bottom:12px; }
+    .chart-canvas-wrap{ position:relative; height:360px; width:100%; margin-top:8px; }
+    .table-container{ overflow-x:auto; border-radius:18px; margin-top:10px; border:1px solid var(--border); }
+    table{ width:100%; border-collapse:collapse; margin:0; overflow:hidden; border-radius:18px; background:#fff; }
+    th, td{ border-bottom:1px solid var(--border); padding:10px 10px; text-align:center; font-size:13px; white-space:nowrap; }
+    th{ background:#f3f7fc; color:var(--text); font-weight:800; letter-spacing:.03em; border-bottom:1px solid var(--border); }
+    tr:last-child td{ border-bottom:none; }
+    td{ color:var(--text-soft); background:#fff; }
+    tr.highlight-positive td, .highlight-positive td{ background:#eef8f1; color:var(--green-2); font-weight:800; }
+    .empty-state{ padding:22px; border-radius:22px; text-align:center; color:var(--text-soft); background:#fff; border:1px dashed var(--border-strong); font-size:14px; }
+    .sticky-action-bar{ position:fixed; left:0; right:0; bottom:0; z-index:1000; padding:0 0 calc(env(safe-area-inset-bottom)); background:rgba(255,255,255,.96); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-top:1px solid var(--border); box-shadow:0 -10px 30px rgba(17,24,39,.06); }
+    .sticky-action-inner{ width:100%; margin:0; }
+    .sticky-cta-shell{ max-width:760px; margin:0 auto; padding:10px 12px 12px; }
+    #primaryActionBtn{ width:100%; display:block; border-radius:22px; font-size:18px; font-weight:900; text-align:center; padding:17px 18px; background:linear-gradient(135deg,var(--blue),var(--blue-2)); color:#fff; border:none; cursor:pointer; transition:transform var(--fast), box-shadow var(--fast), filter var(--fast); box-shadow:0 16px 30px rgba(37,99,235,.18); letter-spacing:-.01em; }
+    #primaryActionBtn:hover{ filter:brightness(1.02); transform:translateY(-1px); }
+    .bottom-app-nav{ width:100%; display:grid; grid-template-columns:repeat(3,1fr); background:#fff; border-top:1px solid var(--border); }
+    .nav-tab-btn{ border:none; background:transparent; padding:12px 8px 11px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--text-dim); transition:all var(--normal); min-height:72px; position:relative; overflow:hidden; }
+    .nav-tab-btn::before{ content:""; position:absolute; left:10%; right:10%; top:6px; bottom:6px; border-radius:18px; opacity:0; transition:opacity var(--normal), transform var(--normal); background:var(--blue-soft); transform:scale(.96); }
+    .nav-tab-btn.active{ color:var(--blue); transform:translateY(-1px); }
+    .nav-tab-btn.active::before{ opacity:1; transform:scale(1); }
+    .nav-icon-wrap{ width:26px; height:26px; display:flex; align-items:center; justify-content:center; position:relative; z-index:1; }
+    .nav-icon{ width:22px; height:22px; display:block; stroke:currentColor; fill:none; stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round; transition:transform var(--normal); }
+    .nav-tab-btn.active .nav-icon{ transform:scale(1.08); }
+    .nav-label{ font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; position:relative; z-index:1; }
+    .hidden{ display:none!important; }
+    .welcome-overlay{ position:fixed; inset:0; z-index:4000; display:flex; align-items:center; justify-content:center; padding:20px; background:radial-gradient(circle at top center, rgba(37,99,235,.06), transparent 22%), linear-gradient(180deg, rgba(249,251,255,.98), rgba(244,247,252,.99)); transition:opacity 520ms ease, visibility 520ms ease, transform 520ms ease; }
+    .welcome-overlay.hide{ opacity:0; visibility:hidden; transform:scale(1.02); pointer-events:none; }
+    .welcome-card{ width:min(760px,100%); padding:34px 28px 28px; border-radius:34px; background:#fff; border:1px solid var(--border); box-shadow:0 28px 70px rgba(17,24,39,.10); text-align:center; position:relative; overflow:hidden; }
+    .welcome-card::before{ content:""; position:absolute; inset:-30% auto auto -15%; width:320px; height:320px; background:radial-gradient(circle, rgba(37,99,235,.06), transparent 68%); }
+    .welcome-card::after{ content:""; position:absolute; inset:auto -12% -28% auto; width:340px; height:340px; background:radial-gradient(circle, rgba(22,163,74,.05), transparent 70%); }
+    .welcome-kicker{ position:relative; z-index:1; font-size:12px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; color:var(--text-dim); margin-bottom:12px; }
+    .welcome-title{ position:relative; z-index:1; margin:0 0 12px 0; font-size:clamp(2rem,4vw,3.3rem); line-height:.98; font-weight:900; letter-spacing:-.05em; color:var(--text); }
+    .welcome-text{ position:relative; z-index:1; max-width:620px; margin:0 auto 22px; color:var(--text-soft); font-size:15px; line-height:1.6; }
+    .welcome-chip-row{ position:relative; z-index:1; display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-bottom:24px; }
+    .welcome-chip{ padding:10px 14px; border-radius:999px; background:var(--surface-3); border:1px solid var(--border); color:var(--text-soft); font-size:13px; font-weight:700; }
+    .welcome-btn{ position:relative; z-index:1; min-width:280px; max-width:100%; padding:16px 22px; border:none; border-radius:18px; font-size:17px; font-weight:900; letter-spacing:-.01em; cursor:pointer; }
+    .welcome-subnote{ position:relative; z-index:1; margin-top:12px; color:var(--text-dim); font-size:12px; letter-spacing:.02em; }
+    .toast{ position:fixed; top:20px; right:20px; z-index:5000; background:#122033; color:#fff; padding:14px 16px; border-radius:16px; box-shadow:var(--shadow); opacity:0; transform:translateY(-10px); pointer-events:none; transition:opacity .2s ease, transform .2s ease; max-width:320px; font-size:13px; line-height:1.45; }
+    .toast.show{ opacity:1; transform:translateY(0); }
+    @media (max-width:1100px){ .section-grid,.summary-shell,.dashboard-grid,.grid{ grid-template-columns:1fr; } .selected-property-grid{ grid-template-columns:repeat(2,1fr); } .status-grid{ grid-template-columns:1fr; } }
+    @media (max-width:680px){ body{ padding-bottom:220px; } .property-hero{ min-height:520px; } .property-hero-content{ min-height:520px; padding:18px; } .selected-property-grid,.input-group{ grid-template-columns:1fr; } .save-load-bar{ width:100%; } .chart-canvas-wrap{ height:300px; } .kpi-value{ font-size:24px; } .welcome-card{ padding:28px 18px 22px; } .welcome-btn{ width:100%; min-width:0; } }
+  
+    .review-field{
+      padding:12px;
       border-radius:18px;
-      background:linear-gradient(180deg, #f8fbff, #f3f8ff);
-      border:1px solid #dbe7fb;
-      color:var(--text-soft);
-      font-size:13px;
-      line-height:1.5;
-    }
-
-    .api-note strong{
-      color:var(--text);
-    }
-
-    .api-note code{
-      font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size:12px;
-      background:#ffffff;
       border:1px solid var(--border);
-      border-radius:8px;
-      padding:2px 6px;
-      color:var(--text);
+      background:#fff;
+      transition:border-color var(--fast), box-shadow var(--fast), background var(--fast);
     }
 
-    .live-pill-row{
+    .review-field.needs-review{
+      border-color:#fca5a5;
+      background:#fef2f2;
+      box-shadow:0 0 0 4px rgba(220,38,38,0.08);
+    }
+
+    .review-field.confirmed{
+      border-color:#86efac;
+      background:#f0fdf4;
+      box-shadow:0 0 0 4px rgba(22,163,74,0.08);
+    }
+
+    .review-actions{
       display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:10px;
       flex-wrap:wrap;
-      gap:8px;
-      margin-top:12px;
     }
 
-    .live-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+    .review-badge{
       padding:8px 10px;
       border-radius:999px;
-      background:#fff;
       border:1px solid var(--border);
+      background:#fff;
       color:var(--text-soft);
       font-size:12px;
-      font-weight:700;
-    }
-
-    .status-dot{
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:#cbd5e1;
-      flex:0 0 auto;
-    }
-
-    .status-dot.live{ background:var(--green); }
-    .status-dot.demo{ background:var(--gold); }
-
-    .property-source-note{
-      margin-top:10px;
-      font-size:12px;
-      color:var(--text-dim);
-      line-height:1.45;
-    }
-
-    .neighborhood-panel{
-      margin-top:16px;
-      padding:16px 18px;
-      border-radius:18px;
-      background:rgba(255,255,255,0.88);
-      border:1px solid rgba(255,255,255,0.98);
-      box-shadow:var(--shadow-soft);
-      max-width:950px;
-    }
-
-    .neighborhood-title{
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:0.10em;
-      font-weight:800;
-      color:var(--text-dim);
-      margin-bottom:10px;
-    }
-
-    .neighborhood-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
-      gap:10px;
-    }
-
-    .neighborhood-stat{
-      background:rgba(255,255,255,0.96);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:12px;
-    }
-
-    .neighborhood-stat-label{
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-      color:var(--text-dim);
-      font-weight:800;
-      margin-bottom:6px;
-    }
-
-    .neighborhood-stat-value{
-      font-size:15px;
-      font-weight:800;
-      color:var(--text);
-      line-height:1.3;
-    }
-
-    .search-error{
-      margin-top:12px;
-      padding:12px 14px;
-      border-radius:14px;
-      background:var(--red-soft);
-      border:1px solid #fecaca;
-      color:#991b1b;
-      font-size:13px;
-      line-height:1.45;
-    }
-
-    .summary-shell{
-      display:grid;
-      grid-template-columns:1.1fr 0.9fr;
-      gap:16px;
-      margin-bottom:16px;
-    }
-
-    .summary-hero{
-      padding:22px;
-      border-radius:28px;
-      background:linear-gradient(180deg, #ffffff, #fbfdff);
-      border:1px solid var(--border);
-      box-shadow:var(--shadow-soft);
-      position:relative;
-      overflow:hidden;
-    }
-
-    .summary-hero::before{
-      content:"";
-      position:absolute;
-      inset:0 auto 0 0;
-      width:8px;
-      background:linear-gradient(180deg, var(--blue), #5aa2ff);
-    }
-
-    .summary-label{
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:0.12em;
-      font-weight:800;
-      color:var(--text-dim);
-      margin-bottom:10px;
-    }
-
-    .summary-rating{
-      font-size:clamp(2rem, 4vw, 3.2rem);
-      font-weight:900;
-      line-height:0.98;
-      letter-spacing:-0.05em;
-      margin-bottom:10px;
-      color:var(--text);
-    }
-
-    .summary-text{
-      max-width:700px;
-      color:var(--text-soft);
-      font-size:15px;
-      line-height:1.55;
-    }
-
-    .deal-score-card{
-      padding:22px;
-      border-radius:28px;
-      background:#fff;
-      border:1px solid var(--border);
-      box-shadow:var(--shadow-soft);
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      text-align:center;
-      min-height:200px;
-    }
-
-    .deal-score-ring{
-      width:132px;
-      height:132px;
-      border-radius:50%;
-      display:grid;
-      place-items:center;
-      position:relative;
-      margin-bottom:14px;
-      box-shadow:inset 0 0 0 1px rgba(17,24,39,0.03), 0 12px 24px rgba(17,24,39,0.06);
-      background:conic-gradient(var(--blue) 0deg 0deg, #e8eef7 0deg 360deg);
-    }
-
-    .deal-score-ring::before{
-      content:"";
-      position:absolute;
-      inset:12px;
-      border-radius:50%;
-      background:#ffffff;
-      box-shadow:inset 0 0 0 1px var(--border);
-    }
-
-    .deal-score-inner{
-      position:relative;
-      z-index:1;
-    }
-
-    .deal-score-number{
-      font-size:34px;
-      font-weight:900;
-      letter-spacing:-0.05em;
-      line-height:1;
-      color:var(--text);
-    }
-
-    .deal-score-max{
-      margin-top:4px;
-      color:var(--text-dim);
-      font-size:12px;
-      font-weight:700;
-      letter-spacing:0.06em;
-      text-transform:uppercase;
-    }
-
-    .deal-score-caption{
-      font-size:14px;
-      color:var(--text-soft);
-      line-height:1.45;
-      max-width:280px;
-    }
-
-    .kpi-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
-      gap:14px;
-      margin:18px 0;
-    }
-
-    .kpi{
-      background:#fff;
-      border:1px solid var(--border);
-      padding:16px;
-      border-radius:22px;
-      box-shadow:var(--shadow-soft);
-      min-height:108px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      transition:transform var(--normal), border-color var(--normal), background var(--normal);
-    }
-
-    .kpi:hover{
-      transform:translateY(-2px);
-      border-color:#d2dfef;
-    }
-
-    .kpi-label{
-      color:var(--text-dim);
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:0.10em;
-      font-weight:800;
-    }
-
-    .kpi-value{
-      font-size:28px;
-      font-weight:900;
-      letter-spacing:-0.05em;
-      line-height:1.05;
-      margin-top:8px;
-      color:var(--text);
-    }
-
-    .kpi-sub{
-      color:var(--text-soft);
-      font-size:12px;
-      line-height:1.4;
-      margin-top:8px;
-    }
-
-    .positive{ color:var(--green); }
-    .negative{ color:var(--red); }
-    .neutral{ color:var(--text); }
-
-    .insights{
-      background:#fff;
-      border:1px solid var(--border);
-      padding:18px;
-      border-radius:28px;
-      margin-top:4px;
-      text-align:left;
-      box-shadow:var(--shadow-soft);
-    }
-
-    .insights-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-end;
-      gap:12px;
-      margin-bottom:14px;
-    }
-
-    .insights-title{
-      margin:0;
-      font-size:22px;
-      letter-spacing:-0.03em;
-      color:var(--text);
-    }
-
-    .insights-subtitle{
-      color:var(--text-soft);
-      font-size:14px;
-      line-height:1.45;
-    }
-
-    .insight-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-      gap:12px;
-    }
-
-    .insight-item{
-      padding:14px;
-      border-radius:20px;
-      background:var(--surface-2);
-      border:1px solid var(--border);
-      min-height:92px;
-      transition:transform var(--normal), background var(--normal), border-color var(--normal);
-    }
-
-    .insight-item:hover{
-      transform:translateY(-2px);
-      border-color:#d7e4f3;
-    }
-
-    .insight-kicker{
-      font-size:11px;
-      font-weight:800;
-      letter-spacing:0.10em;
-      text-transform:uppercase;
-      color:var(--text-dim);
-      margin-bottom:8px;
-    }
-
-    .insight-text{
-      font-size:14px;
-      line-height:1.45;
-      color:var(--text);
-    }
-
-    .dashboard-grid{
-      display:grid;
-      grid-template-columns:1.25fr 0.75fr;
-      gap:16px;
-      margin-top:18px;
-    }
-
-    .chart-container,
-    .monthly-table,
-    .table-card{
-      border-radius:28px;
-      padding:18px;
-      background:#fff;
-      border:1px solid var(--border);
-      box-shadow:var(--shadow-soft);
-    }
-
-    .results-section-title{
-      margin:0 0 6px 0;
-      font-size:22px;
-      letter-spacing:-0.03em;
-      color:var(--text);
-    }
-
-    .results-section-subtitle{
-      color:var(--text-soft);
-      font-size:14px;
-      line-height:1.45;
-      margin-bottom:12px;
-    }
-
-    .chart-canvas-wrap{
-      position:relative;
-      height:360px;
-      width:100%;
-      margin-top:8px;
-    }
-
-    .monthly-table{ height:100%; }
-
-    .table-container{
-      overflow-x:auto;
-      border-radius:18px;
-      margin-top:10px;
-      border:1px solid var(--border);
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin:0;
-      overflow:hidden;
-      border-radius:18px;
-      background:#fff;
-    }
-
-    th, td{
-      border-bottom:1px solid var(--border);
-      padding:10px 10px;
-      text-align:center;
-      font-size:13px;
-      white-space:nowrap;
-    }
-
-    th{
-      background:#f3f7fc;
-      color:var(--text);
       font-weight:800;
       letter-spacing:0.03em;
-      border-bottom:1px solid var(--border);
     }
 
-    tr:last-child td{ border-bottom:none; }
-
-    td{
-      color:var(--text-soft);
-      background:#fff;
+    .review-badge.warn{
+      background:#fff1f2;
+      border-color:#fecdd3;
+      color:#b91c1c;
     }
 
-    .highlight-positive td,
-    tr.highlight-positive td{
-      background:#eef8f1;
-      color:var(--green-2);
-      font-weight:800;
+    .review-badge.ok{
+      background:#f0fdf4;
+      border-color:#bbf7d0;
+      color:#166534;
     }
 
-    .sticky-action-bar{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      z-index:1000;
-      padding:0 0 calc(env(safe-area-inset-bottom));
-      background:rgba(255,255,255,0.96);
-      backdrop-filter:blur(12px);
-      -webkit-backdrop-filter:blur(12px);
-      border-top:1px solid var(--border);
-      box-shadow:0 -10px 30px rgba(17,24,39,0.06);
-    }
-
-    .sticky-action-inner{
-      max-width:none;
-      width:100%;
-      margin:0;
-    }
-
-    .sticky-cta-shell{
-      max-width:760px;
-      margin:0 auto;
-      padding:10px 12px 12px;
-    }
-
-    #primaryActionBtn{
-      width:100%;
-      display:block;
-      border-radius:22px;
-      font-size:18px;
-      font-weight:900;
-      text-align:center;
-      padding:17px 18px;
+    .confirm-btn{
+      padding:10px 12px;
+      border-radius:12px;
       background:linear-gradient(135deg, var(--blue), var(--blue-2));
-      color:white;
-      border:none;
-      cursor:pointer;
-      transition:transform var(--fast), box-shadow var(--fast), filter var(--fast);
-      box-shadow:0 16px 30px rgba(37,99,235,0.18);
-      letter-spacing:-0.01em;
-    }
-
-    #primaryActionBtn:hover{
-      filter:brightness(1.02);
-      transform:translateY(-1px);
-    }
-
-    .bottom-app-nav{
-      width:100%;
-      display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:0;
-      background:#ffffff;
-      border-top:1px solid var(--border);
-    }
-
-    .nav-tab-btn{
-      border:none;
-      background:transparent;
-      padding:12px 8px 11px;
-      cursor:pointer;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      color:var(--text-dim);
-      transition:all var(--normal);
-      min-height:72px;
-      position:relative;
-      overflow:hidden;
-      border-radius:0;
-    }
-
-    .nav-tab-btn::before{
-      content:"";
-      position:absolute;
-      left:10%;
-      right:10%;
-      top:6px;
-      bottom:6px;
-      border-radius:18px;
-      opacity:0;
-      transition:opacity var(--normal), transform var(--normal);
-      background:var(--blue-soft);
-      transform:scale(0.96);
-    }
-
-    .nav-tab-btn:hover{ color:var(--text); }
-
-    .nav-tab-btn.active{
-      color:var(--blue);
-      transform:translateY(-1px);
-    }
-
-    .nav-tab-btn.active::before{
-      opacity:1;
-      transform:scale(1);
-    }
-
-    .nav-icon-wrap{
-      width:26px;
-      height:26px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      position:relative;
-      z-index:1;
-    }
-
-    .nav-icon{
-      width:22px;
-      height:22px;
-      display:block;
-      stroke:currentColor;
-      fill:none;
-      stroke-width:2.1;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      transition:transform var(--normal);
-    }
-
-    .nav-tab-btn.active .nav-icon{ transform:scale(1.08); }
-
-    .nav-label{
-      font-size:11px;
+      color:#fff;
       font-weight:800;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-      position:relative;
-      z-index:1;
+      box-shadow:0 10px 20px rgba(37,99,235,0.14);
     }
 
-    .hidden{ display:none !important; }
-
-    .skeleton{
-      position:relative;
-      overflow:hidden;
-      background:#ffffff;
-      min-height:114px;
-      border-radius:22px;
-      border:1px solid var(--border);
-    }
-
-    .skeleton::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      transform:translateX(-100%);
-      background:linear-gradient(90deg, transparent, rgba(37,99,235,0.06), transparent);
-      animation:shimmer 1.2s infinite;
-    }
-
-    @keyframes shimmer{
-      100%{ transform:translateX(100%); }
-    }
-
-    .welcome-overlay{
-      position:fixed;
-      inset:0;
-      z-index:4000;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      background:
-        radial-gradient(circle at top center, rgba(37,99,235,0.06), transparent 22%),
-        linear-gradient(180deg, rgba(249,251,255,0.98), rgba(244,247,252,0.99));
-      transition:opacity 520ms ease, visibility 520ms ease, transform 520ms ease;
-    }
-
-    .welcome-overlay.hide{
-      opacity:0;
-      visibility:hidden;
-      transform:scale(1.02);
-      pointer-events:none;
-    }
-
-    .welcome-card{
-      width:min(760px, 100%);
-      padding:34px 28px 28px;
-      border-radius:34px;
-      background:#ffffff;
-      border:1px solid var(--border);
-      box-shadow:0 28px 70px rgba(17,24,39,0.10);
-      text-align:center;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .welcome-card::before{
-      content:"";
-      position:absolute;
-      inset:-30% auto auto -15%;
-      width:320px;
-      height:320px;
-      background:radial-gradient(circle, rgba(37,99,235,0.06), transparent 68%);
-      pointer-events:none;
-    }
-
-    .welcome-card::after{
-      content:"";
-      position:absolute;
-      inset:auto -12% -28% auto;
-      width:340px;
-      height:340px;
-      background:radial-gradient(circle, rgba(22,163,74,0.05), transparent 70%);
-      pointer-events:none;
-    }
-
-    .welcome-logo-wrap{
-      position:relative;
-      z-index:1;
-      display:flex;
-      justify-content:center;
-      margin-bottom:18px;
-      animation:logoFloat 2.4s ease-in-out infinite;
-    }
-
-    .welcome-logo{
-      width:min(320px, 72vw);
-      max-height:220px;
-      object-fit:contain;
-      filter:drop-shadow(0 12px 22px rgba(17,24,39,0.08));
-      animation:logoReveal 1s ease;
-    }
-
-    @keyframes logoReveal{
-      from{ opacity:0; transform:translateY(10px) scale(0.96); }
-      to{ opacity:1; transform:translateY(0) scale(1); }
-    }
-
-    @keyframes logoFloat{
-      0%,100%{ transform:translateY(0); }
-      50%{ transform:translateY(-4px); }
-    }
-
-    .welcome-kicker{
-      position:relative;
-      z-index:1;
-      font-size:12px;
-      font-weight:900;
-      letter-spacing:0.14em;
-      text-transform:uppercase;
-      color:var(--text-dim);
-      margin-bottom:12px;
-    }
-
-    .welcome-title{
-      position:relative;
-      z-index:1;
-      margin:0 0 12px 0;
-      font-size:clamp(2rem, 4vw, 3.3rem);
-      line-height:0.98;
-      font-weight:900;
-      letter-spacing:-0.05em;
-      color:var(--text);
-    }
-
-    .welcome-text{
-      position:relative;
-      z-index:1;
-      max-width:620px;
-      margin:0 auto 22px;
-      color:var(--text-soft);
-      font-size:15px;
-      line-height:1.6;
-    }
-
-    .welcome-chip-row{
-      position:relative;
-      z-index:1;
-      display:flex;
-      flex-wrap:wrap;
-      justify-content:center;
-      gap:10px;
-      margin-bottom:24px;
-    }
-
-    .welcome-chip{
-      padding:10px 14px;
-      border-radius:999px;
-      background:var(--surface-3);
-      border:1px solid var(--border);
-      color:var(--text-soft);
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .welcome-btn{
-      position:relative;
-      z-index:1;
-      min-width:280px;
-      max-width:100%;
-      padding:16px 22px;
-      border:none;
-      border-radius:18px;
-      background:linear-gradient(135deg, var(--blue), var(--blue-2));
-      color:white;
-      font-size:17px;
-      font-weight:900;
-      letter-spacing:-0.01em;
-      cursor:pointer;
-      box-shadow:0 16px 30px rgba(37,99,235,0.18);
-    }
-
-    .welcome-subnote{
-      position:relative;
-      z-index:1;
-      margin-top:12px;
-      color:var(--text-dim);
-      font-size:12px;
-      letter-spacing:0.02em;
-    }
-
-    @media (max-width: 1100px){
-      .section-grid,
-      .summary-shell,
-      .dashboard-grid{
-        grid-template-columns:1fr;
-      }
-
-      .grid{ grid-template-columns:1fr; }
-      .selected-property-grid{ grid-template-columns:repeat(2, 1fr); }
-
-      .result-card{ grid-template-columns:130px 1fr; }
-
-      .result-actions{
-        grid-column:1 / -1;
-        justify-content:flex-start;
-      }
-    }
-
-    @media (max-width: 680px){
-      body{ padding-bottom:220px; }
-      .search-toolbar{ flex-direction:column; }
-      .result-card{ grid-template-columns:1fr; }
-      .property-thumb{ height:180px; }
-
-      .property-hero{ min-height:500px; }
-      .property-hero-content{
-        min-height:500px;
-        padding:18px;
-      }
-
-      .selected-property-grid{ grid-template-columns:1fr 1fr; }
-      .input-group{ grid-template-columns:1fr; }
-      .save-load-bar{ width:100%; }
-      .chart-canvas-wrap{ height:300px; }
-      .kpi-value{ font-size:24px; }
-
-      .welcome-card{ padding:28px 18px 22px; }
-      .welcome-logo{ width:min(260px, 72vw); }
-      .welcome-btn{ width:100%; min-width:0; }
-    }
-
-    @media (max-width: 430px){
-      .container{ padding:16px 12px 24px; }
-      .selected-property-address{ font-size:28px; }
-      .selected-property-price{ font-size:26px; }
-      .selected-property-grid{ grid-template-columns:1fr; }
-
-      .nav-tab-btn{
-        min-height:68px;
-        padding:10px 6px;
-      }
-
-      #primaryActionBtn{ font-size:17px; }
-
-      th, td{
-        font-size:12px;
-        padding:8px 8px;
-      }
-    }
   </style>
 </head>
 <body>
-  <div id="welcomeOverlay" class="welcome-overlay">
+  <div class="welcome-overlay" id="welcomeOverlay">
     <div class="welcome-card">
-      <div class="welcome-logo-wrap">
-        <img src="icon.png" alt="RealtyIQ USA" class="welcome-logo">
-      </div>
-
-      <div class="welcome-kicker">Premium Underwriting Experience</div>
-      <h1 class="welcome-title">Analyze investment properties with confidence.</h1>
-      <div class="welcome-text">
-        Fast underwriting, cleaner assumptions, better reading flow, and decision-ready insights in a premium RealtyIQ experience.
-      </div>
-
+      <div class="welcome-kicker">RealtyIQ Analyzer</div>
+      <h1 class="welcome-title">Paste Zillow text. Underwrite in seconds.</h1>
+      <p class="welcome-text">This version removes API dependence and replaces it with a faster workflow: copy a property section from Zillow, paste it once, let the app extract the data, review what it found, and run the investment analysis.</p>
       <div class="welcome-chip-row">
-        <div class="welcome-chip">Property Selection</div>
-        <div class="welcome-chip">Financial Inputs</div>
-        <div class="welcome-chip">Results & Deal Verdict</div>
+        <div class="welcome-chip">No API costs</div>
+        <div class="welcome-chip">One-step import</div>
+        <div class="welcome-chip">Review before analyze</div>
       </div>
-
-      <button id="enterAppBtn" class="welcome-btn">Take me to RealtyIQ Analyzer</button>
-      <div class="welcome-subnote">Tap to enter</div>
+      <button class="welcome-btn" id="startAppBtn">Start with Import</button>
+      <div class="welcome-subnote">Tip: paste as much listing text as possible for the strongest import.</div>
     </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <div class="container">
     <div class="brand-bar">
-      <div class="brand-pill">
-        <span class="brand-dot"></span>
-        RealtyIQ Analyzer
-      </div>
+      <div class="brand-pill"><span class="brand-dot"></span> RealtyIQ Analyzer</div>
+      <div class="brand-pill">Paste-first underwriting workflow</div>
     </div>
 
-    <div class="app-step-indicator" id="stepIndicator">
-      <span class="step-pulse"></span>
-      Step 1 of 3 · Property Discovery
-    </div>
+    <div class="app-step-indicator" id="stepIndicator"><span class="step-pulse"></span><span id="stepIndicatorText">Step 1 · Paste Zillow text</span></div>
 
-    <section id="tab-property" class="app-tab-section active">
+    <section class="app-tab-section active" id="tab-import">
       <div class="section-grid">
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title">Property Search</h2>
-              <div class="card-subtitle">Search by address, city, or ZIP and choose the property you want to model.</div>
+        <div class="stack">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">1. Paste the Zillow listing text</h2>
+                <div class="card-subtitle">Copy a big section from Zillow as-is. The parser works best when you include the address, price, beds, baths, sqft, HOA/tax text, and the listing description.</div>
+              </div>
+              <div class="card-tag">Importer</div>
             </div>
-            <div class="card-tag">Find</div>
-          </div>
 
-          <div class="search-toolbar">
-            <input id="propertySearchInput" type="text" placeholder="Search address, city, or ZIP">
-            <button id="propertySearchBtn" class="btn btn-blue">Search</button>
-          </div>
+            <textarea id="listingPaste" placeholder="Example: 123 Main St, Miami, FL 33101\n$525,000\n3 bd 2 ba 1,540 sqft\nCondo\nHOA $410 monthly\nYear built 2007\nRent Zestimate®: $3,650/mo\nProperty taxes $6,240 annually\nWhat's special: renovated kitchen, corner unit, balcony..."></textarea>
 
-          <div class="api-note">
-            <strong>Live free-data mode is built in.</strong> Add your free <code>RENTCAST_API_KEY</code> below to pull live U.S. sale listings and rent estimates, and optionally add a <code>CENSUS_API_KEY</code> for neighborhood demographics. If no key is added, the app safely stays in demo mode with your existing sample properties.
-            <div class="live-pill-row">
-              <div class="live-pill"><span id="rentcastStatusDot" class="status-dot demo"></span><span id="rentcastStatusText">RentCast: demo mode</span></div>
-              <div class="live-pill"><span id="censusStatusDot" class="status-dot demo"></span><span id="censusStatusText">Census: optional</span></div>
+            <div class="chip-row">
+              <div class="chip">Copy the overview block</div>
+              <div class="chip">Description helps parser quality</div>
+              <div class="chip">Rent Zestimate is useful if present</div>
+            </div>
+
+            <div class="helper-note">
+              <strong>Fastest workflow:</strong> highlight the main listing section on Zillow, copy it, paste it here, then click <code>Import Listing</code>. The app will fill the property card and the analyzer inputs automatically where it has confidence.
+            </div>
+
+            <div class="toolbar">
+              <button class="btn btn-primary" id="parseBtn">Import Listing</button>
+              <button class="btn-secondary" id="clearPasteBtn">Clear</button>
+              <button class="btn-ghost" id="demoFillBtn">Load demo text</button>
             </div>
           </div>
 
-          <div id="propertyResults" class="result-stack"></div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Import audit</h2>
+                <div class="card-subtitle">Nothing gets hidden. The app tells you exactly what was imported and what still needs review.</div>
+              </div>
+              <div class="card-tag">Quality check</div>
+            </div>
+            <div class="status-grid">
+              <div class="status-card">
+                <div class="status-label">Imported fields</div>
+                <div class="status-value" id="importedCount">0</div>
+                <div class="status-sub">Fields automatically filled from the pasted text.</div>
+              </div>
+              <div class="status-card">
+                <div class="status-label">Needs review</div>
+                <div class="status-value" id="reviewCount">0</div>
+                <div class="status-sub">Important assumptions you should verify before running the deal.</div>
+              </div>
+              <div class="status-card">
+                <div class="status-label">Confidence</div>
+                <div class="status-value" id="confidenceScore">0%</div>
+                <div class="status-sub">Higher when more core fields were found with clean matches.</div>
+              </div>
+            </div>
+            <div class="audit-list" id="auditList">
+              <div class="empty-state">Paste Zillow text to see the import audit.</div>
+            </div>
+          </div>
         </div>
 
-        <div id="selectedPropertyCard" class="card hidden">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title">Selected Property</h2>
-              <div class="card-subtitle">Your chosen property becomes the starting point for the underwriting model.</div>
+        <div class="stack">
+          <div class="property-hero">
+            <div class="property-hero-overlay"></div>
+            <div class="property-hero-content">
+              <div class="hero-topline">Selected property preview</div>
+              <div class="selected-property-address" id="heroAddress">No property imported yet</div>
+              <div class="selected-property-price" id="heroPrice">Paste a listing to populate this card</div>
+              <div class="hero-chip-row" id="heroChipRow">
+                <div class="hero-stat-chip">Beds —</div>
+                <div class="hero-stat-chip">Baths —</div>
+                <div class="hero-stat-chip">Sqft —</div>
+              </div>
+              <div class="selected-property-grid">
+                <div class="selected-property-stat"><div class="selected-property-stat-label">Property type</div><div class="selected-property-stat-value" id="heroType">—</div></div>
+                <div class="selected-property-stat"><div class="selected-property-stat-label">Year built</div><div class="selected-property-stat-value" id="heroYear">—</div></div>
+                <div class="selected-property-stat"><div class="selected-property-stat-label">HOA</div><div class="selected-property-stat-value" id="heroHoa">—</div></div>
+                <div class="selected-property-stat"><div class="selected-property-stat-label">Rent input</div><div class="selected-property-stat-value" id="heroRent">—</div></div>
+              </div>
+              <div class="about-home-block" id="heroDescription"><strong>About this home</strong>When you import a listing, the description or “what’s special” text will appear here.</div>
             </div>
-            <div class="card-tag">Selected</div>
           </div>
 
-          <div id="selectedPropertyDetails"></div>
-
-          <div style="margin-top:16px;">
-            <button id="usePropertyBtn" class="btn btn-primary" style="width:100%;">Use Property in Analyzer</button>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">How the new flow works</h2>
+                <div class="card-subtitle">Simple by design.</div>
+              </div>
+              <div class="card-tag">No API</div>
+            </div>
+            <div class="confidence-list">
+              <div class="confidence-item"><div class="audit-left"><div class="audit-name">1. Copy</div><div class="audit-detail">Grab the property block directly from Zillow.</div></div><div class="pill-ok">Step 1</div></div>
+              <div class="confidence-item"><div class="audit-left"><div class="audit-name">2. Paste</div><div class="audit-detail">Drop the raw text into the importer with no cleanup.</div></div><div class="pill-ok">Step 2</div></div>
+              <div class="confidence-item"><div class="audit-left"><div class="audit-name">3. Review</div><div class="audit-detail">The app shows what it found and flags missing assumptions.</div></div><div class="pill-ok">Step 3</div></div>
+              <div class="confidence-item"><div class="audit-left"><div class="audit-name">4. Analyze</div><div class="audit-detail">Run the underwriting after quick review inside the Inputs tab.</div></div><div class="pill-ok">Step 4</div></div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="tab-inputs" class="app-tab-section">
-      <div id="selectedPropertyMiniInputs" class="selected-property-mini hidden"></div>
-
+    <section class="app-tab-section" id="tab-inputs">
       <div class="save-load-bar">
-        <button id="saveBtn" class="save-load-btn">Save Deal</button>
-        <button id="loadBtn" class="save-load-btn">Load Deal</button>
+        <button class="save-load-btn" id="saveBtn">Save Deal</button>
+        <button class="save-load-btn" id="loadBtn">Load Deal</button>
+      </div>
+
+      <div class="selected-property-mini">
+        <div class="selected-property-mini-title">Current imported property</div>
+        <div class="selected-property-mini-address" id="miniAddress">No property selected</div>
+        <div class="selected-property-mini-meta" id="miniMeta">Paste Zillow text in the Import tab to populate this summary and the inputs below.</div>
       </div>
 
       <div class="grid">
-        <div class="card">
-          <details open>
-            <summary>Purchase & Financing</summary>
-            <div class="input-group">
-              <div class="input-field">
-                <label>Purchase Price</label>
-                <input class="dollar" id="price" type="text" value="$350,000.0">
-                <div class="field-helper">Target acquisition price for the property.</div>
-              </div>
-              <div class="input-field">
-                <label>Down Payment</label>
-                <input class="percent" id="down" type="text" value="40.0%">
-                <div class="field-helper">Equity contribution at purchase.</div>
-              </div>
-              <div class="input-field">
-                <label>Interest Rate</label>
-                <input class="percent" id="rate" type="text" value="6.25%">
-                <div class="field-helper">Nominal annual interest rate on debt.</div>
-              </div>
-              <div class="input-field">
-                <label>Loan Term (Years)</label>
-                <input id="term" type="number" value="30">
-                <div class="field-helper">Amortization period for the mortgage.</div>
-              </div>
-              <div class="input-field">
-                <label>Closing Costs</label>
-                <input class="percent" id="closing" type="text" value="2.5%">
-                <div class="field-helper">Estimated transaction costs at closing.</div>
-              </div>
-            </div>
-          </details>
-        </div>
+        <details class="card" open>
+          <summary>Purchase & financing</summary>
+          <div class="input-group">
+            <div class="input-field"><label for="purchasePrice">Purchase price</label><input id="purchasePrice" inputmode="decimal"><div class="field-helper">Usually imported from the listing price.</div></div>
+            <div class="input-field"><label for="closingCosts">Closing costs</label><input id="closingCosts" inputmode="decimal"><div class="field-helper">Defaults to 2.5% of purchase price.</div></div>
+            <div class="input-field"><label for="downPaymentPct">Down payment %</label><input id="downPaymentPct" inputmode="decimal"><div class="field-helper">Default 40%.</div></div>
+            <div class="input-field"><label for="interestRate">Interest rate %</label><input id="interestRate" inputmode="decimal"><div class="field-helper">Example: 6.75</div></div>
+            <div class="input-field"><label for="loanTerm">Loan term (years)</label><input id="loanTerm" inputmode="decimal"><div class="field-helper">Example: 30</div></div>
+            <div class="input-field"><label for="rehabCosts">Rehab / upfront repairs</label><input id="rehabCosts" inputmode="decimal"><div class="field-helper">Immediate improvements only.</div></div>
+          </div>
+        </details>
 
-        <div class="card">
-          <details open>
-            <summary>Income & Expenses</summary>
-            <div class="input-group">
-              <div class="input-field">
-                <label>Monthly Rent</label>
-                <input class="dollar" id="rent" type="text" value="$2,850.0">
-                <div class="field-helper">Initial monthly market rent assumption.</div>
-              </div>
-              <div class="input-field">
-                <label>Rent Growth</label>
-                <input class="percent" id="rentGrowth" type="text" value="3.0%">
-                <div class="field-helper">Expected annual growth in rental income.</div>
-              </div>
-              <div class="input-field">
-                <label>Vacancy</label>
-                <input class="percent" id="vacancy" type="text" value="5.0%">
-                <div class="field-helper">Expected stabilized vacancy allowance.</div>
-              </div>
-              <div class="input-field">
-                <label>Management</label>
-                <input class="percent" id="management" type="text" value="10.0%">
-                <div class="field-helper">Property management expense as % of effective rent.</div>
-              </div>
-              <div class="input-field">
-                <label>Maintenance</label>
-                <input class="percent" id="maintenance" type="text" value="10.0%">
-                <div class="field-helper">Repair and maintenance reserve as % of effective rent.</div>
-              </div>
-              <div class="input-field">
-                <label>HOA</label>
-                <input class="dollar" id="hoa" type="text" value="$315.0">
-                <div class="field-helper">Monthly HOA or condo association fee.</div>
-              </div>
-              <div class="input-field">
-                <label>Annual Taxes</label>
-                <input class="dollar" id="taxes" type="text" value="$6,900.0">
-                <div class="field-helper">Projected annual property tax expense.</div>
-              </div>
-              <div class="input-field">
-                <label>Annual Insurance</label>
-                <input class="dollar" id="insurance" type="text" value="$2,200.0">
-                <div class="field-helper">Projected annual insurance expense.</div>
-              </div>
-              <div class="input-field">
-                <label>Expense Growth</label>
-                <input class="percent" id="expenseGrowth" type="text" value="3.0%">
-                <div class="field-helper">Expected annual growth in expenses.</div>
-              </div>
-            </div>
-          </details>
-        </div>
+        <details class="card" open>
+          <summary>Income & operating expenses</summary>
+          <div class="input-group">
+            <div class="input-field review-field" id="monthlyRentField"><label for="monthlyRent">Monthly rent</label><input id="monthlyRent" inputmode="decimal"><div class="review-actions"><button type="button" class="btn confirm-btn hidden" id="confirmRentBtn">Confirm Rent</button><div class="review-badge" id="rentReviewBadge">Awaiting import</div></div><div class="field-helper" id="monthlyRentHelper">If Rent Zestimate is found, it will populate here. If not, this field will import as 0 and must be confirmed or changed before analysis.</div></div>
+            <div class="input-field"><label for="otherIncome">Other monthly income</label><input id="otherIncome" inputmode="decimal"><div class="field-helper">Parking, laundry, storage, etc.</div></div>
+            <div class="input-field"><label for="vacancyPct">Vacancy %</label><input id="vacancyPct" inputmode="decimal"><div class="field-helper">Default 0% (set your own if using a manager).</div></div>
+            <div class="input-field"><label for="managementPct">Management %</label><input id="managementPct" inputmode="decimal"><div class="field-helper">Percent of collected rent.</div></div>
+            <div class="input-field review-field" id="propertyTaxField"><label for="propertyTaxAnnual">Property tax (annual)</label><input id="propertyTaxAnnual" inputmode="decimal"><div class="review-actions"><button type="button" class="btn confirm-btn hidden" id="confirmTaxBtn">Confirm Tax</button><div class="review-badge" id="taxReviewBadge">Awaiting import</div></div><div class="field-helper" id="propertyTaxHelper">Property tax defaults to Purchase Price × 80% × 2% and must be confirmed or changed before analysis.</div></div>
+            <div class="input-field"><label for="insuranceAnnual">Insurance (annual)</label><input id="insuranceAnnual" inputmode="decimal"><div class="field-helper">Imported from pasted text if available; otherwise enter manually.</div></div>
+            <div class="input-field"><label for="maintenancePct">Maintenance %</label><input id="maintenancePct" inputmode="decimal"><div class="field-helper">Default 0% (set your own if using a manager).</div></div>
+            <div class="input-field"><label for="capexPct">CapEx reserve %</label><input id="capexPct" inputmode="decimal"><div class="field-helper">Optional reserve for large future replacements. Default is 0.</div></div>
+            <div class="input-field"><label for="hoaMonthly">HOA (monthly)</label><input id="hoaMonthly" inputmode="decimal"><div class="field-helper">Imported if HOA is present.</div></div>
+            <div class="input-field"><label for="utilitiesMonthly">Utilities (monthly)</label><input id="utilitiesMonthly" inputmode="decimal"><div class="field-helper">Owner-paid utilities only.</div></div>
+          </div>
+        </details>
 
-        <div class="card">
-          <details open>
-            <summary>Exit Assumptions</summary>
-            <div class="input-group">
-              <div class="input-field">
-                <label>Hold Years</label>
-                <input id="years" type="number" value="10">
-                <div class="field-helper">Length of the projected investment hold period.</div>
-              </div>
-              <div class="input-field">
-                <label>Appreciation</label>
-                <input class="percent" id="appreciation" type="text" value="3.0%">
-                <div class="field-helper">Annual appreciation used to estimate future sale value.</div>
-              </div>
-            </div>
-          </details>
-        </div>
+        <details class="card" open>
+          <summary>Exit assumptions</summary>
+          <div class="input-group">
+            <div class="input-field"><label for="holdYears">Hold period (years)</label><input id="holdYears" inputmode="decimal"><div class="field-helper">Used for IRR and sale assumptions.</div></div>
+            <div class="input-field"><label for="appreciationPct">Annual appreciation %</label><input id="appreciationPct" inputmode="decimal"><div class="field-helper">Projected annual property value growth.</div></div>
+            <div class="input-field"><label for="sellingCostPct">Selling costs %</label><input id="sellingCostPct" inputmode="decimal"><div class="field-helper">Broker + closing + disposition friction.</div></div>
+            <div class="input-field"><label for="rentGrowthPct">Annual rent growth %</label><input id="rentGrowthPct" inputmode="decimal"><div class="field-helper">Used in the annual cash flow projection.</div></div>
+            <div class="input-field"><label for="expenseGrowthPct">Annual expense growth %</label><input id="expenseGrowthPct" inputmode="decimal"><div class="field-helper">Applied to taxes, insurance, HOA, utilities, etc.</div></div>
+</div>
+        </details>
       </div>
     </section>
 
-    <section id="tab-results" class="app-tab-section">
-      <div id="selectedPropertyMiniResults" class="selected-property-mini hidden"></div>
+    <section class="app-tab-section" id="tab-results">
+      <div id="resultsEmptyState" class="empty-state">Import a property and click Analyze Deal to populate results.</div>
 
-      <div id="summary" class="hidden"></div>
-
-      <div id="results" class="hidden">
-        <div id="loanInfo" class="kpi-grid"></div>
-        <div id="kpis" class="kpi-grid"></div>
-        <div id="insights" class="insights"></div>
-
-        <div class="dashboard-grid">
-          <div class="chart-container">
-            <h3 class="results-section-title">Performance Curve</h3>
-            <div class="results-section-subtitle">Annual and cumulative cash flow across the hold period.</div>
-            <div class="chart-canvas-wrap">
-              <canvas id="chart"></canvas>
-            </div>
+      <div id="resultsContent" class="hidden">
+        <div class="summary-shell">
+          <div class="summary-hero">
+            <div class="summary-label">Investment summary</div>
+            <div class="summary-rating" id="summaryHeadline">Run the analysis</div>
+            <div class="summary-text" id="summaryNarrative">Your narrative summary will appear here after underwriting the property.</div>
           </div>
-
-          <div class="monthly-table">
-            <h3 class="results-section-title">Year 1 Cash Flow</h3>
-            <div class="results-section-subtitle">A quick stabilized monthly and annual operating view.</div>
-            <div class="table-container" id="monthlyTableContainer"></div>
+          <div class="deal-score-card">
+            <div class="deal-score-ring" id="dealScoreRing">
+              <div class="deal-score-inner">
+                <div class="deal-score-number" id="dealScoreNumber">0</div>
+                <div class="deal-score-max">out of 100</div>
+              </div>
+            </div>
+            <div class="deal-score-caption" id="dealScoreCaption">The score combines cash flow, leverage coverage, cap rate, cash-on-cash return, and IRR.</div>
           </div>
         </div>
 
-        <div class="table-card" style="margin-top:18px;">
-          <h3 class="results-section-title">Year-by-Year Projection</h3>
-          <div class="results-section-subtitle">Projected gross income, NOI, and annual cash flow over time.</div>
-          <div class="table-container" id="table"></div>
+        <div class="kpi-grid" id="kpiGrid"></div>
+
+        <div class="insights">
+          <div class="insights-header">
+            <div>
+              <h2 class="insights-title">Decision engine</h2>
+              <div class="insights-subtitle">Quick reads that help you decide whether to go deeper, renegotiate, or pass.</div>
+            </div>
+          </div>
+          <div class="insight-grid" id="insightGrid"></div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="chart-container">
+            <h3 class="results-section-title">Annual cash flow projection</h3>
+            <div class="results-section-subtitle">Annual and cumulative leveraged cash flow over the hold period.</div>
+            <div class="chart-canvas-wrap"><canvas id="cashFlowChart"></canvas></div>
+          </div>
+
+          <div class="monthly-table">
+            <h3 class="results-section-title">1st year financials</h3>
+            <div class="results-section-subtitle">Monthly and annual operating picture.</div>
+            <div class="table-container">
+              <table>
+                <thead><tr><th>Item</th><th>Monthly</th><th>Annual</th></tr></thead>
+                <tbody id="firstYearBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card" style="margin-top:16px;">
+          <h3 class="results-section-title">Exit summary</h3>
+          <div class="results-section-subtitle">Projected sale, debt payoff, and equity at exit.</div>
+          <div class="table-container">
+            <table>
+              <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+              <tbody id="exitSummaryBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -1663,1304 +540,1030 @@
   <div class="sticky-action-bar">
     <div class="sticky-action-inner">
       <div class="sticky-cta-shell">
-        <button id="primaryActionBtn">Continue to Inputs</button>
+        <button id="primaryActionBtn">Import Listing</button>
       </div>
-
       <div class="bottom-app-nav">
-        <button class="nav-tab-btn active" data-tab="property" aria-label="Property tab">
-          <div class="nav-icon-wrap">
-            <svg class="nav-icon" viewBox="0 0 24 24">
-              <path d="M3 10.5 12 3l9 7.5"></path>
-              <path d="M5 9.5V20h14V9.5"></path>
-              <path d="M9.5 20v-5h5v5"></path>
-            </svg>
-          </div>
-          <div class="nav-label">Property</div>
-        </button>
-
-        <button class="nav-tab-btn" data-tab="inputs" aria-label="Inputs tab">
-          <div class="nav-icon-wrap">
-            <svg class="nav-icon" viewBox="0 0 24 24">
-              <line x1="4" y1="6" x2="20" y2="6"></line>
-              <circle cx="9" cy="6" r="2"></circle>
-              <line x1="4" y1="12" x2="20" y2="12"></line>
-              <circle cx="15" cy="12" r="2"></circle>
-              <line x1="4" y1="18" x2="20" y2="18"></line>
-              <circle cx="11" cy="18" r="2"></circle>
-            </svg>
-          </div>
-          <div class="nav-label">Inputs</div>
-        </button>
-
-        <button class="nav-tab-btn" data-tab="results" aria-label="Results tab">
-          <div class="nav-icon-wrap">
-            <svg class="nav-icon" viewBox="0 0 24 24">
-              <path d="M4 19V5"></path>
-              <path d="M4 19h16"></path>
-              <path d="M7 15l3-4 3 2 4-6"></path>
-              <circle cx="7" cy="15" r="1"></circle>
-              <circle cx="10" cy="11" r="1"></circle>
-              <circle cx="13" cy="13" r="1"></circle>
-              <circle cx="17" cy="7" r="1"></circle>
-            </svg>
-          </div>
-          <div class="nav-label">Results</div>
-        </button>
+        <button class="nav-tab-btn active" data-tab="import"><span class="nav-icon-wrap"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg></span><span class="nav-label">Import</span></button>
+        <button class="nav-tab-btn" data-tab="inputs"><span class="nav-icon-wrap"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M7 7v10"></path><path d="M12 7v10"></path><path d="M17 7v10"></path><path d="M4 17h16"></path></svg></span><span class="nav-label">Inputs</span></button>
+        <button class="nav-tab-btn" data-tab="results"><span class="nav-icon-wrap"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 19h16"></path><path d="M7 16V9"></path><path d="M12 16V5"></path><path d="M17 16v-4"></path></svg></span><span class="nav-label">Results</span></button>
       </div>
     </div>
   </div>
 
   <script>
-    function fmt(n){
-      return n < 0
-        ? '($' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1}) + ')'
-        : '$' + n.toLocaleString(undefined,{minimumFractionDigits:1,maximumFractionDigits:1});
+    const DEFAULTS = {
+      purchasePrice: '',
+      closingCosts: '',
+      downPaymentPct: 40,
+      interestRate: 6.75,
+      loanTerm: 30,
+      rehabCosts: 0,
+      monthlyRent: '',
+      otherIncome: 0,
+      vacancyPct: 5,
+      managementPct: 0,
+      propertyTaxAnnual: '',
+      insuranceAnnual: '',
+      maintenancePct: 10,
+      capexPct: 0,
+      hoaMonthly: 0,
+      utilitiesMonthly: 0,
+      holdYears: 5,
+      appreciationPct: 3,
+      sellingCostPct: 6,
+      rentGrowthPct: 3,
+      expenseGrowthPct: 3,
+          };
+
+    const CORE_IMPORT_FIELDS = [
+      'address','purchasePrice','monthlyRent','propertyTaxAnnual','hoaMonthly','propertyType','beds','baths','sqft','yearBuilt'
+    ];
+
+    let appState = {
+      activeTab: 'import',
+      importedProperty: emptyProperty(),
+      importAudit: [],
+      lastResults: null,
+      chart: null,
+      rentConfirmed: false,
+      rentNeedsConfirmation: false,
+      importedRentValue: 0,
+      taxConfirmed: false,
+      taxNeedsConfirmation: false,
+      importedTaxValue: 0
+    };
+
+    function emptyProperty(){
+      return {
+        address: '', cityStateZip: '', price: '', beds: '', baths: '', sqft: '', yearBuilt: '', hoaMonthly: '',
+        propertyType: '', description: '', rentEstimate: '', propertyTaxAnnual: '', insuranceAnnual: '', sourceText: '', confidence: 0
+      };
     }
 
-    function pct(n){
-      return n.toFixed(1) + "%";
+    const el = id => document.getElementById(id);
+
+    function init(){
+      bindEvents();
+      applyDefaults();
+      updateStepIndicator();
+      updatePropertyPreview();
+      updateMiniProperty();
+      updateRentReviewUI();
+      updateTaxReviewUI();
+      updatePrimaryAction();
+      loadAutosave();
     }
 
-    function clsVal(val, type){
-      if(type === 'positiveIf>0') return val > 0 ? 'positive' : 'neutral';
-      if(type === 'negativeIf<0') return val < 0 ? 'negative' : 'positive';
-      if(type === 'dscr') return val < 1 ? 'negative' : 'positive';
-      return 'neutral';
+    function bindEvents(){
+      el('startAppBtn').addEventListener('click', () => { el('welcomeOverlay').classList.add('hide'); switchTab('import'); });
+      el('parseBtn').addEventListener('click', importListingFromPaste);
+      el('clearPasteBtn').addEventListener('click', clearPaste);
+      el('demoFillBtn').addEventListener('click', fillDemoText);
+      el('primaryActionBtn').addEventListener('click', handlePrimaryAction);
+      el('saveBtn').addEventListener('click', saveDeal);
+      el('loadBtn').addEventListener('click', loadDeal);
+      el('confirmRentBtn').addEventListener('click', () => confirmRentEstimate('confirmed'));
+      el('confirmTaxBtn').addEventListener('click', () => confirmPropertyTax('confirmed'));
+      el('listingPaste').addEventListener('paste', () => setTimeout(() => showToast('Pasted. Click Import Listing to populate the deal.'), 10));
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+      document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => {
+          if (input.id === 'monthlyRent' && appState.rentNeedsConfirmation) {
+            confirmRentEstimate('edited');
+          }
+          if (input.id === 'propertyTaxAnnual' && appState.taxNeedsConfirmation) {
+            confirmPropertyTax('edited');
+          }
+        });
+        input.addEventListener('blur', () => {
+          formatInputField(input);
+          if (input.id === 'purchasePrice') syncDerivedInputsFromPrice();
+          autosaveCurrentState();
+        });
+      });
+      window.addEventListener('beforeunload', autosaveCurrentState);
     }
 
-    function calculateIRR(cf){
-      let guess = 0.1;
-      for(let i=0; i<1000; i++){
-        let npv = 0, der = 0;
-        for(let t=0; t<cf.length; t++){
-          npv += cf[t] / Math.pow(1 + guess, t);
-          der -= t * cf[t] / Math.pow(1 + guess, t + 1);
-        }
-        let newGuess = guess - npv / der;
-        if(!isFinite(newGuess)) return guess;
-        if(Math.abs(newGuess - guess) < 1e-6) return newGuess;
-        guess = newGuess;
-      }
-      return guess;
-    }
-
-    function parsePercent(id){
-      return parseFloat(document.getElementById(id).value.replace('%','')) / 100 || 0;
-    }
-
-    function formatDollarRaw(n){
-      return '$' + Number(n).toLocaleString(undefined, {
-        minimumFractionDigits:1,
-        maximumFractionDigits:1
+    function applyDefaults(){
+      Object.entries(DEFAULTS).forEach(([key, value]) => {
+        const input = el(key);
+        if (!input) return;
+        input.value = value === '' ? '' : formatMaybeCurrency(key, value);
       });
     }
 
-    function calcPricePerSqft(price, sqft){
-      return price && sqft ? price / sqft : null;
+    function formatMaybeCurrency(id, value){
+      if (value === '' || value === null || value === undefined) return '';
+      const currencyFields = ['purchasePrice','closingCosts','rehabCosts','monthlyRent','otherIncome','propertyTaxAnnual','insuranceAnnual','hoaMonthly','utilitiesMonthly'];
+      return currencyFields.includes(id) ? formatNumber(value) : String(value);
     }
 
-    function animateValue(el, target, formatter, duration = 850){
-      if(!el || !isFinite(target)) return;
-      const start = performance.now();
-      const from = 0;
-      function step(now){
-        const progress = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const value = from + (target - from) * eased;
-        el.textContent = formatter(value);
-        if(progress < 1){
-          requestAnimationFrame(step);
-        }else{
-          el.textContent = formatter(target);
-        }
+    function handlePrimaryAction(){
+      if (appState.activeTab === 'import') {
+        importListingFromPaste();
+      } else if (appState.activeTab === 'inputs') {
+        analyzeDeal();
+      } else {
+        switchTab('inputs');
       }
-      requestAnimationFrame(step);
     }
 
-    function setDealScore(score){
-      const ring = document.getElementById('dealScoreRing');
-      const number = document.getElementById('dealScoreNumber');
-      if(!ring || !number || !isFinite(score)) return;
-
-      const bounded = Math.max(0, Math.min(100, Math.round(score)));
-      const degrees = bounded * 3.6;
-      ring.style.background = `conic-gradient(#2563eb 0deg ${degrees}deg, #e8eef7 ${degrees}deg 360deg)`;
-      animateValue(number, bounded, v => Math.round(v), 900);
+    function switchTab(tab){
+      appState.activeTab = tab;
+      document.querySelectorAll('.app-tab-section').forEach(sec => sec.classList.remove('active'));
+      el(`tab-${tab}`).classList.add('active');
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+      updateStepIndicator();
+      updatePrimaryAction();
+      if (tab === 'results' && !appState.lastResults) {
+        el('resultsEmptyState').classList.remove('hidden');
+        el('resultsContent').classList.add('hidden');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function buildInsightCards(items){
-      return items.map(item => `
-        <div class="insight-item">
-          <div class="insight-kicker">${item.kicker}</div>
-          <div class="insight-text">${item.text}</div>
+    function updateStepIndicator(){
+      const text = {
+        import: 'Step 1 · Paste Zillow text',
+        inputs: 'Step 2 · Review underwriting inputs',
+        results: 'Step 3 · Read the decision output'
+      };
+      el('stepIndicatorText').textContent = text[appState.activeTab];
+    }
+
+    function updatePrimaryAction(){
+      const text = {
+        import: 'Import Listing',
+        inputs: 'Analyze Deal',
+        results: 'Back to Inputs'
+      };
+      el('primaryActionBtn').textContent = text[appState.activeTab];
+    }
+
+    function clearPaste(){
+      el('listingPaste').value = '';
+      appState.importedProperty = emptyProperty();
+      appState.importAudit = [];
+      appState.rentConfirmed = false;
+      appState.rentNeedsConfirmation = false;
+      appState.importedRentValue = 0;
+      appState.taxConfirmed = false;
+      appState.taxNeedsConfirmation = false;
+      appState.importedTaxValue = 0;
+      updateImportAudit();
+      updatePropertyPreview();
+      updateMiniProperty();
+      updateRentReviewUI();
+      updateTaxReviewUI();
+      showToast('Paste area cleared.');
+    }
+
+    function fillDemoText(){
+      el('listingPaste').value = `1450 Bayview Dr APT 11, Miami Beach, FL 33139\n$689,000\n2 bd 2 ba 1,180 sqft\nCondo\nYear built 1998\nHOA $735 monthly\nRent Zestimate®: $4,450/mo\nProperty taxes $8,420 annually\nPrice/sqft $584\nWhat's special\nCorner unit with water views, renovated kitchen, impact windows, split-bedroom layout, covered parking, and in-unit laundry. Minutes from shopping and the beach.`;
+      showToast('Demo text loaded. Click Import Listing.');
+    }
+
+    function importListingFromPaste(){
+      const raw = el('listingPaste').value.trim();
+      if (!raw) {
+        showToast('Paste Zillow text first.');
+        return;
+      }
+      const parsed = parseListingText(raw);
+      appState.importedProperty = parsed.property;
+      appState.importAudit = parsed.audit;
+      populateInputsFromImport(parsed.property);
+      updateImportAudit();
+      updatePropertyPreview();
+      updateMiniProperty();
+      autosaveCurrentState();
+      switchTab('inputs');
+      showToast(`Listing imported. ${parsed.importedCount} fields populated automatically.`);
+    }
+
+    function parseListingText(raw){
+      const text = normalizeText(raw);
+      const lines = raw.split(/\n+/).map(v => v.trim()).filter(Boolean);
+      const lower = text.toLowerCase();
+      const property = emptyProperty();
+      property.sourceText = raw;
+
+      property.address = findAddress(lines, text);
+      property.price = findPrice(text);
+      property.beds = matchNumber(text, /(\d+(?:\.\d+)?)\s*(?:bd|beds?|bedrooms?)/i);
+      property.baths = matchNumber(text, /(\d+(?:\.\d+)?)\s*(?:ba|baths?|bathrooms?)/i);
+      property.sqft = findSqft(text);
+      property.yearBuilt = matchNumber(text, /year built\s*[:\-]?\s*(19\d{2}|20\d{2})/i) || matchNumber(text, /built in\s*(19\d{2}|20\d{2})/i);
+      property.hoaMonthly = findHoa(text);
+      property.propertyType = findPropertyType(text);
+      property.description = findDescription(raw);
+      property.rentEstimate = findRent(text);
+      property.propertyTaxAnnual = findTax(text);
+      property.insuranceAnnual = findInsurance(text);
+      property.cityStateZip = findCityStateZip(property.address);
+
+      const audit = [];
+      const mapping = [
+        ['Address', property.address, 'Used for property identity and saved deal naming.'],
+        ['Purchase price', property.price, 'Taken from the pasted price text.'],
+        ['Beds', property.beds, 'Pulled from the listing summary if found.'],
+        ['Baths', property.baths, 'Pulled from the listing summary if found.'],
+        ['Sqft', property.sqft, 'Pulled from the listing summary if found.'],
+        ['Property type', property.propertyType, 'Condo / single-family / townhouse / etc.'],
+        ['Year built', property.yearBuilt, 'Used for reference only.'],
+        ['HOA', property.hoaMonthly, 'Monthly HOA if Zillow text included it.'],
+        ['Monthly rent', property.rentEstimate || 0, 'Uses Rent Zestimate if found. Otherwise the app sets rent to 0 and requires manual review.'],
+        ['Annual property tax', property.propertyTaxAnnual, 'Used for reference only; analyzer still defaults to the Florida estimate.'],
+        ['Annual insurance', property.insuranceAnnual, 'Imported only when insurance text was present. Otherwise enter manually.']
+      ];
+
+      let importedCount = 0;
+      mapping.forEach(([name, value, detail]) => {
+        const found = value !== '' && value !== null && value !== undefined;
+        if (found) importedCount += 1;
+        audit.push({ name, detail, status: found ? 'Imported' : 'Needs review', value: found ? value : '' });
+      });
+
+      const confidence = Math.round((CORE_IMPORT_FIELDS.filter(key => {
+        const map = {
+          address: property.address,
+          purchasePrice: property.price,
+          monthlyRent: property.rentEstimate,
+          propertyTaxAnnual: property.propertyTaxAnnual,
+          hoaMonthly: property.hoaMonthly,
+          propertyType: property.propertyType,
+          beds: property.beds,
+          baths: property.baths,
+          sqft: property.sqft,
+          yearBuilt: property.yearBuilt
+        };
+        return map[key] !== '' && map[key] !== null && map[key] !== undefined;
+      }).length / CORE_IMPORT_FIELDS.length) * 100);
+      property.confidence = confidence;
+
+      return { property, audit, importedCount };
+    }
+
+    function normalizeText(text){
+      return text
+        .replace(/[\u00A0]/g, ' ')
+        .replace(/[®™]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function findAddress(lines, text){
+      const candidate = lines.find(line => /\d+\s+.*(?:st|street|ave|avenue|rd|road|dr|drive|ln|lane|ct|court|blvd|boulevard|way|pl|place|ter|terrace|cir|circle)\b/i.test(line));
+      if (candidate) return candidate;
+      const match = text.match(/(\d+\s+[A-Za-z0-9.#'\- ]+?,\s*[A-Za-z .'-]+,\s*[A-Z]{2}\s*\d{5})/);
+      return match ? match[1].trim() : '';
+    }
+
+    function findCityStateZip(address){
+      if (!address) return '';
+      const parts = address.split(',').map(v => v.trim());
+      return parts.length >= 2 ? parts.slice(1).join(', ') : '';
+    }
+
+    function findPrice(text){
+      const matches = [...text.matchAll(/\$\s?([\d,]+(?:\.\d+)?)/g)].map(m => Number(m[1].replace(/,/g,''))).filter(v => v >= 50000);
+      if (!matches.length) return '';
+      return Math.max(...matches);
+    }
+
+    function findSqft(text){
+      let match = text.match(/([\d,]+)\s*(?:sq\s?ft|sqft|square feet)/i);
+      if (!match) match = text.match(/([\d,]+)\s*ft²/i);
+      return match ? Number(match[1].replace(/,/g,'')) : '';
+    }
+
+    function findHoa(text){
+      const patterns = [
+        /hoa\s*\$\s?([\d,]+(?:\.\d+)?)\s*(?:monthly|\/mo|per month|mo)/i,
+        /hoa fee\s*\$\s?([\d,]+(?:\.\d+)?)/i,
+        /monthly hoa\s*\$\s?([\d,]+(?:\.\d+)?)/i,
+        /\$\s?([\d,]+(?:\.\d+)?)\s*(?:monthly|\/mo|per month)\s+hoa/i
+      ];
+      for (const pattern of patterns) {
+        const m = text.match(pattern);
+        if (m) return Number(m[1].replace(/,/g,''));
+      }
+      return '';
+    }
+
+    function findRent(text){
+      const patterns = [
+        /rent zestimate\s*:?\s*\$\s?([\d,]+(?:\.\d+)?)\s*(?:\/mo|per month|monthly|mo)/i,
+        /estimated rent\s*:?\s*\$\s?([\d,]+(?:\.\d+)?)\s*(?:\/mo|per month|monthly|mo)/i,
+        /market rent\s*:?\s*\$\s?([\d,]+(?:\.\d+)?)/i,
+        /\$\s?([\d,]+(?:\.\d+)?)\s*(?:\/mo|per month|monthly|mo)\s*(?:rent|rental income)/i
+      ];
+      for (const pattern of patterns) {
+        const m = text.match(pattern);
+        if (m) return Number(m[1].replace(/,/g,''));
+      }
+      return '';
+    }
+
+
+    function findInsurance(text){
+      const patterns = [
+        /insurance\s*[:\-]?\s*\$\s?([\d,]+(?:\.\d+)?)(?:\s*(?:annually|annual|\/yr|per year|yearly))?/i,
+        /annual insurance\s*[:\-]?\s*\$\s?([\d,]+(?:\.\d+)?)/i,
+        /hazard insurance\s*[:\-]?\s*\$\s?([\d,]+(?:\.\d+)?)/i,
+        /homeowners insurance\s*[:\-]?\s*\$\s?([\d,]+(?:\.\d+)?)/i,
+        /est\.?(?:imated)? insurance\s*[:\-]?\s*\$\s?([\d,]+(?:\.\d+)?)/i
+      ];
+      for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match) return parseNumber(match[1]);
+      }
+      return 0;
+    }
+
+    function findTax(text){
+      const patterns = [
+        /property taxes?\s*\$\s?([\d,]+(?:\.\d+)?)\s*(?:annually|annual|\/yr|per year|yearly)/i,
+        /annual taxes?\s*\$\s?([\d,]+(?:\.\d+)?)/i,
+        /taxes?\s*\$\s?([\d,]+(?:\.\d+)?)\s*(?:annually|annual|\/yr|per year|yearly)/i
+      ];
+      for (const pattern of patterns) {
+        const m = text.match(pattern);
+        if (m) return Number(m[1].replace(/,/g,''));
+      }
+      return '';
+    }
+
+    function findPropertyType(text){
+      const types = [
+        ['Single Family', /(single[- ]family|house|detached)/i],
+        ['Condo', /(condo|condominium)/i],
+        ['Townhome', /(townhome|townhouse)/i],
+        ['Multi-family', /(multi[- ]family|triplex|duplex|fourplex|quadplex)/i],
+        ['Co-op', /(co-op|coop)/i],
+        ['Manufactured', /(manufactured|mobile home)/i]
+      ];
+      for (const [label, pattern] of types) if (pattern.test(text)) return label;
+      return '';
+    }
+
+    function findDescription(raw){
+      const patterns = [
+        /what'?s special\s*([\s\S]{20,400})/i,
+        /description\s*([\s\S]{20,400})/i,
+        /overview\s*([\s\S]{20,400})/i
+      ];
+      for (const pattern of patterns) {
+        const m = raw.match(pattern);
+        if (m) return m[1].trim().replace(/\s+/g, ' ').slice(0, 420);
+      }
+      const lines = raw.split(/\n+/).map(v => v.trim()).filter(Boolean);
+      const longLine = lines.find(line => line.split(' ').length > 12);
+      return longLine || '';
+    }
+
+    function matchNumber(text, regex){
+      const match = text.match(regex);
+      return match ? Number(match[1].replace(/,/g,'')) : '';
+    }
+
+    function populateInputsFromImport(property){
+      const setIfFound = (id, value) => {
+        if (value === '' || value === null || value === undefined) return;
+        const input = el(id);
+        if (!input) return;
+        input.value = formatMaybeCurrency(id, value);
+      };
+      setIfFound('purchasePrice', property.price);
+      setIfFound('hoaMonthly', property.hoaMonthly);
+
+      const importedRent = Number(property.rentEstimate || 0);
+      el('monthlyRent').value = formatNumber(importedRent);
+      appState.importedRentValue = importedRent;
+      appState.rentConfirmed = false;
+      appState.rentNeedsConfirmation = true;
+
+      if (property.price) {
+        el('closingCosts').value = formatNumber(Math.round(property.price * 0.025));
+        const estimatedTax = Math.round(property.price * 0.8 * 0.02);
+        el('propertyTaxAnnual').value = formatNumber(estimatedTax);
+        appState.importedTaxValue = estimatedTax;
+      } else {
+        el('propertyTaxAnnual').value = formatNumber(0);
+        appState.importedTaxValue = 0;
+      }
+      appState.taxConfirmed = false;
+      appState.taxNeedsConfirmation = true;
+
+      if (property.insuranceAnnual) {
+        el('insuranceAnnual').value = formatNumber(property.insuranceAnnual);
+      } else {
+        el('insuranceAnnual').value = '';
+      }
+
+      formatAllInputs();
+      updateRentReviewUI();
+      updateTaxReviewUI();
+    }
+
+    function updateImportAudit(){
+      const auditList = el('auditList');
+      if (!appState.importAudit.length) {
+        auditList.innerHTML = '<div class="empty-state">Paste Zillow text to see the import audit.</div>';
+        el('importedCount').textContent = '0';
+        el('reviewCount').textContent = '0';
+        el('confidenceScore').textContent = '0%';
+        return;
+      }
+      const imported = appState.importAudit.filter(item => item.status === 'Imported').length;
+      const review = appState.importAudit.filter(item => item.status !== 'Imported').length;
+      el('importedCount').textContent = imported;
+      el('reviewCount').textContent = review;
+      el('confidenceScore').textContent = `${appState.importedProperty.confidence}%`;
+      auditList.innerHTML = appState.importAudit.map(item => `
+        <div class="audit-item">
+          <div class="audit-left">
+            <div class="audit-name">${item.name}</div>
+            <div class="audit-detail">${item.status === 'Imported' ? `${item.detail} Found: ${escapeHtml(String(item.value))}` : item.detail}</div>
+          </div>
+          <div class="${item.status === 'Imported' ? 'pill-ok' : 'pill-warn'}">${item.status}</div>
         </div>
       `).join('');
     }
 
-    function playStartupChime(){
-      try{
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if(!AudioCtx) return;
+    function updatePropertyPreview(){
+      const p = appState.importedProperty;
+      el('heroAddress').textContent = p.address || 'No property imported yet';
+      el('heroPrice').textContent = p.price ? currency(p.price) : 'Paste a listing to populate this card';
+      el('heroChipRow').innerHTML = `
+        <div class="hero-stat-chip">Beds ${p.beds || '—'}</div>
+        <div class="hero-stat-chip">Baths ${p.baths || '—'}</div>
+        <div class="hero-stat-chip">Sqft ${p.sqft ? formatNumber(p.sqft) : '—'}</div>
+      `;
+      el('heroType').textContent = p.propertyType || '—';
+      el('heroYear').textContent = p.yearBuilt || '—';
+      el('heroHoa').textContent = p.hoaMonthly ? `${currency(p.hoaMonthly)}/mo` : '—';
+      el('heroRent').textContent = p.rentEstimate ? `${currency(p.rentEstimate)}/mo` : 'Needs review';
+      el('heroDescription').innerHTML = `<strong>About this home</strong>${escapeHtml(p.description || 'When you import a listing, the description or “what’s special” text will appear here.')}`;
+    }
 
-        const ctx = new AudioCtx();
-        const now = ctx.currentTime;
+    function updateMiniProperty(){
+      const p = appState.importedProperty;
+      el('miniAddress').textContent = p.address || 'No property selected';
+      const meta = [];
+      if (p.price) meta.push(currency(p.price));
+      if (p.beds) meta.push(`${p.beds} bd`);
+      if (p.baths) meta.push(`${p.baths} ba`);
+      if (p.sqft) meta.push(`${formatNumber(p.sqft)} sqft`);
+      if (p.propertyType) meta.push(p.propertyType);
+      el('miniMeta').textContent = meta.length ? meta.join(' · ') : 'Paste Zillow text in the Import tab to populate this summary and the inputs below.';
+    }
 
-        const master = ctx.createGain();
-        master.gain.setValueAtTime(0.0001, now);
-        master.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
-        master.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-        master.connect(ctx.destination);
+    function formatInputField(input){
+      const id = input.id;
+      const currencyFields = ['purchasePrice','closingCosts','rehabCosts','monthlyRent','otherIncome','propertyTaxAnnual','insuranceAnnual','hoaMonthly','utilitiesMonthly'];
+      const value = parseNumber(input.value);
+      if (input.value.trim() === '') return;
+      input.value = currencyFields.includes(id) ? formatNumber(value) : stripTrailingZeroes(value);
+    }
 
-        function tone(freq, start, duration, type, volume){
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = type || 'sine';
-          osc.frequency.setValueAtTime(freq, start);
-          gain.gain.setValueAtTime(0.0001, start);
-          gain.gain.exponentialRampToValueAtTime(volume || 0.12, start + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-          osc.connect(gain);
-          gain.connect(master);
-          osc.start(start);
-          osc.stop(start + duration + 0.03);
-        }
+    function formatAllInputs(){
+      document.querySelectorAll('input').forEach(formatInputField);
+    }
 
-        tone(392.00, now + 0.02, 0.30, 'sine', 0.14);
-        tone(587.33, now + 0.18, 0.45, 'triangle', 0.12);
-        tone(783.99, now + 0.36, 0.62, 'sine', 0.10);
-
-        const shimmer = ctx.createOscillator();
-        const shimmerGain = ctx.createGain();
-        const filter = ctx.createBiquadFilter();
-
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(1800, now);
-
-        shimmer.type = 'triangle';
-        shimmer.frequency.setValueAtTime(1174.66, now + 0.28);
-
-        shimmerGain.gain.setValueAtTime(0.0001, now + 0.28);
-        shimmerGain.gain.exponentialRampToValueAtTime(0.035, now + 0.36);
-        shimmerGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.00);
-
-        shimmer.connect(filter);
-        filter.connect(shimmerGain);
-        shimmerGain.connect(master);
-        shimmer.start(now + 0.28);
-        shimmer.stop(now + 1.05);
-      }catch(e){
-        console.log('Startup sound unavailable', e);
+    function syncDerivedInputsFromPrice(){
+      const price = parseInputValue('purchasePrice');
+      if (!price) return;
+      el('closingCosts').value = formatNumber(Math.round(price * 0.025));
+      if (appState.taxNeedsConfirmation || !appState.taxConfirmed) {
+        const estimatedTax = Math.round(price * 0.8 * 0.02);
+        el('propertyTaxAnnual').value = formatNumber(estimatedTax);
+        appState.importedTaxValue = estimatedTax;
+        updateTaxReviewUI();
       }
     }
 
-    document.querySelectorAll('.percent').forEach(el=>{
-      el.addEventListener('focus', ()=>{
-        el.value = el.value.replace('%','');
-      });
-      el.addEventListener('blur', ()=>{
-        let val = el.value.replace(/[^0-9.]/g,'');
-        if(val !== '') el.value = parseFloat(val).toFixed(1) + '%';
-      });
-    });
 
-    document.querySelectorAll('.dollar').forEach(el=>{
-      function formatDollar(val){
-        val = val.replace(/[^0-9.]/g,'');
-        return val ? '$' + parseFloat(val).toLocaleString(undefined,{
-          minimumFractionDigits:1,
-          maximumFractionDigits:1
-        }) : '';
+    function updateRentReviewUI(){
+      const field = el('monthlyRentField');
+      const badge = el('rentReviewBadge');
+      const helper = el('monthlyRentHelper');
+      const confirmBtn = el('confirmRentBtn');
+      if (!field || !badge || !helper || !confirmBtn) return;
+
+      field.classList.remove('needs-review', 'confirmed');
+
+      if (appState.rentNeedsConfirmation) {
+        field.classList.add('needs-review');
+        badge.className = 'review-badge warn';
+        badge.textContent = 'Needs confirmation';
+        helper.textContent = 'Confirm the imported rent estimate or type your own monthly rent before running the analysis.';
+        confirmBtn.classList.remove('hidden');
+      } else if (appState.rentConfirmed) {
+        field.classList.add('confirmed');
+        badge.className = 'review-badge ok';
+        badge.textContent = 'Rent confirmed';
+        helper.textContent = 'Monthly rent is confirmed and ready for analysis.';
+        confirmBtn.classList.add('hidden');
+      } else {
+        badge.className = 'review-badge';
+        badge.textContent = 'Awaiting import';
+        helper.textContent = 'If Rent Zestimate is found, it will populate here. If not, this field will import as 0 and must be confirmed or changed before analysis.';
+        confirmBtn.classList.add('hidden');
       }
+    }
 
-      el.value = formatDollar(el.value);
+    function confirmRentEstimate(mode = 'confirmed'){
+      appState.rentConfirmed = true;
+      appState.rentNeedsConfirmation = false;
+      updateRentReviewUI();
+      autosaveCurrentState();
+      if (mode === 'edited') {
+        showToast('Monthly rent updated and confirmed.');
+      } else {
+        showToast('Rent estimate confirmed.');
+      }
+    }
 
-      el.addEventListener('focus', ()=>{
-        el.value = el.value.replace(/[$,]/g,'');
-      });
+    function updateTaxReviewUI(){
+      const field = el('propertyTaxField');
+      const badge = el('taxReviewBadge');
+      const helper = el('propertyTaxHelper');
+      const confirmBtn = el('confirmTaxBtn');
+      if (!field || !badge || !helper || !confirmBtn) return;
 
-      el.addEventListener('blur', ()=>{
-        el.value = formatDollar(el.value);
-      });
-    });
+      field.classList.remove('needs-review', 'confirmed');
 
-    function getAllInputs(){
-      const inputs = document.querySelectorAll('#tab-inputs input');
-      let data = {};
-      inputs.forEach(input=>{
-        if(input.id){
-          data[input.id] = input.value;
-        }
-      });
+      if (appState.taxNeedsConfirmation) {
+        field.classList.add('needs-review');
+        badge.className = 'review-badge warn';
+        badge.textContent = 'Needs confirmation';
+        helper.textContent = 'Property tax is using the Florida estimate: Purchase Price × 80% × 2%. Confirm it or type your own annual property tax before running the analysis.';
+        confirmBtn.classList.remove('hidden');
+      } else if (appState.taxConfirmed) {
+        field.classList.add('confirmed');
+        badge.className = 'review-badge ok';
+        badge.textContent = 'Tax confirmed';
+        helper.textContent = 'Property tax is confirmed and ready for analysis.';
+        confirmBtn.classList.add('hidden');
+      } else {
+        badge.className = 'review-badge';
+        badge.textContent = 'Awaiting import';
+        helper.textContent = 'Property tax defaults to Purchase Price × 80% × 2% and must be confirmed or changed before analysis.';
+        confirmBtn.classList.add('hidden');
+      }
+    }
+
+    function confirmPropertyTax(mode = 'confirmed'){
+      appState.taxConfirmed = true;
+      appState.taxNeedsConfirmation = false;
+      updateTaxReviewUI();
+      autosaveCurrentState();
+      if (mode === 'edited') {
+        showToast('Property tax updated and confirmed.');
+      } else {
+        showToast('Property tax confirmed.');
+      }
+    }
+
+    function collectInputs(){
+      const data = {};
+      Object.keys(DEFAULTS).forEach(key => data[key] = parseInputValue(key));
       return data;
     }
 
-    function setAllInputs(data){
-      Object.keys(data).forEach(id=>{
-        let el = document.getElementById(id);
-        if(el){
-          el.value = data[id];
-        }
-      });
+    function parseInputValue(id){
+      return parseNumber(el(id).value);
     }
 
-    document.getElementById('saveBtn').addEventListener('click', ()=>{
-      const data = getAllInputs();
-      localStorage.setItem('investmentDeal', JSON.stringify(data));
-      const btn = document.getElementById('saveBtn');
-      const original = btn.innerText;
-      btn.innerText = 'Saved ✓';
-      setTimeout(()=>{
-        btn.innerText = original;
-      }, 1200);
-    });
+    function parseNumber(value){
+      if (value === null || value === undefined) return 0;
+      if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+      const cleaned = String(value).replace(/[$,%()]/g, match => match === '(' || match === ')' ? '-' : '').replace(/,/g,'').trim();
+      if (cleaned === '' || cleaned === '-') return 0;
+      const num = Number(cleaned);
+      return Number.isFinite(num) ? num : 0;
+    }
 
-    document.getElementById('loadBtn').addEventListener('click', ()=>{
-      const saved = localStorage.getItem('investmentDeal');
-      if(saved){
-        setAllInputs(JSON.parse(saved));
-        const btn = document.getElementById('loadBtn');
-        const original = btn.innerText;
-        btn.innerText = 'Loaded ✓';
-        setTimeout(()=>{
-          btn.innerText = original;
-        }, 1200);
+    function validateAnalysisInputs(data){
+      if (appState.rentNeedsConfirmation) {
+        switchTab('inputs');
+        alert('Please confirm rent estimate');
+        return false;
       }
-    });
-
-    let analysisChart = null;
-    let selectedProperty = null;
-    let currentTab = 'property';
-    let latestSearchResults = [];
-    let activeSearchAbortController = null;
-
-    const API_CONFIG = {
-      DATA_MODE: 'auto',
-      RENTCAST_API_KEY: '3b79a2b2831348c28181c80f3f993a74',
-      CENSUS_API_KEY: '',
-      RENTCAST_BASE_URL: 'https://api.rentcast.io/v1',
-      CENSUS_YEAR: '2023'
-    };
-
-    const mockProperties = [
-      {
-        id: 1,
-        address: "123 Main St, Miami, FL 33139",
-        price: 525000,
-        beds: 2,
-        baths: 2,
-        sqft: 1180,
-        yearBuilt: 2004,
-        propertyType: "Condo",
-        hoa: 475,
-        rentEstimate: 3450,
-        rentLow: 3250,
-        rentHigh: 3650,
-        compCount: 7,
-        zipCode: "33139",
-        city: "Miami",
-        state: "FL",
-        imageUrl: "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?auto=format&fit=crop&w=1200&q=80",
-        description: "Bright condo in a high-demand area with open living space, updated finishes, strong rental appeal, and convenient access to shopping, dining, and the beach.",
-        dataSource: "Demo"
-      },
-      {
-        id: 2,
-        address: "456 Ocean Ave, Fort Lauderdale, FL 33301",
-        price: 689000,
-        beds: 3,
-        baths: 2,
-        sqft: 1540,
-        yearBuilt: 1998,
-        propertyType: "Single Family",
-        hoa: 390,
-        rentEstimate: 3950,
-        rentLow: 3700,
-        rentHigh: 4200,
-        compCount: 6,
-        zipCode: "33301",
-        city: "Fort Lauderdale",
-        state: "FL",
-        imageUrl: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80",
-        description: "Well-kept single-family home with generous square footage, private outdoor space, and a layout that supports both owner-occupants and long-term rental demand.",
-        dataSource: "Demo"
+      if (appState.taxNeedsConfirmation) {
+        switchTab('inputs');
+        alert('Please confirm property tax');
+        return false;
       }
-    ];
-
-    function hasRentCastKey(){
-      return !!API_CONFIG.RENTCAST_API_KEY && API_CONFIG.RENTCAST_API_KEY.trim() !== '';
-    }
-
-    function hasCensusKey(){
-      return !!API_CONFIG.CENSUS_API_KEY && API_CONFIG.CENSUS_API_KEY.trim() !== '';
-    }
-
-    function usingLiveSearch(){
-      return API_CONFIG.DATA_MODE === 'rentcast' || (API_CONFIG.DATA_MODE === 'auto' && hasRentCastKey());
-    }
-
-    function normalizeUrlImage(url){
-      if(!url) return '';
-      return url;
-    }
-
-    function coalesce(){
-      for(const value of arguments){
-        if(value !== undefined && value !== null && value !== '') return value;
+      const missing = [];
+      if (!data.purchasePrice) missing.push('Purchase Price');
+      if (!data.propertyTaxAnnual) missing.push('Property Tax');
+      if (!data.insuranceAnnual) missing.push('Insurance');
+      if (!data.interestRate) missing.push('Interest Rate');
+      if (!data.loanTerm) missing.push('Loan Term');
+      if (missing.length) {
+        showToast(`Review these fields before analyzing: ${missing.join(', ')}`);
+        switchTab('inputs');
+        return false;
       }
-      return null;
+      return true;
     }
 
-    function toNumber(value){
-      if(value === undefined || value === null || value === '') return null;
-      const n = Number(value);
-      return Number.isFinite(n) ? n : null;
+    function analyzeDeal(){
+      formatAllInputs();
+      const d = collectInputs();
+      if (!validateAnalysisInputs(d)) return;
+
+      const purchasePrice = d.purchasePrice;
+      const closingCosts = d.closingCosts;
+      const downPayment = purchasePrice * (d.downPaymentPct / 100);
+      const loanAmount = Math.max(purchasePrice - downPayment, 0);
+      const rehabCosts = d.rehabCosts;
+      const initialCash = downPayment + closingCosts + rehabCosts;
+
+      const grossRentMonthly = d.monthlyRent + d.otherIncome;
+      const vacancyMonthly = grossRentMonthly * (d.vacancyPct / 100);
+      const effectiveGrossMonthly = grossRentMonthly - vacancyMonthly;
+      const managementMonthly = effectiveGrossMonthly * (d.managementPct / 100);
+      const maintenanceMonthly = grossRentMonthly * (d.maintenancePct / 100);
+      const capexMonthly = grossRentMonthly * (d.capexPct / 100);
+      const taxMonthly = d.propertyTaxAnnual / 12;
+      const insuranceMonthly = d.insuranceAnnual / 12;
+      const operatingExpensesMonthly = managementMonthly + maintenanceMonthly + capexMonthly + taxMonthly + insuranceMonthly + d.hoaMonthly + d.utilitiesMonthly;
+      const noiMonthly = effectiveGrossMonthly - operatingExpensesMonthly;
+      const noiAnnual = noiMonthly * 12;
+      const mortgagePayment = monthlyMortgagePayment(loanAmount, d.interestRate, d.loanTerm);
+      const annualDebtService = mortgagePayment * 12;
+      const cashFlowMonthly = noiMonthly - mortgagePayment;
+      const cashFlowAnnual = cashFlowMonthly * 12;
+      const capRate = purchasePrice ? noiAnnual / purchasePrice : 0;
+      const coc = initialCash ? cashFlowAnnual / initialCash : 0;
+      const dscr = annualDebtService ? noiAnnual / annualDebtService : 0;
+      const breakEvenOccupancy = grossRentMonthly ? ((operatingExpensesMonthly + mortgagePayment) / grossRentMonthly) : 0;
+      const breakEvenRent = 1 - d.vacancyPct / 100 !== 0 ? (operatingExpensesMonthly + mortgagePayment) / (1 - d.vacancyPct / 100) : 0;
+      const annualProjection = buildAnnualProjection(d, purchasePrice, loanAmount, mortgagePayment, operatingExpensesMonthly, grossRentMonthly, effectiveGrossMonthly, noiAnnual, cashFlowAnnual);
+      const salePrice = annualProjection.salePrice;
+      const debtBalanceAtSale = annualProjection.debtBalanceAtSale;
+      const sellingCosts = salePrice * (d.sellingCostPct / 100);
+      const netSaleProceeds = salePrice - sellingCosts - debtBalanceAtSale;
+      const leveredExitCash = netSaleProceeds + annualProjection.finalYearCashFlow;
+      const irr = computeIRR([-(initialCash), ...annualProjection.annualCashFlows.slice(0, -1), leveredExitCash]);
+      const score = scoreDeal({ irr, coc, dscr, capRate, cashFlowAnnual, breakEvenOccupancy });
+      const results = {
+        ...d,
+        purchasePrice, closingCosts, downPayment, loanAmount, rehabCosts, initialCash,
+        grossRentMonthly, vacancyMonthly, effectiveGrossMonthly, managementMonthly, maintenanceMonthly,
+        capexMonthly, taxMonthly, insuranceMonthly, operatingExpensesMonthly, noiMonthly, noiAnnual,
+        mortgagePayment, annualDebtService, cashFlowMonthly, cashFlowAnnual, capRate, coc, dscr,
+        breakEvenOccupancy, breakEvenRent, annualProjection, salePrice, debtBalanceAtSale,
+        sellingCosts, netSaleProceeds, leveredExitCash, irr, score
+      };
+      appState.lastResults = results;
+      renderResults(results);
+      autosaveCurrentState();
+      switchTab('results');
+      const summary = el('summaryHeadline');
+      if (summary) summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function safeText(value, fallback = 'N/A'){
-      if(value === undefined || value === null || value === '') return fallback;
-      return value;
-    }
+    function buildAnnualProjection(d, purchasePrice, loanAmount, mortgagePayment, operatingExpensesMonthly, grossRentMonthly){
+      const years = Math.max(1, Math.round(d.holdYears || 1));
+      const annualCashFlows = [];
+      const annualNetRent = [];
+      let balance = loanAmount;
+      let salePrice = purchasePrice;
+      let finalYearCashFlow = 0;
 
-    function buildAddressFromParts(item){
-      const line1 = coalesce(item.formattedAddress, item.addressLine1, item.address, item.streetAddress);
-      if(line1 && String(line1).includes(',')) return line1;
-      const city = coalesce(item.city, item.addressCity);
-      const state = coalesce(item.state, item.addressState);
-      const zip = coalesce(item.zipCode, item.zip);
-      return [line1, [city, state].filter(Boolean).join(', '), zip].filter(Boolean).join(', ');
-    }
+      for (let year = 1; year <= years; year++) {
+        const rentFactor = Math.pow(1 + d.rentGrowthPct / 100, year - 1);
+        const expenseFactor = Math.pow(1 + d.expenseGrowthPct / 100, year - 1);
+        const currentGross = grossRentMonthly * 12 * rentFactor;
+        const currentVacancy = currentGross * (d.vacancyPct / 100);
+        const currentCollected = currentGross - currentVacancy;
+        const mgmt = currentCollected * (d.managementPct / 100);
+        const maintenance = currentGross * (d.maintenancePct / 100);
+        const capex = currentGross * (d.capexPct / 100);
+        const taxes = d.propertyTaxAnnual * expenseFactor;
+        const insurance = d.insuranceAnnual * expenseFactor;
+        const hoa = d.hoaMonthly * 12 * expenseFactor;
+        const utilities = d.utilitiesMonthly * 12 * expenseFactor;
+        const opex = mgmt + maintenance + capex + taxes + insurance + hoa + utilities;
+        const noi = currentCollected + (d.otherIncome * 12 * rentFactor) - opex;
+        const debtService = mortgagePayment * 12;
+        const cashFlow = noi - debtService;
+        annualCashFlows.push(cashFlow);
+        annualNetRent.push(noi);
+        finalYearCashFlow = cashFlow;
 
-    function mapRentCastProperty(item, index){
-      const hoaRaw = item.hoa && typeof item.hoa === 'object' ? coalesce(item.hoa.fee, item.hoa.amount) : item.hoa;
-      const media = Array.isArray(item.photos) && item.photos.length ? item.photos[0] : null;
-      const address = buildAddressFromParts(item);
+        const amort = amortizationYear(balance, d.interestRate, mortgagePayment, year);
+        balance = amort.endingBalance;
+        salePrice = purchasePrice * Math.pow(1 + d.appreciationPct / 100, year);
+      }
 
       return {
-        id: String(coalesce(item.id, item.propertyId, item.listingId, `${Date.now()}-${index}`)),
-        propertyId: coalesce(item.id, item.propertyId),
-        address: address || 'Address unavailable',
-        price: toNumber(coalesce(item.listPrice, item.price, item.lastSalePrice, item.assessedValue)) || 0,
-        beds: toNumber(coalesce(item.bedrooms, item.beds)) || 0,
-        baths: toNumber(coalesce(item.bathrooms, item.baths)) || 0,
-        sqft: toNumber(coalesce(item.squareFootage, item.livingArea, item.sqft)) || 0,
-        yearBuilt: toNumber(item.yearBuilt) || 'N/A',
-        propertyType: safeText(coalesce(item.propertyType, item.type), 'Residential'),
-        hoa: toNumber(hoaRaw) || 0,
-        rentEstimate: toNumber(coalesce(item.rentEstimate, item.rent, item.predictedRent)),
-        rentLow: toNumber(coalesce(item.rentRangeLow, item.rentLow)),
-        rentHigh: toNumber(coalesce(item.rentRangeHigh, item.rentHigh)),
-        compCount: toNumber(coalesce(item.compCount, item.comparableCount)) || 0,
-        imageUrl: normalizeUrlImage(coalesce(media, item.primaryPhotoUrl, item.photo, item.imageUrl)) || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80",
-        description: safeText(coalesce(item.description, item.summary), ''),
-        zipCode: String(coalesce(item.zipCode, item.zip, '') || ''),
-        city: safeText(coalesce(item.city, item.addressCity), ''),
-        state: safeText(coalesce(item.state, item.addressState), ''),
-        latitude: toNumber(coalesce(item.latitude, item.lat)),
-        longitude: toNumber(coalesce(item.longitude, item.lng, item.lon)),
-        dataSource: 'RentCast'
+        annualCashFlows,
+        annualNetRent,
+        debtBalanceAtSale: balance,
+        salePrice,
+        finalYearCashFlow
       };
     }
 
-    function detectQueryParts(query){
-      const cleaned = query.trim();
-      const zipMatch = cleaned.match(/\b(\d{5})(?:-\d{4})?\b/);
-      if(zipMatch){
-        return { zipCode: zipMatch[1], limit: 8 };
+    function amortizationYear(originalBalance, annualRate, monthlyPayment, year){
+      const monthlyRate = annualRate / 100 / 12;
+      let balance = originalBalance;
+      for (let m = 1; m <= year * 12; m++) {
+        const interest = balance * monthlyRate;
+        const principal = Math.max(monthlyPayment - interest, 0);
+        balance = Math.max(balance - principal, 0);
       }
+      return { endingBalance: balance };
+    }
 
-      const parts = cleaned.split(',').map(part => part.trim()).filter(Boolean);
-      if(parts.length >= 2){
-        const stateMatch = parts[parts.length - 1].match(/^[A-Za-z]{2}$/);
-        if(stateMatch){
-          return {
-            city: parts.slice(0, -1).join(', '),
-            state: stateMatch[0].toUpperCase(),
-            limit: 8
-          };
+    function monthlyMortgagePayment(loanAmount, annualRate, years){
+      if (!loanAmount || !years) return 0;
+      const r = annualRate / 100 / 12;
+      const n = years * 12;
+      if (r === 0) return loanAmount / n;
+      return loanAmount * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    }
+
+    function computeIRR(cashFlows){
+      let guess = 0.12;
+      for (let i = 0; i < 100; i++) {
+        let npv = 0;
+        let dnpv = 0;
+        for (let t = 0; t < cashFlows.length; t++) {
+          npv += cashFlows[t] / Math.pow(1 + guess, t);
+          if (t > 0) dnpv += -t * cashFlows[t] / Math.pow(1 + guess, t + 1);
         }
+        if (Math.abs(dnpv) < 1e-10) break;
+        const next = guess - npv / dnpv;
+        if (!Number.isFinite(next)) break;
+        if (Math.abs(next - guess) < 1e-7) return next;
+        guess = next;
       }
-
-      return { address: cleaned, limit: 8 };
+      return guess;
     }
 
-    async function rentCastFetch(path, params = {}, signal){
-      const url = new URL(`${API_CONFIG.RENTCAST_BASE_URL}${path}`);
-      Object.entries(params).forEach(([key, value]) => {
-        if(value !== undefined && value !== null && value !== ''){
-          url.searchParams.set(key, value);
-        }
-      });
-
-      const response = await fetch(url.toString(), {
-        method: 'GET',
-        headers: {
-          'X-Api-Key': API_CONFIG.RENTCAST_API_KEY,
-          'Accept': 'application/json'
-        },
-        signal
-      });
-
-      if(!response.ok){
-        throw new Error(`RentCast request failed (${response.status})`);
-      }
-
-      return response.json();
+    function scoreDeal({ irr, coc, dscr, capRate, cashFlowAnnual, breakEvenOccupancy }){
+      let score = 0;
+      score += clamp(scale(irr * 100, 0, 18, 0, 30), 0, 30);
+      score += clamp(scale(coc * 100, 0, 12, 0, 20), 0, 20);
+      score += clamp(scale(capRate * 100, 3, 8, 0, 15), 0, 15);
+      score += clamp(scale(dscr, 0.9, 1.5, 0, 20), 0, 20);
+      score += cashFlowAnnual > 0 ? clamp(scale(cashFlowAnnual, 0, 12000, 0, 10), 0, 10) : 0;
+      score += breakEvenOccupancy < 0.9 ? clamp(scale(0.9 - breakEvenOccupancy, 0, 0.25, 0, 5), 0, 5) : 0;
+      return Math.round(clamp(score, 0, 100));
     }
 
-    async function fetchLiveProperties(query, signal){
-      const params = detectQueryParts(query);
-      const data = await rentCastFetch('/properties', params, signal);
-      const rows = Array.isArray(data) ? data : (Array.isArray(data.properties) ? data.properties : []);
-      return rows.map(mapRentCastProperty).filter(item => item.address);
-    }
-
-    async function fetchRentEstimateForProperty(property, signal){
-      if(!hasRentCastKey() || !property) return property;
-
-      try{
-        const params = {};
-        if(property.address) params.address = property.address;
-        if(property.zipCode) params.zipCode = property.zipCode;
-        if(property.city && !params.address) params.city = property.city;
-        if(property.state && !params.address) params.state = property.state;
-        if(property.propertyType && property.propertyType !== 'N/A') params.propertyType = property.propertyType;
-        if(property.beds) params.bedrooms = property.beds;
-        if(property.baths) params.bathrooms = property.baths;
-        if(property.sqft) params.squareFootage = property.sqft;
-        if(property.latitude) params.latitude = property.latitude;
-        if(property.longitude) params.longitude = property.longitude;
-        if(property.compCount) params.compCount = Math.min(Math.max(property.compCount, 5), 10);
-
-        const data = await rentCastFetch('/avm/rent/long-term', params, signal);
-        const estimate = toNumber(coalesce(data.rent, data.rentEstimate, data.price));
-        const low = toNumber(coalesce(data.rentRangeLow, data.lowRent, data.low));
-        const high = toNumber(coalesce(data.rentRangeHigh, data.highRent, data.high));
-        const compCount = toNumber(coalesce(data.compCount, data.comparableCount));
-
-        return {
-          ...property,
-          rentEstimate: estimate ?? property.rentEstimate,
-          rentLow: low ?? property.rentLow,
-          rentHigh: high ?? property.rentHigh,
-          compCount: compCount ?? property.compCount
-        };
-      }catch(error){
-        console.log('Rent estimate unavailable', error);
-        return property;
-      }
-    }
-
-    async function fetchNeighborhoodStats(zipCode, signal){
-      if(!zipCode) return null;
-
-      const base = `https://api.census.gov/data/${API_CONFIG.CENSUS_YEAR}/acs/acs5/profile`;
-      const url = new URL(base);
-      url.searchParams.set('get', 'NAME,DP03_0062E,DP04_0046PE,DP04_0089E');
-      url.searchParams.set('for', `zip code tabulation area:${zipCode}`);
-      if(hasCensusKey()){
-        url.searchParams.set('key', API_CONFIG.CENSUS_API_KEY);
-      }
-
-      const response = await fetch(url.toString(), { signal });
-      if(!response.ok){
-        throw new Error(`Census request failed (${response.status})`);
-      }
-
-      const rows = await response.json();
-      if(!Array.isArray(rows) || rows.length < 2) return null;
-
-      const headers = rows[0];
-      const values = rows[1];
-      const map = {};
-      headers.forEach((header, idx) => map[header] = values[idx]);
-
-      return {
-        areaName: map.NAME || `ZIP ${zipCode}`,
-        medianHouseholdIncome: toNumber(map.DP03_0062E),
-        ownerOccupiedPct: toNumber(map.DP04_0046PE),
-        medianHomeValue: toNumber(map.DP04_0089E),
-        source: 'U.S. Census ACS 5-year'
-      };
-    }
-
-    async function enrichSelectedProperty(property){
-      if(!property) return;
-
-      const pendingProperty = { ...property };
-      if(!pendingProperty.neighborhood && pendingProperty.zipCode){
-        pendingProperty.neighborhood = { loading: true };
-      }
-      selectedProperty = pendingProperty;
-      renderSelectedProperty();
-      renderPropertyMiniContext();
-      updatePrimaryAction();
-
-      const controller = new AbortController();
-      const tasks = [];
-
-      if(hasRentCastKey() && !pendingProperty.rentEstimate){
-        tasks.push(fetchRentEstimateForProperty(pendingProperty, controller.signal).then(updated => {
-          selectedProperty = { ...selectedProperty, ...updated };
-        }));
-      }
-
-      if(pendingProperty.zipCode){
-        tasks.push(fetchNeighborhoodStats(pendingProperty.zipCode, controller.signal).then(neighborhood => {
-          if(neighborhood){
-            selectedProperty = { ...selectedProperty, neighborhood };
-          }else if(selectedProperty){
-            selectedProperty = { ...selectedProperty, neighborhood: null };
-          }
-        }).catch(error => {
-          console.log('Neighborhood stats unavailable', error);
-          if(selectedProperty){
-            selectedProperty = { ...selectedProperty, neighborhood: null };
-          }
-        }));
-      }
-
-      if(!tasks.length) return;
-
-      await Promise.allSettled(tasks);
-      renderSelectedProperty();
-      renderPropertyMiniContext();
-    }
-
-    function setApiStatusPills(){
-      const rentcastLive = hasRentCastKey();
-      const censusLive = hasCensusKey();
-
-      const rentcastDot = document.getElementById('rentcastStatusDot');
-      const rentcastText = document.getElementById('rentcastStatusText');
-      const censusDot = document.getElementById('censusStatusDot');
-      const censusText = document.getElementById('censusStatusText');
-
-      if(rentcastDot && rentcastText){
-        rentcastDot.className = `status-dot ${rentcastLive ? 'live' : 'demo'}`;
-        rentcastText.textContent = rentcastLive ? 'RentCast: live free tier' : 'RentCast: demo mode';
-      }
-
-      if(censusDot && censusText){
-        censusDot.className = `status-dot ${censusLive ? 'live' : 'demo'}`;
-        censusText.textContent = censusLive ? 'Census: API key added' : 'Census: key optional';
-      }
-    }
-
-    function showPropertySkeleton(){
-      const container = document.getElementById('propertyResults');
-      container.innerHTML = `
-        <div class="skeleton"></div>
-        <div class="skeleton"></div>
-      `;
-    }
-
-    function renderPropertyResults(results){
-      const container = document.getElementById('propertyResults');
-      latestSearchResults = results.slice();
-
-      if(!results.length){
-        container.innerHTML = `<div class="empty-state">No properties found. Try another address, city, or ZIP.</div>`;
-        return;
-      }
-
-      container.innerHTML = results.map(p => {
-        const ppsf = calcPricePerSqft(p.price, p.sqft);
-        const rentChip = p.rentEstimate ? `Rent Est ${formatDollarRaw(p.rentEstimate)}` : 'Rent est on select';
-        const compChip = p.compCount ? `${p.compCount} rental comps` : 'Rental comps pending';
-
-        return `
-          <div class="result-card">
-            <div>
-              ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.address}" class="property-thumb">` : ''}
-            </div>
-
-            <div class="result-main">
-              <h4 class="result-title">${p.address}</h4>
-              <div class="result-meta">${p.price ? formatDollarRaw(p.price) : 'Price unavailable'} · ${p.beds || 'N/A'} bd · ${p.baths || 'N/A'} ba · ${p.sqft ? p.sqft.toLocaleString() + ' sqft' : 'Sqft unavailable'}</div>
-              <div class="result-meta">${safeText(p.propertyType, 'Residential')} · Built ${safeText(p.yearBuilt, 'N/A')} · ${ppsf ? formatDollarRaw(ppsf) + '/sqft' : 'PPSF unavailable'}</div>
-              <div class="result-quick-row">
-                <span class="quick-chip">HOA ${formatDollarRaw(p.hoa || 0)}</span>
-                <span class="quick-chip">${rentChip}</span>
-                <span class="quick-chip">${compChip}</span>
-              </div>
-              <div class="property-source-note">${p.dataSource || 'Demo'}${p.zipCode ? ` · ZIP ${p.zipCode}` : ''}</div>
-            </div>
-
-            <div class="result-actions">
-              <button class="result-btn" onclick="selectProperty('${String(p.id).replace(/'/g, "\\'")}')">Select</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderSelectedProperty(){
-      if(!selectedProperty) return;
-
-      const ppsf = calcPricePerSqft(selectedProperty.price, selectedProperty.sqft);
-      const neighborhood = selectedProperty.neighborhood;
-      const neighborhoodMarkup = neighborhood && !neighborhood.loading ? `
-        <div class="neighborhood-panel">
-          <div class="neighborhood-title">Neighborhood Context</div>
-          <div class="neighborhood-grid">
-            <div class="neighborhood-stat">
-              <div class="neighborhood-stat-label">Area</div>
-              <div class="neighborhood-stat-value">${safeText(neighborhood.areaName, selectedProperty.zipCode ? `ZIP ${selectedProperty.zipCode}` : 'Not available')}</div>
-            </div>
-            <div class="neighborhood-stat">
-              <div class="neighborhood-stat-label">Median Household Income</div>
-              <div class="neighborhood-stat-value">${neighborhood.medianHouseholdIncome ? formatDollarRaw(neighborhood.medianHouseholdIncome) : 'Not available'}</div>
-            </div>
-            <div class="neighborhood-stat">
-              <div class="neighborhood-stat-label">Owner-Occupied Share</div>
-              <div class="neighborhood-stat-value">${neighborhood.ownerOccupiedPct !== null && neighborhood.ownerOccupiedPct !== undefined ? pct(neighborhood.ownerOccupiedPct) : 'Not available'}</div>
-            </div>
-            <div class="neighborhood-stat">
-              <div class="neighborhood-stat-label">Median Home Value</div>
-              <div class="neighborhood-stat-value">${neighborhood.medianHomeValue ? formatDollarRaw(neighborhood.medianHomeValue) : 'Not available'}</div>
-            </div>
-          </div>
-          <div class="property-source-note">Source: ${neighborhood.source}</div>
-        </div>
-      ` : neighborhood && neighborhood.loading ? `
-        <div class="neighborhood-panel">
-          <div class="neighborhood-title">Neighborhood Context</div>
-          <div class="property-source-note">Loading free Census neighborhood data for ZIP ${selectedProperty.zipCode || 'area'}...</div>
-        </div>
-      ` : '';
-
-      document.getElementById('selectedPropertyCard').classList.remove('hidden');
-      document.getElementById('selectedPropertyDetails').innerHTML = `
-        <div class="property-hero">
-          ${selectedProperty.imageUrl ? `<img src="${selectedProperty.imageUrl}" alt="${selectedProperty.address}" class="property-hero-img">` : ''}
-          <div class="property-hero-overlay"></div>
-
-          <div class="property-hero-content">
-            <div class="hero-topline">${selectedProperty.dataSource || 'Property Data'}</div>
-
-            <div class="selected-property-address">${selectedProperty.address}</div>
-            <div class="selected-property-price">${selectedProperty.price ? formatDollarRaw(selectedProperty.price) : 'Price unavailable'}</div>
-
-            <div class="hero-chip-row">
-              <div class="hero-stat-chip">${selectedProperty.beds || 'N/A'} Beds</div>
-              <div class="hero-stat-chip">${selectedProperty.baths || 'N/A'} Baths</div>
-              <div class="hero-stat-chip">${selectedProperty.sqft ? selectedProperty.sqft.toLocaleString() + ' Sq Ft' : 'Sq Ft N/A'}</div>
-              <div class="hero-stat-chip">${safeText(selectedProperty.propertyType, 'Residential')}</div>
-              <div class="hero-stat-chip">${ppsf ? formatDollarRaw(ppsf) + '/sqft' : 'PPSF unavailable'}</div>
-            </div>
-
-            <div class="selected-property-grid">
-              <div class="selected-property-stat">
-                <div class="selected-property-stat-label">Year Built</div>
-                <div class="selected-property-stat-value">${safeText(selectedProperty.yearBuilt, 'N/A')}</div>
-              </div>
-
-              <div class="selected-property-stat">
-                <div class="selected-property-stat-label">HOA</div>
-                <div class="selected-property-stat-value">${formatDollarRaw(selectedProperty.hoa || 0)}</div>
-              </div>
-
-              <div class="selected-property-stat">
-                <div class="selected-property-stat-label">Rent Estimate</div>
-                <div class="selected-property-stat-value">${selectedProperty.rentEstimate ? formatDollarRaw(selectedProperty.rentEstimate) : 'Tap Use / Analyze'}</div>
-              </div>
-
-              <div class="selected-property-stat">
-                <div class="selected-property-stat-label">Rent Range</div>
-                <div class="selected-property-stat-value">${selectedProperty.rentLow && selectedProperty.rentHigh ? `${formatDollarRaw(selectedProperty.rentLow)} - ${formatDollarRaw(selectedProperty.rentHigh)}` : 'Not available yet'}</div>
-              </div>
-
-              <div class="selected-property-stat" style="grid-column: 1 / -1;">
-                <div class="selected-property-stat-label">Rental Comps</div>
-                <div class="selected-property-stat-value">${selectedProperty.compCount ? `${selectedProperty.compCount} comparable rentals identified` : 'Comp count pending or unavailable on free tier'}</div>
-              </div>
-            </div>
-
-            ${selectedProperty.description ? `
-              <div class="about-home-block">
-                <strong>About this property</strong>
-                ${selectedProperty.description}
-              </div>
-            ` : ''}
-
-            ${neighborhoodMarkup}
-          </div>
-        </div>
-      `;
-    }
-
-    function renderPropertyMiniContext(){
-      const inputsMini = document.getElementById('selectedPropertyMiniInputs');
-      const resultsMini = document.getElementById('selectedPropertyMiniResults');
-
-      if(!selectedProperty){
-        inputsMini.classList.add('hidden');
-        resultsMini.classList.add('hidden');
-        inputsMini.innerHTML = '';
-        resultsMini.innerHTML = '';
-        return;
-      }
-
-      const html = `
-        <div class="selected-property-mini-title">Selected Property</div>
-        <div class="selected-property-mini-address">${selectedProperty.address}</div>
-        <div class="selected-property-mini-meta">
-          ${formatDollarRaw(selectedProperty.price)} · ${selectedProperty.beds} bd · ${selectedProperty.baths} ba · ${selectedProperty.sqft.toLocaleString()} sqft · ${selectedProperty.propertyType}
-        </div>
-      `;
-
-      inputsMini.innerHTML = html;
-      resultsMini.innerHTML = html;
-      inputsMini.classList.remove('hidden');
-      resultsMini.classList.remove('hidden');
-    }
-
-    function selectProperty(id){
-      selectedProperty = latestSearchResults.find(p => String(p.id) === String(id)) || mockProperties.find(p => String(p.id) === String(id));
-      if(!selectedProperty) return;
-
-      renderSelectedProperty();
-      renderPropertyMiniContext();
-      updatePrimaryAction();
-      document.getElementById('selectedPropertyCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      enrichSelectedProperty(selectedProperty);
-    }
-
-    function fillAnalyzerFromProperty(){
-      if(!selectedProperty) return;
-
-      if(selectedProperty.price){
-        document.getElementById('price').value = formatDollarRaw(selectedProperty.price);
-      }
-      document.getElementById('hoa').value = formatDollarRaw(selectedProperty.hoa || 0);
-      if(selectedProperty.rentEstimate){
-        document.getElementById('rent').value = formatDollarRaw(selectedProperty.rentEstimate || 0);
-      }
-
-      document.getElementById('price').dispatchEvent(new Event('blur'));
-      document.getElementById('hoa').dispatchEvent(new Event('blur'));
-      document.getElementById('rent').dispatchEvent(new Event('blur'));
-
-      renderPropertyMiniContext();
-    }
-
-    async function runPropertySearch(){
-      const q = document.getElementById('propertySearchInput').value.trim();
-      const container = document.getElementById('propertyResults');
-
-      if(activeSearchAbortController){
-        activeSearchAbortController.abort();
-      }
-
-      if(!q){
-        renderPropertyResults(mockProperties);
-        return;
-      }
-
-      activeSearchAbortController = new AbortController();
-      showPropertySkeleton();
-
-      try{
-        if(usingLiveSearch()){
-          const liveResults = await fetchLiveProperties(q, activeSearchAbortController.signal);
-          if(liveResults.length){
-            renderPropertyResults(liveResults);
-          }else{
-            container.innerHTML = `<div class="empty-state">No live properties matched that search. The app stayed connected correctly, but this query returned no rows.</div>`;
-          }
-        }else{
-          await new Promise(resolve => setTimeout(resolve, 280));
-          const results = mockProperties.filter(p => p.address.toLowerCase().includes(q.toLowerCase()));
-          renderPropertyResults(results);
-        }
-      }catch(error){
-        if(error.name === 'AbortError') return;
-        console.log('Property search failed', error);
-        container.innerHTML = `
-          <div class="empty-state">Live property search did not return data right now, so demo mode is still available below.</div>
-          <div class="search-error">Check your RentCast key, browser network settings, or API limits. This app keeps working even without the live key.</div>
-        `;
-      }
-    }
-
-    document.getElementById('propertySearchBtn').addEventListener('click', () => {
-      runPropertySearch();
-    });
-
-    document.getElementById('usePropertyBtn').addEventListener('click', () => {
-      fillAnalyzerFromProperty();
-      switchTab('inputs');
-    });
-
-    function switchTab(tabName){
-      currentTab = tabName;
-
-      document.querySelectorAll('.app-tab-section').forEach(section=>{
-        section.classList.remove('active');
-      });
-
-      document.querySelectorAll('.nav-tab-btn').forEach(btn=>{
-        btn.classList.remove('active');
-      });
-
-      document.getElementById('tab-' + tabName).classList.add('active');
-      document.querySelector(`.nav-tab-btn[data-tab="${tabName}"]`).classList.add('active');
-
-      const stepMap = {
-        property: 'Step 1 of 3 · Property Discovery',
-        inputs: 'Step 2 of 3 · Underwriting Inputs',
-        results: 'Step 3 of 3 · Investment Verdict'
-      };
-
-      document.getElementById('stepIndicator').innerHTML = `<span class="step-pulse"></span>${stepMap[tabName] || ''}`;
-      updatePrimaryAction();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    document.querySelectorAll('.nav-tab-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        switchTab(btn.dataset.tab);
-      });
-    });
-
-    function updatePrimaryAction(){
-      const btn = document.getElementById('primaryActionBtn');
-
-      if(currentTab === 'property'){
-        btn.textContent = selectedProperty ? 'Use Selected Property in Inputs' : 'Continue to Inputs';
-      } else if(currentTab === 'inputs'){
-        btn.textContent = 'Analyze Deal';
-      } else {
-        btn.textContent = 'Back to Inputs';
-      }
-    }
-
-    document.getElementById('primaryActionBtn').addEventListener('click', ()=>{
-      if(currentTab === 'property'){
-        if(selectedProperty){
-          fillAnalyzerFromProperty();
-        }
-        switchTab('inputs');
-      } else if(currentTab === 'inputs'){
-        analyze();
-      } else {
-        switchTab('inputs');
-      }
-    });
-
-    function createSummaryMarkup(rating, summaryText){
-      return `
-        <div class="summary-shell">
-          <div class="summary-hero">
-            <div class="summary-label">Investment Verdict</div>
-            <div class="summary-rating">${rating}</div>
-            <div class="summary-text">${summaryText}</div>
-          </div>
-
-          <div class="deal-score-card">
-            <div class="deal-score-ring" id="dealScoreRing">
-              <div class="deal-score-inner">
-                <div class="deal-score-number" id="dealScoreNumber">0</div>
-                <div class="deal-score-max">Deal Score</div>
-              </div>
-            </div>
-            <div class="deal-score-caption">A blended score of return, income quality, lender safety, and downside resilience.</div>
-          </div>
-        </div>
-      `;
-    }
-
-    function analyze(){
-      document.getElementById('results').classList.remove('hidden');
-      document.getElementById('summary').classList.remove('hidden');
-
-      let price = parseFloat(document.getElementById('price').value.replace(/[^0-9.]/g,'')) || 0;
-      let down = parsePercent('down');
-      let rate = parsePercent('rate') / 12;
-      let term = parseFloat(document.getElementById('term').value) * 12 || 0;
-      let closing = parsePercent('closing');
-      let rentVal = parseFloat(document.getElementById('rent').value.replace(/[^0-9.]/g,'')) || 0;
-      let rentGrowth = parsePercent('rentGrowth');
-      let vacancy = parsePercent('vacancy');
-      let mgmt = parsePercent('management');
-      let maint = parsePercent('maintenance');
-      let hoaVal = parseFloat(document.getElementById('hoa').value.replace(/[^0-9.]/g,'')) || 0;
-      let taxesVal = parseFloat(document.getElementById('taxes').value.replace(/[^0-9.]/g,'')) || 0;
-      let insVal = parseFloat(document.getElementById('insurance').value.replace(/[^0-9.]/g,'')) || 0;
-      let expGrowth = parsePercent('expenseGrowth');
-      let yearsVal = parseFloat(document.getElementById('years').value) || 0;
-      let appr = parsePercent('appreciation');
-
-      let loan = price * (1 - down);
-      let mortgage = loan * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
-      let annualDebt = mortgage * 12;
-      let downPay = price * down;
-      let closeCost = price * closing;
-
-      let cashFlows = [-(downPay + closeCost)];
-      let yearly = [];
-      let cumulative = [];
-      let rows = [];
-      let r = rentVal, t = taxesVal, i = insVal, h = hoaVal;
-
-      for(let y = 1; y <= yearsVal; y++){
-        let gross = r * 12;
-        let eff = gross * (1 - vacancy);
-        let exp = eff * (mgmt + maint) + t + i + h * 12;
-        let noi = eff - exp;
-        let cash = noi - annualDebt;
-        yearly.push(cash);
-        cashFlows.push(cash);
-        cumulative.push((cumulative[y-2] || 0) + cash);
-        rows.push(`
-          <tr>
-            <td>${y}</td>
-            <td>${fmt(gross)}</td>
-            <td>${fmt(noi)}</td>
-            <td class="${cash < 0 ? 'negative' : 'positive'}">${fmt(cash)}</td>
-          </tr>
-        `);
-        r *= 1 + rentGrowth;
-        t *= 1 + expGrowth;
-        i *= 1 + expGrowth;
-        h *= 1 + expGrowth;
-      }
-
-      let sale = price * Math.pow(1 + appr, yearsVal);
-      cashFlows[cashFlows.length - 1] += sale - sale * 0.06;
-
-      let irr = calculateIRR(cashFlows) * 100;
-      let coc = (yearly[0] / (downPay + closeCost)) * 100;
-      let cap = ((rentVal * 12 * (1-vacancy) - (rentVal * 12 * (1-vacancy) * (mgmt + maint) + taxesVal + insVal + hoaVal * 12)) / price) * 100;
-      let dscr = annualDebt ? (yearly[0] + annualDebt) / annualDebt : 0;
-
-      let rawScore = irr * 0.4 + coc * 0.3 + cap * 0.2 + (yearly[0] > 0 ? 5 : -5);
-      let rating = rawScore > 15 ? "🔥 Great Deal" : rawScore > 10 ? "👍 Good Deal" : "⚠️ Risky";
-
-      let summaryText = rawScore > 15
-        ? "Strong projected returns, solid income support, and a more attractive overall risk-reward balance based on the current assumptions."
-        : rawScore > 10
-        ? "Promising economics with reasonable projected performance, though execution and assumption discipline still matter."
-        : "This underwriting looks weaker or tighter on downside protection, so it may need a better price, better rent, or improved financing.";
-
-      let normalizedScore = (
-        (Math.max(Math.min(irr, 20), 0) / 20) * 35 +
-        (Math.max(Math.min(coc, 12), 0) / 12) * 25 +
-        (Math.max(Math.min(cap, 10), 0) / 10) * 20 +
-        (Math.max(Math.min(dscr, 1.6), 0) / 1.6) * 20
-      );
-
-      if(yearly[0] < 0) normalizedScore -= 8;
-      normalizedScore = Math.max(0, Math.min(100, normalizedScore));
-
-      document.getElementById('summary').innerHTML = createSummaryMarkup(rating, summaryText);
-
-      document.getElementById('loanInfo').innerHTML = `
-        <div class="kpi">
-          <div class="kpi-label">Loan Amount</div>
-          <div class="kpi-value" id="loanAmountValue">$0.0</div>
-          <div class="kpi-sub">Debt proceeds used to finance the purchase.</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Monthly Mortgage</div>
-          <div class="kpi-value" id="mortgageValue">$0.0</div>
-          <div class="kpi-sub">Principal and interest payment under current terms.</div>
-        </div>
-      `;
-
-      document.getElementById('kpis').innerHTML = `
-        <div class="kpi">
-          <div class="kpi-label">IRR</div>
-          <div class="kpi-value ${clsVal(irr,'positiveIf>0')}" id="irrValue">0.0%</div>
-          <div class="kpi-sub">Annualized return including cash flow and sale proceeds.</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Cash-on-Cash</div>
-          <div class="kpi-value ${clsVal(coc,'negativeIf<0')}" id="cocValue">0.0%</div>
-          <div class="kpi-sub">Year 1 cash yield on invested equity.</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Cap Rate</div>
-          <div class="kpi-value ${clsVal(cap,'negativeIf<0')}" id="capValue">0.0%</div>
-          <div class="kpi-sub">Unlevered return on purchase price.</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">DSCR</div>
-          <div class="kpi-value ${clsVal(dscr,'dscr')}" id="dscrValue">0.0</div>
-          <div class="kpi-sub">Lender coverage of annual debt service.</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Year 1 Cash Flow</div>
-          <div class="kpi-value ${yearly[0] >= 0 ? 'positive' : 'negative'}" id="cashFlowValue">$0.0</div>
-          <div class="kpi-sub">Projected pre-tax cash flow in the first year.</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Sale Value</div>
-          <div class="kpi-value neutral" id="saleValue">$0.0</div>
-          <div class="kpi-sub">Estimated gross resale value at exit.</div>
-        </div>
-      `;
-
-      animateValue(document.getElementById('loanAmountValue'), loan, fmt);
-      animateValue(document.getElementById('mortgageValue'), mortgage, fmt);
-      animateValue(document.getElementById('irrValue'), irr, pct);
-      animateValue(document.getElementById('cocValue'), coc, pct);
-      animateValue(document.getElementById('capValue'), cap, pct);
-      animateValue(document.getElementById('dscrValue'), dscr, v => v.toFixed(1));
-      animateValue(document.getElementById('cashFlowValue'), yearly[0], fmt);
-      animateValue(document.getElementById('saleValue'), sale, fmt);
-
-      requestAnimationFrame(() => setDealScore(normalizedScore));
-
-      let breakEvenRent = annualDebt / (12 * (1 - vacancy) * (1 - (mgmt + maint)));
-      let rentDrop = (1 - breakEvenRent / rentVal) * 100;
-      let breakEvenOccupancy = (annualDebt / (rentVal * 12 * (1 - (mgmt + maint)))) * 100;
-
-      let rentDown = rentVal * 0.9;
-      let effDown = rentDown * 12 * (1 - vacancy);
-      let noiDown = effDown - (effDown * (mgmt + maint) + taxesVal + insVal + hoaVal * 12);
-      let cashDown = noiDown - annualDebt;
-
-      let rateUp = (parsePercent('rate') + 0.01) / 12;
-      let mortgageUp = loan * (rateUp * Math.pow(1 + rateUp, term)) / (Math.pow(1 + rateUp, term) - 1);
-      let cashRateUp = (yearly[0] + annualDebt) - (mortgageUp * 12);
-
-      let totalCashFlow = yearly.reduce((a,b)=>a+b,0);
-      let loanBalance = loan;
-      let monthlyRate = rate;
-
-      for(let m=0; m<yearsVal*12; m++){
-        let interest = loanBalance * monthlyRate;
-        let principal = mortgage - interest;
-        loanBalance -= principal;
-      }
-
-      let paydown = loan - loanBalance;
-      let appreciationGain = sale - price;
-
-      const neighborhoodSummary = selectedProperty && selectedProperty.neighborhood && !selectedProperty.neighborhood.loading ? {
-        kicker: "Neighborhood",
-        text: `${selectedProperty.neighborhood.areaName || (selectedProperty.zipCode ? 'ZIP ' + selectedProperty.zipCode : 'Area')} shows median household income of ${selectedProperty.neighborhood.medianHouseholdIncome ? fmt(selectedProperty.neighborhood.medianHouseholdIncome) : 'N/A'} and owner-occupied share of ${selectedProperty.neighborhood.ownerOccupiedPct !== null && selectedProperty.neighborhood.ownerOccupiedPct !== undefined ? pct(selectedProperty.neighborhood.ownerOccupiedPct) : 'N/A'}.`
-      } : null;
-
-      const insightCards = [
-        ...(neighborhoodSummary ? [neighborhoodSummary] : []),
-        {
-          kicker: "Returns",
-          text: irr < 8
-            ? `Projected IRR is ${pct(irr)}, which is on the weaker side for the risk taken.`
-            : `Projected IRR is ${pct(irr)}, indicating a healthier total return profile under current assumptions.`
-        },
-        {
-          kicker: "Cash Flow",
-          text: yearly[0] < 0
-            ? `Year 1 cash flow is ${fmt(yearly[0])}, so the deal starts with a negative carry.`
-            : `Year 1 cash flow is ${fmt(yearly[0])}, giving the property positive ongoing income support.`
-        },
-        {
-          kicker: "Lender Safety",
-          text: `DSCR is ${dscr.toFixed(1)}${dscr < 1.2 ? ', which may feel thin from a lender perspective.' : ', which is more supportive of financing stability.'}`
-        },
-        {
-          kicker: "Break-Even Rent",
-          text: `The property breaks even around ${fmt(breakEvenRent)} per month, leaving a ${rentDrop.toFixed(1)}% rent cushion versus the base case.`
-        },
-        {
-          kicker: "Occupancy Resilience",
-          text: `Break-even occupancy is about ${breakEvenOccupancy.toFixed(1)}%, which helps frame vacancy tolerance.`
-        },
-        {
-          kicker: "Stress Test",
-          text: `If rent falls 10%, projected cash flow shifts to ${fmt(cashDown)}.`
-        },
-        {
-          kicker: "Rate Shock",
-          text: `If the interest rate is 1% higher, projected cash flow becomes ${fmt(cashRateUp)}.`
-        },
-        {
-          kicker: "Profit Mix",
-          text: `Projected gain drivers: appreciation ${fmt(appreciationGain)}, principal paydown ${fmt(paydown)}, and total cash flow ${fmt(totalCashFlow)}.`
-        }
+    function renderResults(r){
+      el('resultsEmptyState').classList.add('hidden');
+      el('resultsContent').classList.remove('hidden');
+
+      const grade = r.score >= 80 ? 'Strong buy profile' : r.score >= 65 ? 'Promising with review points' : r.score >= 50 ? 'Borderline deal' : 'Weak at current assumptions';
+      const narrative = buildNarrative(r, grade);
+      el('summaryHeadline').textContent = grade;
+      el('summaryNarrative').textContent = narrative;
+      el('dealScoreNumber').textContent = r.score;
+      el('dealScoreCaption').textContent = `Score reflects a blend of ${pct(r.irr)} IRR, ${pct(r.coc)} cash-on-cash, ${pct(r.capRate)} cap rate, and ${r.dscr.toFixed(2)}x DSCR.`;
+      const degrees = Math.round((r.score / 100) * 360);
+      el('dealScoreRing').style.background = `conic-gradient(var(--blue) 0deg ${degrees}deg, #e8eef7 ${degrees}deg 360deg)`;
+
+      const kpis = [
+        ['IRR', pct(r.irr), 'Levered hold-period return', classForValue(r.irr)],
+        ['Cash-on-cash', pct(r.coc), 'Year 1 leveraged return', classForValue(r.coc)],
+        ['Cap rate', pct(r.capRate), 'Based on year 1 NOI', classForValue(r.capRate)],
+        ['DSCR', `${r.dscr.toFixed(2)}x`, 'Lender coverage metric', r.dscr >= 1.2 ? 'positive' : 'negative'],
+        ['Annual cash flow', currency(r.cashFlowAnnual), 'After debt service', classForValue(r.cashFlowAnnual)],
+        ['Initial cash in', currency(r.initialCash), 'Down payment + closing + rehab', 'neutral']
       ];
-
-      document.getElementById('insights').innerHTML = `
-        <div class="insights-header">
-          <div>
-            <h3 class="insights-title">Decision Insights</h3>
-            <div class="insights-subtitle">A quick executive read on return quality, resilience, and where value is really coming from.</div>
-          </div>
+      el('kpiGrid').innerHTML = kpis.map(([label, value, sub, klass]) => `
+        <div class="kpi">
+          <div class="kpi-label">${label}</div>
+          <div class="kpi-value ${klass}">${value}</div>
+          <div class="kpi-sub">${sub}</div>
         </div>
-        <div class="insight-grid">
-          ${buildInsightCards(insightCards)}
+      `).join('');
+
+      const rentStress = (r.monthlyRent * 0.9 + r.otherIncome) * (1 - r.vacancyPct / 100) - (r.managementMonthly + r.maintenanceMonthly + r.capexMonthly + r.taxMonthly + r.insuranceMonthly + r.hoaMonthly + r.utilitiesMonthly) - r.mortgagePayment;
+      const higherRatePayment = monthlyMortgagePayment(r.loanAmount, r.interestRate + 1, r.loanTerm);
+      const rateStressCashFlow = r.noiMonthly - higherRatePayment;
+      const equityCreated = r.salePrice - r.purchasePrice;
+
+      const insights = [
+        ['Break-even rent', `You need about ${currency(r.breakEvenRent)}/mo of gross scheduled rent to fully cover operating costs and debt service.`],
+        ['Break-even occupancy', `The property needs roughly ${pct(r.breakEvenOccupancy)} occupancy to avoid going negative.`],
+        ['Rent -10% stress', `If rent drops 10%, monthly cash flow moves to ${currency(rentStress)}.`],
+        ['Rate +1% stress', `If the loan rate were 1 point higher, monthly cash flow would move to ${currency(rateStressCashFlow)}.`],
+        ['Exit equity', `Projected sale price is ${currency(r.salePrice)} with net sale proceeds of ${currency(r.netSaleProceeds)} after selling costs and debt payoff.`],
+        ['Coverage read', r.dscr >= 1.2 ? `At ${r.dscr.toFixed(2)}x DSCR, debt coverage looks serviceable.` : `At ${r.dscr.toFixed(2)}x DSCR, lender coverage is weak and deserves caution.`]
+      ];
+      el('insightGrid').innerHTML = insights.map(([title, text]) => `
+        <div class="insight-item">
+          <div class="insight-kicker">${title}</div>
+          <div class="insight-text">${text}</div>
         </div>
-      `;
+      `).join('');
 
-      let monthlyRent = rentVal;
-      let monthlyVacancy = monthlyRent * vacancy;
-      let monthlyNetRent = monthlyRent - monthlyVacancy;
-      let monthlyManagementFee = monthlyNetRent * mgmt;
-      let monthlyMaintenanceFee = monthlyNetRent * maint;
-      let monthlyTaxes = taxesVal / 12;
-      let monthlyInsurance = insVal / 12;
-      let monthlyHOA = hoaVal;
-      let monthlyTotalExpenses = monthlyManagementFee + monthlyMaintenanceFee + monthlyTaxes + monthlyInsurance + monthlyHOA;
-      let monthlyNOI = monthlyNetRent - monthlyTotalExpenses;
-      let monthlyMortgage = mortgage;
-      let monthlyCashFlow = monthlyNOI - monthlyMortgage;
+      const firstYearRows = [
+        ['Gross rent', r.monthlyRent, r.monthlyRent * 12],
+        ['Other income', r.otherIncome, r.otherIncome * 12],
+        ['Vacancy', -r.vacancyMonthly, -r.vacancyMonthly * 12],
+        ['Net rent', r.effectiveGrossMonthly + r.otherIncome, (r.effectiveGrossMonthly + r.otherIncome) * 12],
+        ['Management fees', -r.managementMonthly, -r.managementMonthly * 12],
+        ['Property tax', -r.taxMonthly, -r.taxMonthly * 12],
+        ['Insurance', -r.insuranceMonthly, -r.insuranceMonthly * 12],
+        ['Maintenance', -r.maintenanceMonthly, -r.maintenanceMonthly * 12],
+        ['CapEx reserve', -r.capexMonthly, -r.capexMonthly * 12],
+        ['HOA', -r.hoaMonthly, -r.hoaMonthly * 12],
+        ['Utilities', -r.utilitiesMonthly, -r.utilitiesMonthly * 12],
+        ['NOI', r.noiMonthly, r.noiAnnual, true],
+        ['Mortgage', -r.mortgagePayment, -r.annualDebtService],
+        ['Cash flow', r.cashFlowMonthly, r.cashFlowAnnual, true]
+      ];
+      el('firstYearBody').innerHTML = firstYearRows.map(([name, monthly, annual, highlight]) => `
+        <tr class="${highlight ? 'highlight-positive' : ''}">
+          <td>${name}</td>
+          <td class="${classForValue(monthly)}">${currency(monthly)}</td>
+          <td class="${classForValue(annual)}">${currency(annual)}</td>
+        </tr>
+      `).join('');
 
-      document.getElementById('monthlyTableContainer').innerHTML = `
-        <table>
-          <tr><th>Item</th><th>Monthly</th><th>Annual</th></tr>
-          <tr><td>Gross Rent</td><td>${fmt(monthlyRent)}</td><td>${fmt(rentVal*12)}</td></tr>
-          <tr><td>Vacancy</td><td>(${fmt(monthlyVacancy)})</td><td>(${fmt(monthlyVacancy*12)})</td></tr>
-          <tr><td>Net Rent</td><td>${fmt(monthlyNetRent)}</td><td>${fmt(monthlyNetRent*12)}</td></tr>
-          <tr><th colspan="3">Expenses</th></tr>
-          <tr><td>Management Fee</td><td>(${fmt(monthlyManagementFee)})</td><td>(${fmt(monthlyManagementFee*12)})</td></tr>
-          <tr><td>Maintenance</td><td>(${fmt(monthlyMaintenanceFee)})</td><td>(${fmt(monthlyMaintenanceFee*12)})</td></tr>
-          <tr><td>Property Tax</td><td>(${fmt(monthlyTaxes)})</td><td>(${fmt(taxesVal)})</td></tr>
-          <tr><td>Insurance</td><td>(${fmt(monthlyInsurance)})</td><td>(${fmt(insVal)})</td></tr>
-          <tr><td>HOA</td><td>(${fmt(monthlyHOA)})</td><td>(${fmt(monthlyHOA*12)})</td></tr>
-          <tr><th>NOI</th><th>${fmt(monthlyNOI)}</th><th>${fmt(monthlyNOI*12)}</th></tr>
-          <tr><td>Mortgage</td><td>(${fmt(monthlyMortgage)})</td><td>(${fmt(annualDebt)})</td></tr>
-          <tr class="highlight-positive"><td>Cash Flow</td><td>${fmt(monthlyCashFlow)}</td><td>${fmt(yearly[0])}</td></tr>
-        </table>
-      `;
+      const exitRows = [
+        ['Projected sale price', currency(r.salePrice)],
+        ['Selling costs', currency(-r.sellingCosts)],
+        ['Loan payoff', currency(-r.debtBalanceAtSale)],
+        ['Net sale proceeds', currency(r.netSaleProceeds)],
+        ['Final-year cash flow', currency(r.annualProjection.finalYearCashFlow)],
+        ['Total exit-year cash', currency(r.leveredExitCash)],
+        ['Appreciation gain', currency(equityCreated)]
+      ];
+      el('exitSummaryBody').innerHTML = exitRows.map(([label, value]) => `<tr><td>${label}</td><td>${value}</td></tr>`).join('');
 
-      document.getElementById('table').innerHTML = `
-        <table>
-          <tr><th>Year</th><th>Gross</th><th>NOI</th><th>Cash Flow</th></tr>
-          ${rows.join('')}
-        </table>
-      `;
+      renderChart(r.annualProjection.annualCashFlows);
+    }
 
-      if(analysisChart){
-        analysisChart.destroy();
-      }
-
-      const ctx = document.getElementById('chart').getContext('2d');
-      const gradient1 = ctx.createLinearGradient(0, 0, 0, 360);
-      gradient1.addColorStop(0, 'rgba(37,99,235,0.18)');
-      gradient1.addColorStop(1, 'rgba(37,99,235,0.02)');
-
-      const gradient2 = ctx.createLinearGradient(0, 0, 0, 360);
-      gradient2.addColorStop(0, 'rgba(22,163,74,0.16)');
-      gradient2.addColorStop(1, 'rgba(22,163,74,0.02)');
-
-      analysisChart = new Chart(document.getElementById('chart'), {
+    function renderChart(annualCashFlows){
+      const labels = annualCashFlows.map((_, idx) => `Year ${idx + 1}`);
+      const cumulative = [];
+      annualCashFlows.reduce((sum, val, idx) => (cumulative[idx] = sum + val, sum + val), 0);
+      const ctx = el('cashFlowChart').getContext('2d');
+      if (appState.chart) appState.chart.destroy();
+      appState.chart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: yearly.map((_, i) => i + 1),
+          labels,
           datasets: [
-            {
-              label: 'Annual Cash Flow',
-              data: yearly,
-              borderColor: '#2563eb',
-              backgroundColor: gradient1,
-              borderWidth: 2.8,
-              tension: 0.34,
-              fill: true,
-              pointRadius: 3,
-              pointHoverRadius: 5
-            },
-            {
-              label: 'Cumulative Cash Flow',
-              data: cumulative,
-              borderColor: '#16a34a',
-              backgroundColor: gradient2,
-              borderWidth: 2.8,
-              tension: 0.34,
-              fill: true,
-              pointRadius: 3,
-              pointHoverRadius: 5
-            }
+            { label: 'Annual Cash Flow', data: annualCashFlows, tension: .25, borderWidth: 3 },
+            { label: 'Cumulative Cash Flow', data: cumulative, tension: .25, borderWidth: 3 }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          interaction: {
-            mode: 'index',
-            intersect: false
-          },
-          animation: {
-            duration: 900,
-            easing: 'easeOutQuart'
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            y: { ticks: { callback: value => `$${Number(value).toLocaleString()}` } }
           },
           plugins: {
-            legend: {
-              labels: {
-                color: '#526379',
-                usePointStyle: true,
-                boxWidth: 10,
-                boxHeight: 10,
-                padding: 18,
-                font: {
-                  size: 12,
-                  weight: '700'
-                }
-              }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(18,32,51,0.96)',
-              borderColor: 'rgba(255,255,255,0.08)',
-              borderWidth: 1,
-              titleColor: '#fff',
-              bodyColor: 'rgba(255,255,255,0.88)',
-              padding: 12,
-              callbacks: {
-                label: function(context){
-                  return `${context.dataset.label}: ${fmt(context.parsed.y)}`;
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { color: '#edf2f8' },
-              ticks: {
-                color: '#7f8ea3',
-                font: { weight: '700' }
-              }
-            },
-            y: {
-              grid: { color: '#edf2f8' },
-              ticks: {
-                color: '#7f8ea3',
-                callback: function(value){ return fmt(value); },
-                font: { weight: '700' }
-              }
-            }
+            legend: { position: 'top' },
+            tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${currency(ctx.parsed.y)}` } }
           }
         }
       });
-
-      renderPropertyMiniContext();
-      switchTab('results');
-      document.getElementById('summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    document.getElementById('enterAppBtn').addEventListener('click', ()=>{
-      playStartupChime();
-      const overlay = document.getElementById('welcomeOverlay');
-      overlay.classList.add('hide');
-      setTimeout(()=>{
-        overlay.style.display = 'none';
-      }, 560);
-    });
+    function buildNarrative(r, grade){
+      const cashFlowRead = r.cashFlowAnnual >= 0 ? `Year 1 cash flow is ${currency(r.cashFlowAnnual)}` : `Year 1 cash flow is negative at ${currency(r.cashFlowAnnual)}`;
+      const leverageRead = r.dscr >= 1.2 ? `coverage is acceptable at ${r.dscr.toFixed(2)}x DSCR` : `coverage is thin at ${r.dscr.toFixed(2)}x DSCR`;
+      return `${grade}. ${cashFlowRead}, cap rate is ${pct(r.capRate)}, cash-on-cash return is ${pct(r.coc)}, and leveraged IRR is ${pct(r.irr)} over ${Math.round(r.holdYears)} years. Break-even occupancy sits near ${pct(r.breakEvenOccupancy)}, while projected net sale proceeds are ${currency(r.netSaleProceeds)}. Overall, ${leverageRead}.`;
+    }
 
-    window.addEventListener('load', ()=>{
-      const saved = localStorage.getItem('investmentDeal');
-      if(saved){
-        setAllInputs(JSON.parse(saved));
+    function saveDeal(){
+      const deal = buildSerializableDeal();
+      const allDeals = JSON.parse(localStorage.getItem('realtyIqSavedDeals') || '[]');
+      const defaultName = (appState.importedProperty.address || 'Untitled deal') + ' · ' + new Date().toLocaleDateString();
+      const name = prompt('Save deal as:', defaultName);
+      if (!name) return;
+      deal.name = name;
+      deal.savedAt = new Date().toISOString();
+      allDeals.push(deal);
+      localStorage.setItem('realtyIqSavedDeals', JSON.stringify(allDeals));
+      autosaveCurrentState();
+      showToast(`Saved: ${name}`);
+    }
+
+    function loadDeal(){
+      const allDeals = JSON.parse(localStorage.getItem('realtyIqSavedDeals') || '[]');
+      if (!allDeals.length) {
+        showToast('No saved deals yet.');
+        return;
       }
-      setApiStatusPills();
-      renderPropertyResults(mockProperties);
-      updatePrimaryAction();
-    });
-
-    if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('sw.js');
+      const options = allDeals.map((deal, idx) => `${idx + 1}. ${deal.name}`).join('\n');
+      const selection = prompt(`Type the number of the deal to load:\n\n${options}`);
+      const index = Number(selection) - 1;
+      if (!Number.isInteger(index) || index < 0 || index >= allDeals.length) return;
+      hydrateDeal(allDeals[index]);
+      showToast(`Loaded: ${allDeals[index].name}`);
     }
+
+    function buildSerializableDeal(){
+      return {
+        importedProperty: appState.importedProperty,
+        importAudit: appState.importAudit,
+        inputs: collectInputs(),
+        lastResults: appState.lastResults,
+        rentConfirmed: appState.rentConfirmed,
+        rentNeedsConfirmation: appState.rentNeedsConfirmation,
+        importedRentValue: appState.importedRentValue
+      };
+    }
+
+    function hydrateDeal(deal){
+      appState.importedProperty = deal.importedProperty || emptyProperty();
+      appState.importAudit = deal.importAudit || [];
+      Object.entries(DEFAULTS).forEach(([key, fallback]) => {
+        const value = (deal.inputs && key in deal.inputs) ? deal.inputs[key] : fallback;
+        el(key).value = formatMaybeCurrency(key, value);
+      });
+      appState.rentConfirmed = Boolean(deal.rentConfirmed);
+      appState.rentNeedsConfirmation = Boolean(deal.rentNeedsConfirmation);
+      appState.importedRentValue = Number(deal.importedRentValue || 0);
+      updateImportAudit();
+      updatePropertyPreview();
+      updateMiniProperty();
+      updateRentReviewUI();
+      if (appState.importedProperty.sourceText) el('listingPaste').value = appState.importedProperty.sourceText;
+      appState.lastResults = deal.lastResults || null;
+      if (appState.lastResults) renderResults(appState.lastResults);
+      switchTab('inputs');
+      autosaveCurrentState();
+    }
+
+    function autosaveCurrentState(){
+      localStorage.setItem('realtyIqAutosave', JSON.stringify(buildSerializableDeal()));
+    }
+
+    function loadAutosave(){
+      const raw = localStorage.getItem('realtyIqAutosave');
+      if (!raw) return;
+      try {
+        const deal = JSON.parse(raw);
+        hydrateDeal(deal);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function showToast(message){
+      const toast = el('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    function currency(value){
+      const negative = value < 0;
+      const abs = Math.abs(Number(value || 0));
+      const formatted = '$' + abs.toLocaleString(undefined, { maximumFractionDigits: 0 });
+      return negative ? `(${formatted})` : formatted;
+    }
+
+    function formatNumber(value){
+      return Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
+    function stripTrailingZeroes(num){
+      const rounded = Number(num || 0);
+      return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2).replace(/\.00$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+    }
+
+    function pct(value){
+      return `${(Number(value || 0) * 100).toFixed(1)}%`;
+    }
+
+    function classForValue(value){
+      return value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral';
+    }
+
+    function clamp(v, min, max){ return Math.min(Math.max(v, min), max); }
+    function scale(v, inMin, inMax, outMin, outMax){
+      if (inMax === inMin) return outMin;
+      return outMin + ((v - inMin) * (outMax - outMin)) / (inMax - inMin);
+    }
+    function escapeHtml(str){
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    init();
   </script>
 </body>
 </html>
