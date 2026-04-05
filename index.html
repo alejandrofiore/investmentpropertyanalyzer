@@ -286,6 +286,133 @@
       box-shadow:0 10px 20px rgba(37,99,235,0.14);
     }
 
+  
+    .exit-summary-shell{
+      display:grid;
+      gap:14px;
+      margin-top:10px;
+    }
+
+    .exit-top-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+      gap:12px;
+    }
+
+    .exit-stat{
+      padding:16px;
+      border-radius:20px;
+      background:var(--surface-2);
+      border:1px solid var(--border);
+      min-height:108px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+
+    .exit-stat-label{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.10em;
+      color:var(--text-dim);
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .exit-stat-value{
+      font-size:26px;
+      font-weight:900;
+      letter-spacing:-0.04em;
+      line-height:1.05;
+      color:var(--text);
+    }
+
+    .exit-stat-sub{
+      color:var(--text-soft);
+      font-size:12px;
+      line-height:1.4;
+      margin-top:8px;
+    }
+
+    .exit-breakdown-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+
+    .exit-panel{
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:16px;
+      background:#fff;
+    }
+
+    .exit-panel-title{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:0.10em;
+      color:var(--text-dim);
+      font-weight:800;
+      margin-bottom:12px;
+    }
+
+    .exit-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .exit-row{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding-bottom:10px;
+      border-bottom:1px solid var(--border);
+    }
+
+    .exit-row:last-child{
+      padding-bottom:0;
+      border-bottom:none;
+    }
+
+    .exit-row-label{
+      color:var(--text-soft);
+      font-size:14px;
+      line-height:1.35;
+    }
+
+    .exit-row-value{
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+      white-space:nowrap;
+    }
+
+    .exit-row.highlight .exit-row-label,
+    .exit-row.highlight .exit-row-value{
+      color:var(--blue);
+    }
+
+    .exit-story{
+      padding:16px 18px;
+      border-radius:20px;
+      background:linear-gradient(180deg, #fbfdff, #f6f9fe);
+      border:1px solid var(--border);
+      color:var(--text-soft);
+      font-size:14px;
+      line-height:1.55;
+    }
+
+    .exit-story strong{
+      color:var(--text);
+    }
+
+    @media (max-width: 900px){
+      .exit-breakdown-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -525,13 +652,8 @@
 
         <div class="table-card" style="margin-top:16px;">
           <h3 class="results-section-title">Exit summary</h3>
-          <div class="results-section-subtitle">Projected sale, debt payoff, and equity at exit.</div>
-          <div class="table-container">
-            <table>
-              <thead><tr><th>Metric</th><th>Value</th></tr></thead>
-              <tbody id="exitSummaryBody"></tbody>
-            </table>
-          </div>
+          <div class="results-section-subtitle">A simple read of what you collect at sale and where the total return came from.</div>
+          <div class="exit-summary-shell" id="exitSummaryBody"></div>
         </div>
       </div>
     </section>
@@ -1637,16 +1759,85 @@
         </tr>
       `).join('');
 
-      const exitRows = [
-        ['Projected sale price', currency(r.salePrice)],
-        ['Selling costs', currency(-r.sellingCosts)],
-        ['Loan payoff', currency(-r.debtBalanceAtSale)],
-        ['Net sale proceeds', currency(r.netSaleProceeds)],
-        ['Final-year cash flow', currency(r.annualProjection.finalYearCashFlow)],
-        ['Total exit-year cash', currency(r.leveredExitCash)],
-        ['Appreciation gain', currency(equityCreated)]
-      ];
-      el('exitSummaryBody').innerHTML = exitRows.map(([label, value]) => `<tr><td>${label}</td><td>${value}</td></tr>`).join('');
+      const holdPeriodCashFlow = r.annualProjection.annualCashFlows.reduce((sum, value) => sum + value, 0);
+      const principalPaydown = Math.max(0, r.loanAmount - r.debtBalanceAtSale);
+      const totalProfit = r.netSaleProceeds + holdPeriodCashFlow - r.initialCash;
+      const equityMultiple = r.initialCash > 0 ? ((r.netSaleProceeds + holdPeriodCashFlow) / r.initialCash) : 0;
+
+      el('exitSummaryBody').innerHTML = `
+        <div class="exit-top-grid">
+          <div class="exit-stat">
+            <div class="exit-stat-label">Net cash from sale</div>
+            <div class="exit-stat-value ${classForValue(r.netSaleProceeds)}">${currency(r.netSaleProceeds)}</div>
+            <div class="exit-stat-sub">Sale price minus selling costs and remaining loan payoff.</div>
+          </div>
+          <div class="exit-stat">
+            <div class="exit-stat-label">Hold-period cash flow</div>
+            <div class="exit-stat-value ${classForValue(holdPeriodCashFlow)}">${currency(holdPeriodCashFlow)}</div>
+            <div class="exit-stat-sub">Total cash flow collected during the hold period.</div>
+          </div>
+          <div class="exit-stat">
+            <div class="exit-stat-label">Total profit</div>
+            <div class="exit-stat-value ${classForValue(totalProfit)}">${currency(totalProfit)}</div>
+            <div class="exit-stat-sub">Net sale proceeds plus hold cash flow minus your initial cash in.</div>
+          </div>
+          <div class="exit-stat">
+            <div class="exit-stat-label">Equity multiple</div>
+            <div class="exit-stat-value ${equityMultiple >= 1 ? 'positive' : 'negative'}">${equityMultiple.toFixed(2)}x</div>
+            <div class="exit-stat-sub">Total cash returned divided by initial cash invested.</div>
+          </div>
+        </div>
+
+        <div class="exit-breakdown-grid">
+          <div class="exit-panel">
+            <div class="exit-panel-title">What happens when you sell</div>
+            <div class="exit-list">
+              <div class="exit-row">
+                <div class="exit-row-label">Projected sale price</div>
+                <div class="exit-row-value">${currency(r.salePrice)}</div>
+              </div>
+              <div class="exit-row">
+                <div class="exit-row-label">Selling costs</div>
+                <div class="exit-row-value ${classForValue(-r.sellingCosts)}">${currency(-r.sellingCosts)}</div>
+              </div>
+              <div class="exit-row">
+                <div class="exit-row-label">Remaining loan payoff</div>
+                <div class="exit-row-value ${classForValue(-r.debtBalanceAtSale)}">${currency(-r.debtBalanceAtSale)}</div>
+              </div>
+              <div class="exit-row highlight">
+                <div class="exit-row-label">Net sale proceeds</div>
+                <div class="exit-row-value">${currency(r.netSaleProceeds)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="exit-panel">
+            <div class="exit-panel-title">Where your return came from</div>
+            <div class="exit-list">
+              <div class="exit-row">
+                <div class="exit-row-label">Appreciation</div>
+                <div class="exit-row-value ${classForValue(equityCreated)}">${currency(equityCreated)}</div>
+              </div>
+              <div class="exit-row">
+                <div class="exit-row-label">Principal paydown</div>
+                <div class="exit-row-value ${classForValue(principalPaydown)}">${currency(principalPaydown)}</div>
+              </div>
+              <div class="exit-row">
+                <div class="exit-row-label">Hold-period cash flow</div>
+                <div class="exit-row-value ${classForValue(holdPeriodCashFlow)}">${currency(holdPeriodCashFlow)}</div>
+              </div>
+              <div class="exit-row highlight">
+                <div class="exit-row-label">Total profit</div>
+                <div class="exit-row-value">${currency(totalProfit)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exit-story">
+          <strong>How to read this:</strong> if you sell in year ${Math.round(r.holdYears)}, the app first estimates what you keep from the sale after selling costs and debt payoff. Then it shows the three main drivers of return: market appreciation, mortgage principal paid down over time, and cash flow collected while you held the property.
+        </div>
+      `;
 
       renderChart(r.annualProjection.annualCashFlows);
     }
