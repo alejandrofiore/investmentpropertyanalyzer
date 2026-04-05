@@ -450,7 +450,7 @@
             <div class="input-field"><label for="vacancyPct">Vacancy %</label><input id="vacancyPct" inputmode="decimal"><div class="field-helper">Default 0% (set your own if using a manager).</div></div>
             <div class="input-field"><label for="managementPct">Management %</label><input id="managementPct" inputmode="decimal"><div class="field-helper">Percent of collected rent.</div></div>
             <div class="input-field review-field" id="propertyTaxField"><label for="propertyTaxAnnual">Property tax (annual)</label><input id="propertyTaxAnnual" inputmode="decimal"><div class="review-actions"><button type="button" class="btn confirm-btn hidden" id="confirmTaxBtn">Confirm Tax</button><div class="review-badge" id="taxReviewBadge">Awaiting import</div></div><div class="field-helper" id="propertyTaxHelper">Property tax defaults to Purchase Price × 80% × 2% and must be confirmed or changed before analysis.</div></div>
-            <div class="input-field"><label for="insuranceAnnual">Insurance (annual)</label><input id="insuranceAnnual" inputmode="decimal"><div class="field-helper">Imported from pasted text if available; otherwise enter manually.</div></div>
+            <div class="input-field"><label for="insuranceAnnual">Insurance (annual)</label><input id="insuranceAnnual" inputmode="decimal"><div class="field-helper">Imported from pasted text if available; otherwise defaults to 0.40% of purchase price.</div></div>
             <div class="input-field"><label for="maintenancePct">Maintenance %</label><input id="maintenancePct" inputmode="decimal"><div class="field-helper">Default 0% (set your own if using a manager).</div></div>
             <div class="input-field"><label for="capexPct">CapEx reserve %</label><input id="capexPct" inputmode="decimal"><div class="field-helper">Optional reserve for large future replacements. Default is 0.</div></div>
             <div class="input-field"><label for="hoaMonthly">HOA (monthly)</label><input id="hoaMonthly" inputmode="decimal"><div class="field-helper">Imported if HOA is present.</div></div>
@@ -957,8 +957,10 @@
 
       if (property.insuranceAnnual) {
         el('insuranceAnnual').value = formatNumber(property.insuranceAnnual);
+      } else if (property.price) {
+        el('insuranceAnnual').value = formatNumber(Math.round(property.price * 0.004));
       } else {
-        el('insuranceAnnual').value = '';
+        el('insuranceAnnual').value = formatNumber(0);
       }
 
       formatAllInputs();
@@ -1040,6 +1042,9 @@
         el('propertyTaxAnnual').value = formatNumber(estimatedTax);
         appState.importedTaxValue = estimatedTax;
         updateTaxReviewUI();
+      }
+      if (!appState.importedProperty.insuranceAnnual) {
+        el('insuranceAnnual').value = formatNumber(Math.round(price * 0.004));
       }
     }
 
